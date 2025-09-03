@@ -19,7 +19,8 @@ This document provides a comprehensive analysis of the Keen-S AI agent orchestra
 
 ---
 
-EOF
+
+:da
 
 # Function to safely extract file content with error handling
 extract_file_content() {

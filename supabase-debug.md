@@ -1,0 +1,239 @@
+# Supabase Debug Info
+Generated on: Wed Sep  3 22:06:08 IDT 2025
+
+## Package.json (Supabase version)
+```json
+{
+  "name": "keens",
+  "version": "1.0.0",
+  "description": "Autonomous development with conscious evolution - keen-s-a",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "keens": "./bin/keen.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/api/server.js",
+    "dev": "tsx watch src/api/server.ts",
+    "dev:cli": "npm run build && node bin/keen.js",
+    "test": "jest --coverage --silent",
+    "test:unit": "jest --testPathPattern=tests/unit --silent",
+    "test:integration": "jest --config jest.integration.config.js --silent",
+    "test:security": "jest --testPathPattern=tests/security --config jest.integration.config.js --silent",
+    "test:performance": "jest --testPathPattern=tests/performance --config jest.integration.config.js --silent",
+    "test:api": "jest --testPathPattern=tests/api --silent",
+    "test:cli": "npm run build && node bin/keen.js --help",
+    "build:client": "cd client && npm run build",
+    "db:migrate": "supabase db reset",
+    "deploy:vercel": "cd client && vercel --prod",
+    "deploy:railway": "railway up",
+    "validate": "npm run build && npm run test:unit",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "bcrypt": "^5.1.1",
+    "chalk": "^5.3.0",
+    "claude": "^0.1.2",
+    "commander": "^11.1.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "decimal.js": "^10.4.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "express-slow-down": "^1.6.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "uuid": "^9.0.1",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/express-slow-down": "^1.3.5",
+    "@types/jest": "^29.5.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.8.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/supertest": "^2.0.16",
+    "@types/uuid": "^9.0.6",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "eslint": "^8.51.0",
+    "jest": "^29.7.0",
+    "jest-html-reporters": "^3.1.7",
+    "prettier": "^3.0.3",
+    "supabase": "^1.226.4",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.1",
+    "tsx": "^3.14.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "autonomous",
+    "development",
+    "supabase",
+    "real-time",
+    "cloud-native",
+    "anthropic",
+    "claude",
+    "agent",
+    "recursive",
+    "keen-s-a",
+    "evolution",
+    "consciousness"
+  ]
+}
+```
+
+## Supabase Configuration
+```toml
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
+project_id = "keen-s-a-local"
+
+[api]
+enabled = true
+# Port to use for the API URL.
+port = 54321
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
+# endpoints. public and storage are always included.
+schemas = ["public", "graphql_public"]
+# Extra schemas to add to the search_path of every request. public is always included.
+extra_search_path = ["public", "extensions"]
+# The maximum number of rows returns from a table operation. Limits payload size.
+max_rows = 1000
+
+[db]
+# Port to use for the local database URL.
+port = 5432
+# Port used by db diff command to initialize the shadow database.
+shadow_port = 54320
+# The database major version to use.
+major_version = 15
+# List of seed files to run after applying migrations. Defaults to nothing.
+# seed_files = ["./supabase/seed.sql"]
+
+[studio]
+enabled = true
+# Port to use for Supabase Studio.
+port = 54323
+# External URL of the API server that frontend connects to.
+api_url = "http://localhost:54321"
+
+# Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
+# are monitored, and you can view the emails that would have been sent from the web interface.
+[inbucket]
+enabled = true
+# Port to use for the email testing server web interface.
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
+# in emails.
+site_url = "http://localhost:3001"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = ["https://localhost:3001"]
+# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604800 (1 week).
+jwt_expiry = 3600
+# If disabled, the refresh token will never expire.
+refresh_token_rotation_enabled = true
+# Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
+# Requires refresh_token_rotation_enabled to be false.
+# refresh_token_reuse_interval = 10
+# Allow/disallow new user signups to your project.
+enable_signup = true
+# Allow/disallow anonymous sign-ins to your project.
+enable_anonymous_sign_ins = false
+
+[auth.email]
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# If enabled, a user will be required to confirm any email change on both the old, and new email
+# addresses. If disabled, only the new email is required to confirm.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = true
+
+# Uncomment to customize email template
+# [auth.email.template.invite]
+# subject = "You have been invited"
+# content_path = "./supabase/templates/invite.html"
+
+[auth.sms]
+# Allow/disallow new user signups via SMS to your project.
+enable_signup = true
+# If enabled, users need to confirm their phone number before signing in.
+enable_confirmations = true
+
+# Configure one of the supported SMS providers: `twilio`, `messagebird`, `textlocal`, `vonage`.
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+
+# Use pre-defined map of phone number to OTP for testing.
+[auth.sms.test_otp]
+# 4152127777 = "123456"
+
+# Configure one of the supported OAuth providers: `apple`, `azure`, `bitbucket`,
+# `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin`, `notion`, `twitch`,
+# `twitter`, `slack`, `spotify`, `workos`, `zoom`.
+[auth.external.apple]
+enabled = false
+client_id = ""
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[analytics]
+enabled = false
+port = 54327
+vector_port = 54328
+# Configure one of the supported backends: `postgres`, `bigquery`.
+backend = "postgres"
+```
+
+## System & Process Info
+```
+Node.js: v18.19.1
+Docker: Docker version 27.5.1, build 27.5.1-0ubuntu3~24.04.2
+Supabase CLI: Not available
+
+Running Docker containers:
+Docker not running or no permission
+
+Supabase processes:
+No Supabase processes
+```
+
