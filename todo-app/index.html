@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple TODO App - keen Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Simple TODO App</h1>
+            <p class="subtitle">Built for the keen Autonomous Development Platform</p>
+        </header>
+        
+        <div class="todo-input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="todoInput" 
+                    placeholder="Enter a new todo item..."
+                    maxlength="200"
+                >
+                <button id="addBtn" class="add-btn">Add Todo</button>
+            </div>
+            <div class="stats">
+                <span id="totalCount">Total: 0</span>
+                <span id="completedCount">Completed: 0</span>
+                <span id="pendingCount">Pending: 0</span>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <button class="clear-btn" id="clearCompleted">Clear Completed</button>
+        </div>
+
+        <ul id="todoList" class="todo-list">
+            <!-- Dynamic todo items will be inserted here -->
+        </ul>
+        
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">✨</div>
+            <h3>No todos yet!</h3>
+            <p>Add your first todo item above to get started.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Created by keen Autonomous Development Platform | Phase 3.1</p>
+    </footer>
+    
+    <script src="app.js"></script>
+</body>
+</html>
