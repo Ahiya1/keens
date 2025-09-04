@@ -98,7 +98,7 @@ export class WebSocketDAO {
   ): Promise<boolean> {
     const result = await this.db.query(
       `
-      UPDATE websocket_connections 
+      UPDATE websocket_connections
       SET last_ping_at = NOW(), updated_at = NOW()
       WHERE connection_id = $1 AND connection_status = 'active'
       RETURNING id
@@ -119,8 +119,8 @@ export class WebSocketDAO {
   ): Promise<boolean> {
     const result = await this.db.query(
       `
-      UPDATE websocket_connections 
-      SET connection_status = 'closed', 
+      UPDATE websocket_connections
+      SET connection_status = 'closed',
           disconnected_at = NOW(),
           updated_at = NOW()
       WHERE connection_id = $1 AND connection_status IN ('active', 'inactive')
@@ -142,7 +142,7 @@ export class WebSocketDAO {
   ): Promise<WebSocketConnection[]> {
     const connections = await this.db.query<WebSocketConnection>(
       `
-      SELECT * FROM websocket_connections 
+      SELECT * FROM websocket_connections
       WHERE user_id = $1 AND connection_status = 'active'
       ORDER BY connected_at DESC
       `,
@@ -165,7 +165,7 @@ export class WebSocketDAO {
 
     const connections = await this.db.query<WebSocketConnection>(
       `
-      SELECT * FROM websocket_connections 
+      SELECT * FROM websocket_connections
       WHERE connection_status = 'active'
       ORDER BY connected_at DESC
       `,
@@ -185,7 +185,7 @@ export class WebSocketDAO {
   ): Promise<WebSocketConnection[]> {
     const connections = await this.db.query<WebSocketConnection>(
       `
-      SELECT * FROM websocket_connections 
+      SELECT * FROM websocket_connections
       WHERE session_id = $1 AND connection_status = 'active'
       ORDER BY connected_at DESC
       `,
@@ -207,7 +207,7 @@ export class WebSocketDAO {
   ): Promise<boolean> {
     const result = await this.db.query(
       `
-      UPDATE websocket_connections 
+      UPDATE websocket_connections
       SET subscribed_events = $1,
           session_filters = $2,
           updated_at = NOW()
@@ -239,7 +239,7 @@ export class WebSocketDAO {
 
     const [metrics] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COUNT(*) as total_connections,
         COUNT(*) FILTER (WHERE connection_status = 'active') as active_connections,
         COALESCE(AVG(EXTRACT(EPOCH FROM (COALESCE(disconnected_at, NOW()) - connected_at))), 0) as avg_duration
@@ -252,7 +252,7 @@ export class WebSocketDAO {
 
     const connectionsByType = await this.db.query(
       `
-      SELECT 
+      SELECT
         client_type,
         COUNT(*) as count
       FROM websocket_connections
@@ -265,7 +265,7 @@ export class WebSocketDAO {
 
     const topUsers = await this.db.query(
       `
-      SELECT 
+      SELECT
         user_id,
         COUNT(*) as connection_count,
         COALESCE(AVG(EXTRACT(EPOCH FROM (COALESCE(disconnected_at, NOW()) - connected_at))), 0) as total_duration
@@ -322,7 +322,7 @@ export class WebSocketDAO {
 
     const result = await this.db.query(
       `
-      UPDATE websocket_connections 
+      UPDATE websocket_connections
       SET connection_status = 'inactive',
           disconnected_at = NOW(),
           updated_at = NOW()
@@ -362,7 +362,7 @@ export class WebSocketDAO {
     context?: UserContext
   ): Promise<WebSocketConnection[]> {
     let query = `
-      SELECT * FROM websocket_connections 
+      SELECT * FROM websocket_connections
       WHERE connection_status = 'active'
         AND ($1 = ANY(subscribed_events) OR 'all' = ANY(subscribed_events))
     `;

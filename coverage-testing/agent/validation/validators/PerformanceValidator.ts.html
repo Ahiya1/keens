@@ -693,20 +693,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1334,7 +1334,7 @@ interface PerformanceOptions {
 &nbsp;
 export class PerformanceValidator {
   private options: PerformanceOptions;
-  
+&nbsp;
   constructor(options: PerformanceOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
     this.options = {
       silentMode: true,
@@ -1342,7 +1342,7 @@ export class PerformanceValidator {
       ...options
     };
   }
-  
+&nbsp;
   /**
    * Analyze project performance
    */
@@ -1350,42 +1350,42 @@ export class PerformanceValidator {
     const bottlenecks: PerformanceBottleneck[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const optimizations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const metrics: PerformanceMetric[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // 1. Bundle size analysis
       const bundleAnalysis = <span class="cstat-no" title="statement not covered" >await this.analyzeBundleSize(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      bottlenecks.push(...bundleAnalysis.bottlenecks);</span>
 <span class="cstat-no" title="statement not covered" >      optimizations.push(...bundleAnalysis.optimizations);</span>
 <span class="cstat-no" title="statement not covered" >      metrics.push(...bundleAnalysis.metrics);</span>
-      
+&nbsp;
       // 2. Code complexity analysis
       const complexityAnalysis = <span class="cstat-no" title="statement not covered" >await this.analyzeCodeComplexity(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      bottlenecks.push(...complexityAnalysis.bottlenecks);</span>
 <span class="cstat-no" title="statement not covered" >      optimizations.push(...complexityAnalysis.optimizations);</span>
 <span class="cstat-no" title="statement not covered" >      metrics.push(...complexityAnalysis.metrics);</span>
-      
+&nbsp;
       // 3. Dependency analysis
       const depAnalysis = <span class="cstat-no" title="statement not covered" >await this.analyzeDependencies(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      bottlenecks.push(...depAnalysis.bottlenecks);</span>
 <span class="cstat-no" title="statement not covered" >      optimizations.push(...depAnalysis.optimizations);</span>
 <span class="cstat-no" title="statement not covered" >      metrics.push(...depAnalysis.metrics);</span>
-      
+&nbsp;
       // 4. Build performance
       const buildAnalysis = <span class="cstat-no" title="statement not covered" >await this.analyzeBuildPerformance(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      bottlenecks.push(...buildAnalysis.bottlenecks);</span>
 <span class="cstat-no" title="statement not covered" >      optimizations.push(...buildAnalysis.optimizations);</span>
 <span class="cstat-no" title="statement not covered" >      metrics.push(...buildAnalysis.metrics);</span>
-      
+&nbsp;
       // Calculate overall score
       const score = <span class="cstat-no" title="statement not covered" >this.calculatePerformanceScore(bottlenecks, metrics);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         score,
         bottlenecks,
         optimizations: [...new Set(optimizations)], // Remove duplicates
         metrics
       };
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      return {</span>
         score: 70, // Neutral score when analysis fails
@@ -1400,7 +1400,7 @@ export class PerformanceValidator {
       };
     }
   }
-  
+&nbsp;
   /**
    * Analyze bundle size and build output
    */
@@ -1412,12 +1412,12 @@ export class PerformanceValidator {
     const bottlenecks: PerformanceBottleneck[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const optimizations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const metrics: PerformanceMetric[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Check if there's a build directory
       const buildDirs = <span class="cstat-no" title="statement not covered" >['dist', 'build', 'out'];</span>
       let buildDir = <span class="cstat-no" title="statement not covered" >'';</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const dir of buildDirs) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const dirPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, dir);</span>
@@ -1430,11 +1430,11 @@ export class PerformanceValidator {
           // Directory doesn't exist, continue
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (buildDir) {</span>
         const buildSize = <span class="cstat-no" title="statement not covered" >await this.calculateDirectorySize(buildDir);</span>
         const buildSizeMB = <span class="cstat-no" title="statement not covered" >buildSize / (1024 * 1024);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        metrics.push({</span>
           name: 'build_size',
           value: buildSizeMB,
@@ -1442,7 +1442,7 @@ export class PerformanceValidator {
           threshold: 5,
           status: buildSizeMB &gt; 10 ? 'critical' : buildSizeMB &gt; 5 ? 'warning' : 'good',
         });
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (buildSizeMB &gt; 10) {</span>
 <span class="cstat-no" title="statement not covered" >          bottlenecks.push({</span>
             type: 'large_bundle_size',
@@ -1453,7 +1453,7 @@ export class PerformanceValidator {
 <span class="cstat-no" title="statement not covered" >          optimizations.push('Implement code splitting and lazy loading');</span>
 <span class="cstat-no" title="statement not covered" >          optimizations.push('Analyze bundle with webpack-bundle-analyzer');</span>
         }
-        
+&nbsp;
         // Check for large individual files
         const largeFiles = <span class="cstat-no" title="statement not covered" >await this.findLargeFiles(buildDir, 1024 * 1024);</span> // 1MB threshold
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (largeFiles.length &gt; 0) {</span>
@@ -1465,17 +1465,17 @@ export class PerformanceValidator {
           });
         }
       }
-      
+&nbsp;
       // Check package.json for bundle optimization settings
 <span class="cstat-no" title="statement not covered" >      await this.checkBundleOptimization(projectPath, bottlenecks, optimizations);</span>
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      optimizations.push('Set up build size monitoring');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { bottlenecks, optimizations, metrics };</span>
   }
-  
+&nbsp;
   /**
    * Analyze code complexity
    */
@@ -1487,23 +1487,23 @@ export class PerformanceValidator {
     const bottlenecks: PerformanceBottleneck[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const optimizations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const metrics: PerformanceMetric[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Find source files
       const sourceFiles = <span class="cstat-no" title="statement not covered" >await this.findSourceFiles(projectPath);</span>
       let totalComplexity = <span class="cstat-no" title="statement not covered" >0;</span>
       let totalLines = <span class="cstat-no" title="statement not covered" >0;</span>
       let complexFunctions = <span class="cstat-no" title="statement not covered" >0;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const file of sourceFiles.slice(0, 20)) { // Limit for performance</span>
         const analysis = <span class="cstat-no" title="statement not covered" >await this.analyzeFileComplexity(file);</span>
 <span class="cstat-no" title="statement not covered" >        totalComplexity += analysis.complexity;</span>
 <span class="cstat-no" title="statement not covered" >        totalLines += analysis.lines;</span>
 <span class="cstat-no" title="statement not covered" >        complexFunctions += analysis.complexFunctions;</span>
       }
-      
+&nbsp;
       const avgComplexity = <span class="cstat-no" title="statement not covered" >sourceFiles.length &gt; 0 ? totalComplexity / sourceFiles.length : 0;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      metrics.push({</span>
         name: 'average_complexity',
         value: avgComplexity,
@@ -1511,7 +1511,7 @@ export class PerformanceValidator {
         threshold: 10,
         status: avgComplexity &gt; 15 ? 'critical' : avgComplexity &gt; 10 ? 'warning' : 'good',
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (avgComplexity &gt; 10) {</span>
 <span class="cstat-no" title="statement not covered" >        bottlenecks.push({</span>
           type: 'high_complexity',
@@ -1522,7 +1522,7 @@ export class PerformanceValidator {
 <span class="cstat-no" title="statement not covered" >        optimizations.push('Break down complex functions into smaller ones');</span>
 <span class="cstat-no" title="statement not covered" >        optimizations.push('Use design patterns to reduce complexity');</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (complexFunctions &gt; 5) {</span>
 <span class="cstat-no" title="statement not covered" >        bottlenecks.push({</span>
           type: 'complex_functions',
@@ -1531,14 +1531,14 @@ export class PerformanceValidator {
           recommendation: 'Refactor complex functions for better maintainability',
         });
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      optimizations.push('Consider using complexity analysis tools like plato or jscpd');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { bottlenecks, optimizations, metrics };</span>
   }
-  
+&nbsp;
   /**
    * Analyze dependencies for performance impact
    */
@@ -1550,17 +1550,17 @@ export class PerformanceValidator {
     const bottlenecks: PerformanceBottleneck[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const optimizations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const metrics: PerformanceMetric[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
       const packageContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(packagePath, 'utf8');</span>
       const packageJson = <span class="cstat-no" title="statement not covered" >JSON.parse(packageContent);</span>
-      
+&nbsp;
       const dependencies = <span class="cstat-no" title="statement not covered" >packageJson.dependencies || {};</span>
       const devDependencies = <span class="cstat-no" title="statement not covered" >packageJson.devDependencies || {};</span>
-      
+&nbsp;
       const totalDeps = <span class="cstat-no" title="statement not covered" >Object.keys(dependencies).length + Object.keys(devDependencies).length;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      metrics.push({</span>
         name: 'total_dependencies',
         value: totalDeps,
@@ -1568,7 +1568,7 @@ export class PerformanceValidator {
         threshold: 50,
         status: totalDeps &gt; 100 ? 'critical' : totalDeps &gt; 50 ? 'warning' : 'good',
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (totalDeps &gt; 50) {</span>
 <span class="cstat-no" title="statement not covered" >        bottlenecks.push({</span>
           type: 'many_dependencies',
@@ -1578,11 +1578,11 @@ export class PerformanceValidator {
         });
 <span class="cstat-no" title="statement not covered" >        optimizations.push('Run "npm audit" and "npx depcheck" to find unused dependencies');</span>
       }
-      
+&nbsp;
       // Check for known heavy dependencies
       const heavyDeps = <span class="cstat-no" title="statement not covered" >['lodash', 'moment', 'core-js', 'babel-polyfill'];</span>
       const foundHeavyDeps = <span class="cstat-no" title="statement not covered" >heavyDeps.filter(<span class="fstat-no" title="function not covered" >dep </span>=&gt; <span class="cstat-no" title="statement not covered" >dependencies[dep])</span>;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (foundHeavyDeps.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >        bottlenecks.push({</span>
           type: 'heavy_dependencies',
@@ -1592,20 +1592,20 @@ export class PerformanceValidator {
         });
 <span class="cstat-no" title="statement not covered" >        optimizations.push('Replace heavy dependencies with lighter alternatives');</span>
       }
-      
+&nbsp;
       // Check for duplicate functionality
       const httpLibs = <span class="cstat-no" title="statement not covered" >['axios', 'request', 'node-fetch', 'got'].filter(<span class="fstat-no" title="function not covered" >lib </span>=&gt; <span class="cstat-no" title="statement not covered" >dependencies[lib])</span>;</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (httpLibs.length &gt; 1) {</span>
 <span class="cstat-no" title="statement not covered" >        optimizations.push(`Multiple HTTP libraries found (${httpLibs.join(', ')}) - consider standardizing on one`);</span>
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      optimizations.push('Analyze package.json for dependency optimization opportunities');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { bottlenecks, optimizations, metrics };</span>
   }
-  
+&nbsp;
   /**
    * Analyze build performance
    */
@@ -1617,26 +1617,26 @@ export class PerformanceValidator {
     const bottlenecks: PerformanceBottleneck[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const optimizations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const metrics: PerformanceMetric[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Try to run a build and measure time
       const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
       const packageContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(packagePath, 'utf8');</span>
       const packageJson = <span class="cstat-no" title="statement not covered" >JSON.parse(packageContent);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (packageJson.scripts &amp;&amp; packageJson.scripts.build) {</span>
         const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const silentFlag = <span class="cstat-no" title="statement not covered" >this.options.silentMode ? ' --silent' : '';</span>
 <span class="cstat-no" title="statement not covered" >          await execAsync(`cd "${projectPath}" &amp;&amp; npm run build${silentFlag}`, {</span>
             timeout: this.options.timeout,
             maxBuffer: 1024 * 1024,
           });
-          
+&nbsp;
           const buildTime = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
           const buildTimeSeconds = <span class="cstat-no" title="statement not covered" >buildTime / 1000;</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          metrics.push({</span>
             name: 'build_time',
             value: buildTimeSeconds,
@@ -1644,7 +1644,7 @@ export class PerformanceValidator {
             threshold: 60,
             status: buildTimeSeconds &gt; 120 ? 'critical' : buildTimeSeconds &gt; 60 ? 'warning' : 'good',
           });
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (buildTimeSeconds &gt; 60) {</span>
 <span class="cstat-no" title="statement not covered" >            bottlenecks.push({</span>
               type: 'slow_build',
@@ -1655,7 +1655,7 @@ export class PerformanceValidator {
 <span class="cstat-no" title="statement not covered" >            optimizations.push('Implement build caching');</span>
 <span class="cstat-no" title="statement not covered" >            optimizations.push('Use parallel processing for build tasks');</span>
           }
-          
+&nbsp;
         } catch (buildError: any) {
 <span class="cstat-no" title="statement not covered" >          if (buildError.message.includes('timeout')) {</span>
 <span class="cstat-no" title="statement not covered" >            bottlenecks.push({</span>
@@ -1671,26 +1671,26 @@ export class PerformanceValidator {
       } else {
 <span class="cstat-no" title="statement not covered" >        optimizations.push('Add build script to package.json for performance monitoring');</span>
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      optimizations.push('Set up build performance monitoring');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { bottlenecks, optimizations, metrics };</span>
   }
-  
+&nbsp;
   /**
    * Calculate directory size recursively
    */
   private <span class="fstat-no" title="function not covered" >async </span>calculateDirectorySize(dirPath: string): Promise&lt;number&gt; {
     let totalSize = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const items = <span class="cstat-no" title="statement not covered" >await fs.readdir(dirPath, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const item of items) {</span>
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dirPath, item.name);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (item.isDirectory()) {</span>
 <span class="cstat-no" title="statement not covered" >          totalSize += await this.calculateDirectorySize(fullPath);</span>
         } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (item.isFile()) {</span>
@@ -1701,22 +1701,22 @@ export class PerformanceValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return totalSize;</span>
   }
-  
+&nbsp;
   /**
    * Find large files in directory
    */
   private <span class="fstat-no" title="function not covered" >async </span>findLargeFiles(dirPath: string, threshold: number): Promise&lt;string[]&gt; {
     const largeFiles: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const items = <span class="cstat-no" title="statement not covered" >await fs.readdir(dirPath, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const item of items) {</span>
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dirPath, item.name);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (item.isDirectory()) {</span>
           const subFiles = <span class="cstat-no" title="statement not covered" >await this.findLargeFiles(fullPath, threshold);</span>
 <span class="cstat-no" title="statement not covered" >          largeFiles.push(...subFiles);</span>
@@ -1730,21 +1730,21 @@ export class PerformanceValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return largeFiles;</span>
   }
-  
+&nbsp;
   /**
    * Find source files
    */
   private <span class="fstat-no" title="function not covered" >async </span>findSourceFiles(projectPath: string): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const extensions = <span class="cstat-no" title="statement not covered" >['.ts', '.js', '.tsx', '.jsx'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const srcDir = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'src');</span>
       const srcExists = <span class="cstat-no" title="statement not covered" >await fs.access(srcDir).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (srcExists) {</span>
         const srcFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(srcDir, extensions);</span>
 <span class="cstat-no" title="statement not covered" >        files.push(...srcFiles);</span>
@@ -1752,26 +1752,26 @@ export class PerformanceValidator {
     } catch (error) {
       // Return empty array if src directory scanning fails
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Recursively find files with specific extensions
    */
   private <span class="fstat-no" title="function not covered" >async </span>findFilesRecursive(dir: string, extensions: string[]): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const items = <span class="cstat-no" title="statement not covered" >await fs.readdir(dir, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const item of items) {</span>
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dir, item.name);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (item.name.startsWith('.') || item.name === 'node_modules') {</span>
 <span class="cstat-no" title="statement not covered" >          continue;</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (item.isDirectory()) {</span>
           const subFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(fullPath, extensions);</span>
 <span class="cstat-no" title="statement not covered" >          files.push(...subFiles);</span>
@@ -1785,10 +1785,10 @@ export class PerformanceValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Analyze file complexity
    */
@@ -1800,26 +1800,26 @@ export class PerformanceValidator {
     let complexity = <span class="cstat-no" title="statement not covered" >0;</span>
     let lines = <span class="cstat-no" title="statement not covered" >0;</span>
     let complexFunctions = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
       const codeLines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
 <span class="cstat-no" title="statement not covered" >      lines = codeLines.length;</span>
-      
+&nbsp;
       // Simple complexity calculation based on control structures
 <span class="cstat-no" title="statement not covered" >      for (const line of codeLines) {</span>
         const trimmedLine = <span class="cstat-no" title="statement not covered" >line.trim();</span>
-        
+&nbsp;
         // Count decision points
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (trimmedLine.match(/\b(if|else|while|for|switch|case|catch|&amp;&amp;|\|\|)\b/)) {</span>
 <span class="cstat-no" title="statement not covered" >          complexity++;</span>
         }
-        
+&nbsp;
         // Count nested structures
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (trimmedLine.match(/\{.*\{|\(.*\(/)) {</span>
 <span class="cstat-no" title="statement not covered" >          complexity++;</span>
         }
-        
+&nbsp;
         // Identify potentially complex functions
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (trimmedLine.includes('function') || trimmedLine.match(/=&gt;.*\{/)) {</span>
           const functionComplexity = <span class="cstat-no" title="statement not covered" >this.calculateLineComplexity(line);</span>
@@ -1828,32 +1828,32 @@ export class PerformanceValidator {
           }
         }
       }
-      
+&nbsp;
     } catch (error) {
       // Return default values if file can't be read
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { complexity, lines, complexFunctions };</span>
   }
-  
+&nbsp;
   /**
    * Calculate complexity of a single line
    */
   private <span class="fstat-no" title="function not covered" >calculateLineComplexity(</span>line: string): number {
     let complexity = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
     // Count complexity indicators
     const indicators = <span class="cstat-no" title="statement not covered" >[/\bif\b/, /\belse\b/, /\bwhile\b/, /\bfor\b/, /&amp;&amp;/, /\|\|/, /\?.*:/];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const indicator of indicators) {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(indicator)) {</span>
 <span class="cstat-no" title="statement not covered" >        complexity++;</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return complexity;</span>
   }
-  
+&nbsp;
   /**
    * Check for bundle optimization settings
    */
@@ -1866,12 +1866,12 @@ export class PerformanceValidator {
       // Check webpack config
       const webpackConfigs = <span class="cstat-no" title="statement not covered" >['webpack.config.js', 'webpack.prod.js', 'webpack.production.js'];</span>
       let hasWebpackOptimization = <span class="cstat-no" title="statement not covered" >false;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const configFile of webpackConfigs) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const configPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, configFile);</span>
           const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(configPath, 'utf8');</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (content.includes('optimization') || content.includes('TerserPlugin') || content.includes('minimize')) {</span>
 <span class="cstat-no" title="statement not covered" >            hasWebpackOptimization = true;</span>
 <span class="cstat-no" title="statement not covered" >            break;</span>
@@ -1880,28 +1880,28 @@ export class PerformanceValidator {
           // Config file doesn't exist, continue
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!hasWebpackOptimization) {</span>
 <span class="cstat-no" title="statement not covered" >        optimizations.push('Configure webpack optimization settings for production builds');</span>
       }
-      
+&nbsp;
       // Check for Next.js optimization
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const nextConfigPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'next.config.js');</span>
         const nextContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(nextConfigPath, 'utf8');</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!nextContent.includes('compress') &amp;&amp; !nextContent.includes('optimize')) {</span>
 <span class="cstat-no" title="statement not covered" >          optimizations.push('Configure Next.js optimization settings');</span>
         }
       } catch (error) {
         // Next.js config doesn't exist, that's fine
       }
-      
+&nbsp;
     } catch (error) {
       // Bundle optimization check failed
     }
   }
-  
+&nbsp;
   /**
    * Calculate overall performance score
    */
@@ -1910,7 +1910,7 @@ export class PerformanceValidator {
     metrics: PerformanceMetric[],
   ): number {
     let score = <span class="cstat-no" title="statement not covered" >100;</span>
-    
+&nbsp;
     // Deduct points for bottlenecks
 <span class="cstat-no" title="statement not covered" >    for (const bottleneck of bottlenecks) {</span>
 <span class="cstat-no" title="statement not covered" >      switch (bottleneck.severity) {</span>
@@ -1928,7 +1928,7 @@ export class PerformanceValidator {
 <span class="cstat-no" title="statement not covered" >          break;</span>
       }
     }
-    
+&nbsp;
     // Adjust score based on metrics
 <span class="cstat-no" title="statement not covered" >    for (const metric of metrics) {</span>
 <span class="cstat-no" title="statement not covered" >      if (metric.status === 'critical') {</span>
@@ -1937,7 +1937,7 @@ export class PerformanceValidator {
 <span class="cstat-no" title="statement not covered" >        score -= 5;</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.max(0, Math.min(100, score));</span>
   }
 }
@@ -1948,7 +1948,7 @@ export class PerformanceValidator {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

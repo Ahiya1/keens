@@ -262,11 +262,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -462,18 +462,18 @@ import chalk from 'chalk';
 &nbsp;
 export class ValidateProjectTool {
   private validationEngine: ValidationEngine;
-  
+&nbsp;
   constructor() {
     this.validationEngine = new ValidationEngine({
       enableAutoFix: true,
       qualityThreshold: 0.8,
     });
   }
-  
+&nbsp;
   getDescription(): string {
     return 'Execute comprehensive project validation and quality checks';
   }
-  
+&nbsp;
   getInputSchema(): any {
     return {
       type: 'object',
@@ -511,7 +511,7 @@ export class ValidateProjectTool {
       required: [],
     };
   }
-  
+&nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>execute(parameters: any, context: any): Promise&lt;ValidationResult&gt; {
     const {
       validationType = <span class="branch-0 cbranch-no" title="branch not covered" >'full',</span>
@@ -520,13 +520,13 @@ export class ValidateProjectTool {
       fixIssues = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
       silentMode = <span class="branch-0 cbranch-no" title="branch not covered" >true</span>
     } = <span class="cstat-no" title="statement not covered" >parameters;</span>
-    
+&nbsp;
     const projectPath = <span class="cstat-no" title="statement not covered" >context.workingDirectory || process.cwd();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (context.verbose) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log(chalk.blue('🔍 Starting project validation...'));</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const validationOptions: ValidationOptions = <span class="cstat-no" title="statement not covered" >{</span>
         validationType,
@@ -536,17 +536,17 @@ export class ValidateProjectTool {
         silentMode,
         projectPath
       };
-      
+&nbsp;
       // Execute validation
       const result = <span class="cstat-no" title="statement not covered" >await this.validationEngine.validateProject(projectPath, validationOptions);</span>
-      
+&nbsp;
       // Display results
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!context.dryRun) {</span>
 <span class="cstat-no" title="statement not covered" >        this.displayValidationResults(result);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return result;</span>
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      console.error(chalk.red(`❌ Validation failed: ${error.message}`));</span>
 <span class="cstat-no" title="statement not covered" >      return {</span>
@@ -567,7 +567,7 @@ export class ValidateProjectTool {
       };
     }
   }
-  
+&nbsp;
   /**
    * Display validation results in a formatted way
    */
@@ -579,7 +579,7 @@ export class ValidateProjectTool {
 <span class="cstat-no" title="statement not covered" >    console.log(chalk.blue('\n📊 Validation Results'));</span>
 <span class="cstat-no" title="statement not covered" >    console.log(`${overallEmoji} Overall: ${result.overall.toUpperCase()}`);</span>
 <span class="cstat-no" title="statement not covered" >    console.log(`${scoreColor(`🎯 Score: ${result.score}/100`)}`);</span>
-    
+&nbsp;
     // Category results
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (Object.keys(result.categories).length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log(chalk.blue('\n📋 Category Results:'));</span>
@@ -589,24 +589,24 @@ export class ValidateProjectTool {
 <span class="cstat-no" title="statement not covered" >        console.log(`   ${categoryEmoji} ${category}: ${categoryScore}/100`);</span>
       }
     }
-    
+&nbsp;
     // Issues summary
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (result.issues.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log(chalk.blue('\n🚨 Issues Found:'));</span>
-      
+&nbsp;
       // Group issues by severity
       const issuesBySeverity = <span class="cstat-no" title="statement not covered" >result.issues.reduce(<span class="fstat-no" title="function not covered" >(a</span>cc, issue) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        acc[issue.severity] = (acc[issue.severity] || 0) + 1;</span>
 <span class="cstat-no" title="statement not covered" >        return acc;</span>
       }, {} as Record&lt;string, number&gt;);
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const [severity, count] of Object.entries(issuesBySeverity)) {</span>
-        const severityColor = <span class="cstat-no" title="statement not covered" >severity === 'critical' ? chalk.red : </span>
+        const severityColor = <span class="cstat-no" title="statement not covered" >severity === 'critical' ? chalk.red :</span>
                               severity === 'high' ? chalk.red :
                               severity === 'medium' ? chalk.yellow : chalk.gray;
 <span class="cstat-no" title="statement not covered" >        console.log(`   ${severityColor(`${severity.toUpperCase()}: ${count}`)}`);</span>
       }
-      
+&nbsp;
       // Show first few issues
       const displayIssues = <span class="cstat-no" title="statement not covered" >result.issues.slice(0, 5);</span>
 <span class="cstat-no" title="statement not covered" >      console.log(chalk.blue('\n📝 Sample Issues:'));</span>
@@ -619,12 +619,12 @@ export class ValidateProjectTool {
 <span class="cstat-no" title="statement not covered" >          console.log(`      📁 ${issue.file}:${issue.line}`);</span>
         }
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (result.issues.length &gt; 5) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log(chalk.gray(`   ... and ${result.issues.length - 5} more issues`));</span>
       }
     }
-    
+&nbsp;
     // Auto-fixes applied
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (result.autoFixApplied.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log(chalk.blue('\n🔧 Auto-fixes Applied:'));</span>
@@ -635,7 +635,7 @@ export class ValidateProjectTool {
 <span class="cstat-no" title="statement not covered" >        console.log(chalk.gray(`   ... and ${result.autoFixApplied.length - 3} more fixes`));</span>
       }
     }
-    
+&nbsp;
     // Suggestions
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (result.suggestions.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log(chalk.blue('\n💡 Suggestions:'));</span>
@@ -652,7 +652,7 @@ export class ValidateProjectTool {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -53,7 +53,7 @@ export class MigrationRunner {
 
       for (const migration of migrations) {
         console.log(`🛠️ Executing migration: ${migration.filename}`);
-        
+
         await this.db.transaction(async (transaction) => {
           await transaction.query(migration.content);
         });
@@ -74,7 +74,7 @@ export class MigrationRunner {
   async checkMigrationStatus(): Promise<boolean> {
     try {
       console.log("🔍 Checking migration status...");
-      
+
       // Simple check - verify database connection
       const connected = await this.db.testConnection();
       if (!connected) {

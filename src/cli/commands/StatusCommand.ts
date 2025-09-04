@@ -19,11 +19,11 @@ export class StatusCommand {
         try {
           // Initialize auth manager to load stored auth state
           await cliAuth.initialize();
-          
+
           const isAuthenticated = cliAuth.isAuthenticated();
           const currentUser = cliAuth.getCurrentUser();
           const userContext = await cliAuth.getCurrentUserContext();
-          
+
           if (options.json) {
             // JSON output
             const status: any = {
@@ -50,14 +50,14 @@ export class StatusCommand {
 
           // Human-readable output
           console.log(chalk.blue("\n🔍 Authentication Status"));
-          
+
           // Authentication Status
           if (isAuthenticated && currentUser) {
             console.log(chalk.green(`✅ Authenticated as: ${currentUser.username} (${currentUser.email})`));
-            
+
             if (currentUser.isAdmin) {
               console.log(chalk.yellow(`🔑 Admin user with elevated privileges`));
-              
+
               if (options.verbose && currentUser.adminPrivileges) {
                 const privileges = currentUser.adminPrivileges;
                 console.log(chalk.gray("   Admin privileges:"));
@@ -88,7 +88,7 @@ export class StatusCommand {
             console.log(chalk.gray(`   Node.js: ${process.version}`));
             console.log(chalk.gray(`   Platform: ${process.platform} ${process.arch}`));
             console.log(chalk.gray(`   Working directory: ${process.cwd()}`));
-            
+
             // Check database connectivity if authenticated
             if (isAuthenticated) {
               try {
@@ -105,7 +105,7 @@ export class StatusCommand {
                 }
               }
             }
-            
+
             // Empty line
             console.log("");
           }

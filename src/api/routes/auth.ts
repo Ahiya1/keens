@@ -155,7 +155,7 @@ export function createAuthRouter(
       }
 
       const { refresh_token } = req.body;
-      
+
       // Refresh access token
       const result = await authService.refreshAccessToken(refresh_token);
 
@@ -176,7 +176,7 @@ export function createAuthRouter(
     authMiddleware,
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
-      
+
       // TODO: Implement token revocation
       // For now, just log the logout
       await auditLogger.logAdminAction({
@@ -260,7 +260,7 @@ export function createAuthRouter(
     authMiddleware,
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
-      
+
       const apiKeys = await authService.listAPIKeys(user.id, {
         userId: user.id,
         isAdmin: user.is_admin || false,
@@ -288,7 +288,7 @@ export function createAuthRouter(
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
       const keyId = req.params.keyId;
-      
+
       const revoked = await authService.revokeAPIKey(user.id, keyId, {
         userId: user.id,
         isAdmin: user.is_admin || false,
@@ -330,7 +330,7 @@ export function createAuthRouter(
     authMiddleware,
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
-      
+
       res.status(200).json({
         success: true,
         user: {
@@ -377,7 +377,7 @@ export function createAuthRouter(
 
       // Verify admin password
       const isValid = await keenDB.users.verifyAdminUser(user.email!, password);
-      
+
       if (!isValid) {
         await auditLogger.logSecurityEvent({
           type: 'admin_privilege_escalation',
@@ -388,7 +388,7 @@ export function createAuthRouter(
             email: user.email,
           }
         });
-        
+
         res.status(401).json({
           success: false,
           error: {

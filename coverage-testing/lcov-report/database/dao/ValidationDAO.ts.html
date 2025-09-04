@@ -462,7 +462,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -828,16 +828,16 @@ interface QualityGateRecord {
 &nbsp;
 export class ValidationDAO {
   private db: DatabaseManager;
-  
+&nbsp;
   constructor(db: DatabaseManager) {
     this.db = db;
   }
-  
+&nbsp;
   /**
    * Store validation result
    */
   async storeValidationResult(
-    sessionId: string, 
+    sessionId: string,
     validationResult: ValidationResult,
   ): Promise&lt;string&gt; {
     const query = `
@@ -848,7 +848,7 @@ export class ValidationDAO {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING id
     `;
-    
+&nbsp;
     const values = [
       sessionId,
       'full', // Default validation type
@@ -860,30 +860,30 @@ export class ValidationDAO {
       JSON.stringify(validationResult.suggestions),
       validationResult.executionTime
     ];
-    
+&nbsp;
     const result = await this.db.query(query, values);
     const validationId = (result as any).rows?.[0]?.id;
-    
+&nbsp;
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!validationId) {
 <span class="cstat-no" title="statement not covered" >      throw new Error('Failed to create validation result');</span>
     }
-    
+&nbsp;
     // Store individual issues
     if (validationResult.issues &amp;&amp; validationResult.issues.length &gt; 0) {
       await this.storeValidationIssues(validationId, validationResult.issues);
     }
-    
+&nbsp;
     // Store individual fixes
     <span class="missing-if-branch" title="if path not taken" >I</span>if (validationResult.autoFixApplied &amp;&amp; validationResult.autoFixApplied.length &gt; 0) {
 <span class="cstat-no" title="statement not covered" >      await this.storeAutoFixes(sessionId, validationId, validationResult.autoFixApplied);</span>
     }
-    
+&nbsp;
     // Update session validation status
     await this.updateSessionValidationStatus(sessionId, validationResult);
-    
+&nbsp;
     return validationId;
   }
-  
+&nbsp;
   /**
    * Store quality gate evaluation
    */
@@ -899,7 +899,7 @@ export class ValidationDAO {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id
     `;
-    
+&nbsp;
     const values = [
       sessionId,
       phase,
@@ -910,71 +910,71 @@ export class ValidationDAO {
       JSON.stringify(gateResult.evaluations),
       JSON.stringify(gateResult.recommendations)
     ];
-    
+&nbsp;
     const result = await this.db.query(query, values);
     return (result as any).rows?.[0]?.id || '';
   }
-  
+&nbsp;
   /**
    * Get validation results for a session
    */
   async getValidationResults(sessionId: string): Promise&lt;ValidationResultRecord[]&gt; {
     const query = `
-      SELECT * FROM validation_results 
-      WHERE session_id = $1 
+      SELECT * FROM validation_results
+      WHERE session_id = $1
       ORDER BY created_at DESC
     `;
-    
+&nbsp;
     const result = await this.db.query(query, [sessionId]);
     return ((result as any).rows || <span class="branch-1 cbranch-no" title="branch not covered" >[])</span>.map((row: any) =&gt; this.mapValidationResultRecord(row));
   }
-  
+&nbsp;
   /**
    * Get latest validation result for a session
    */
   async getLatestValidationResult(sessionId: string): Promise&lt;ValidationResultRecord | null&gt; {
     const query = `
-      SELECT * FROM validation_results 
-      WHERE session_id = $1 
-      ORDER BY created_at DESC 
+      SELECT * FROM validation_results
+      WHERE session_id = $1
+      ORDER BY created_at DESC
       LIMIT 1
     `;
-    
+&nbsp;
     const result = await this.db.query(query, [sessionId]);
     const rows = (result as any).rows || <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
     return rows.length &gt; 0 ? this.mapValidationResultRecord(rows[0]) : null;
   }
-  
+&nbsp;
   /**
    * Get quality gate evaluations for a session
    */
   async getQualityGateEvaluations(sessionId: string): Promise&lt;QualityGateRecord[]&gt; {
     const query = `
-      SELECT * FROM quality_gate_evaluations 
-      WHERE session_id = $1 
+      SELECT * FROM quality_gate_evaluations
+      WHERE session_id = $1
       ORDER BY created_at ASC
     `;
-    
+&nbsp;
     const result = await this.db.query(query, [sessionId]);
     return ((result as any).rows || <span class="branch-1 cbranch-no" title="branch not covered" >[])</span>.map((row: any) =&gt; this.mapQualityGateRecord(row));
   }
-  
+&nbsp;
   /**
    * Get quality gate evaluation for specific phase
    */
   async getQualityGateForPhase(sessionId: string, phase: string): Promise&lt;QualityGateRecord | null&gt; {
     const query = `
-      SELECT * FROM quality_gate_evaluations 
-      WHERE session_id = $1 AND phase = $2 
-      ORDER BY created_at DESC 
+      SELECT * FROM quality_gate_evaluations
+      WHERE session_id = $1 AND phase = $2
+      ORDER BY created_at DESC
       LIMIT 1
     `;
-    
+&nbsp;
     const result = await this.db.query(query, [sessionId, phase]);
     const rows = (result as any).rows || <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
     return rows.length &gt; 0 ? this.mapQualityGateRecord(rows[0]) : <span class="branch-1 cbranch-no" title="branch not covered" >null;</span>
   }
-  
+&nbsp;
   /**
    * Get validation statistics for a session
    */
@@ -988,22 +988,22 @@ export class ValidationDAO {
   }&gt; {
     // Simplified implementation to avoid complex queries
     const validationResults = await this.getValidationResults(sessionId);
-    
+&nbsp;
     const totalValidations = validationResults.length;
     const passedValidations = validationResults.filter(r =&gt; r.overall_status === 'pass').length;
     const latestScore = validationResults.length &gt; 0 ? validationResults[0].score : 0;
-    
+&nbsp;
     // Count issues
     let totalIssues = 0;
     let criticalIssues = 0;
     let autoFixesApplied = 0;
-    
+&nbsp;
     for (const result of validationResults) {
       totalIssues += result.issues?.length || <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
       criticalIssues += result.issues?.filter(<span class="fstat-no" title="function not covered" >(i</span>: any) =&gt; <span class="cstat-no" title="statement not covered" >i.severity === 'critical')</span>?.length || <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
 <span class="cstat-no" title="statement not covered" >      autoFixesApplied += result.auto_fixes_applied?.length || 0;</span>
     }
-    
+&nbsp;
     return {
       totalValidations,
       passedValidations,
@@ -1013,13 +1013,13 @@ export class ValidationDAO {
       autoFixesApplied
     };
   }
-  
+&nbsp;
   /**
    * Store individual validation issues
    */
   private async storeValidationIssues(validationResultId: string, issues: ValidationIssue[]): Promise&lt;void&gt; {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!issues || issues.length === 0) <span class="cstat-no" title="statement not covered" >return;</span>
-    
+&nbsp;
     const query = `
       INSERT INTO validation_issues (
         validation_result_id, issue_type, severity, category,
@@ -1027,7 +1027,7 @@ export class ValidationDAO {
         auto_fixable, suggestion
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `;
-    
+&nbsp;
     for (const issue of issues) {
       const values = [
         validationResultId,
@@ -1041,21 +1041,21 @@ export class ValidationDAO {
         issue.autoFixable || <span class="branch-1 cbranch-no" title="branch not covered" >false,</span>
         issue.suggestion || <span class="branch-1 cbranch-no" title="branch not covered" >null</span>
       ];
-      
+&nbsp;
       await this.db.query(query, values);
     }
   }
-  
+&nbsp;
   /**
    * Store auto-fixes
    */
   private <span class="fstat-no" title="function not covered" >async </span>storeAutoFixes(
-    sessionId: string, 
-    validationResultId: string, 
+    sessionId: string,
+    validationResultId: string,
     fixes: ValidationFix[],
   ): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!fixes || fixes.length === 0) <span class="cstat-no" title="statement not covered" >return;</span></span>
-    
+&nbsp;
     const query = <span class="cstat-no" title="statement not covered" >`</span>
       INSERT INTO auto_fixes (
         session_id, validation_result_id, issue_type, file_path,
@@ -1063,7 +1063,7 @@ export class ValidationDAO {
         success
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     `;
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const fix of fixes) {</span>
       const values = <span class="cstat-no" title="statement not covered" >[</span>
         sessionId,
@@ -1076,35 +1076,35 @@ export class ValidationDAO {
         fix.after || null,
         fix.applied || false
       ];
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      await this.db.query(query, values);</span>
     }
   }
-  
+&nbsp;
   /**
    * Update session validation status
    */
   private async updateSessionValidationStatus(
-    sessionId: string, 
+    sessionId: string,
     validationResult: ValidationResult,
   ): Promise&lt;void&gt; {
     const query = `
-      UPDATE agent_sessions 
-      SET 
+      UPDATE agent_sessions
+      SET
         validation_status = $2,
         quality_score = $3,
         validation_count = COALESCE(validation_count, 0) + 1,
         last_validation_at = NOW()
       WHERE id = $1
     `;
-    
+&nbsp;
     await this.db.query(query, [
       sessionId,
       validationResult.overall,
       validationResult.score
     ]);
   }
-  
+&nbsp;
   /**
    * Map database row to ValidationResultRecord
    */
@@ -1123,7 +1123,7 @@ export class ValidationDAO {
       created_at: new Date(row.created_at),
     };
   }
-  
+&nbsp;
   /**
    * Map database row to QualityGateRecord
    */
@@ -1141,7 +1141,7 @@ export class ValidationDAO {
       created_at: new Date(row.created_at),
     };
   }
-  
+&nbsp;
   /**
    * Infer validation category from issue type
    */
@@ -1162,7 +1162,7 @@ export class ValidationDAO {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

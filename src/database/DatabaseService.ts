@@ -20,7 +20,7 @@ export class DatabaseService {
 
   constructor() {
     this.dbManager = new DatabaseManager();
-    
+
     // Initialize all DAOs with the database manager
     this.users = new UserDAO(this.dbManager);
     this.credits = new CreditDAO(this.dbManager);
@@ -73,7 +73,7 @@ export class DatabaseService {
     if (process.env.NODE_ENV !== 'test') {
       throw new Error('Raw query execution is only allowed in test environment');
     }
-    
+
     return await this.dbManager.query(query, params);
   }
 

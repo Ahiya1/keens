@@ -556,25 +556,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1063,14 +1063,14 @@ export class ToolManager {
   // 🌟 NEW: Agent tree manager for recursive spawning
   private agentTreeManager?: AgentTreeManager;
   private logger = getLogger();
-  
+&nbsp;
   constructor(options: ToolManagerOptions) {
     this.options = options;
     this.userContext = options.userContext;
     this.agentTreeManager = options.agentTreeManager;
     this.initializeTools();
   }
-  
+&nbsp;
   /**
    * Initialize all available tools with user context and Phase 3.3 support
    * UPDATED: Added Phase 3.3 recursive spawning tools
@@ -1085,72 +1085,72 @@ export class ToolManager {
     this.tools.set('write_files', new WriteFilesTool());
     this.tools.set('delete_files', new DeleteFilesTool()); // NEW: File deletion tool
     this.tools.set('run_command', new RunCommandTool());
-    
+&nbsp;
     // Web &amp; Information Tools
     // REMOVED: Web search tool - now handled by Anthropic API directly
     // The agents will configure web search as part of their Claude API calls
-    
+&nbsp;
     // Git Tools
     this.tools.set('git', new GitTool());
-    
+&nbsp;
     // Validation Tools (with database integration)
     this.tools.set('validate_project', new ValidateProjectTool());
-    
+&nbsp;
     // Autonomy Tools (may need database access for logging)
     this.tools.set('report_phase', new ReportPhaseTool());
     this.tools.set('continue_work', new ContinueWorkTool());
     this.tools.set('report_complete', new ReportCompleteTool());
-    
+&nbsp;
     // 🌟 NEW: Phase 3.3 Recursive Agent Spawning Tools
     if (this.agentTreeManager) {
       this.tools.set('summon_agent', new SummonAgentTool());
       this.tools.set('coordinate_agents', new CoordinateAgentsTool());
       this.tools.set('get_agent_status', new GetAgentStatusTool());
-      
+&nbsp;
       <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {
 <span class="cstat-no" title="statement not covered" >        this.logger.debug('toolmgr', 'Phase 3.3 recursive spawning tools enabled');</span>
       }
     } else <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {
 <span class="cstat-no" title="statement not covered" >      this.logger.debug('toolmgr', 'Phase 3.3 recursive spawning not available (no AgentTreeManager)');</span>
     }
-    
+&nbsp;
     <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {
       // SECURITY: Only log authentication status, not sensitive user data
-      const authInfo = <span class="cstat-no" title="statement not covered" >this.userContext ? </span>
-        '(authenticated user)' : 
+      const authInfo = <span class="cstat-no" title="statement not covered" >this.userContext ?</span>
+        '(authenticated user)' :
         '(no user context)';
       const webSearchNote = <span class="cstat-no" title="statement not covered" >this.options.enableWebSearch ? ' + Anthropic web search' : '';</span>
       const treeManagerNote = <span class="cstat-no" title="statement not covered" >this.agentTreeManager ? ' + recursive spawning' : '';</span>
 <span class="cstat-no" title="statement not covered" >      this.logger.debug('toolmgr', `Initialized ${this.tools.size} tools ${authInfo}${webSearchNote}${treeManagerNote}`);</span>
     }
   }
-  
+&nbsp;
   /**
    * Set agent tree manager (for late initialization)
    */
 <span class="fstat-no" title="function not covered" >  setAgentTreeManager(</span>agentTreeManager: AgentTreeManager): void {
 <span class="cstat-no" title="statement not covered" >    this.agentTreeManager = agentTreeManager;</span>
 <span class="cstat-no" title="statement not covered" >    this.options.agentTreeManager = agentTreeManager;</span>
-    
+&nbsp;
     // Add Phase 3.3 tools if not already present
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.tools.has('summon_agent')) {</span>
 <span class="cstat-no" title="statement not covered" >      this.tools.set('summon_agent', new SummonAgentTool());</span>
 <span class="cstat-no" title="statement not covered" >      this.tools.set('coordinate_agents', new CoordinateAgentsTool());</span>
 <span class="cstat-no" title="statement not covered" >      this.tools.set('get_agent_status', new GetAgentStatusTool());</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
 <span class="cstat-no" title="statement not covered" >        this.logger.debug('toolmgr', 'Added Phase 3.3 tools after AgentTreeManager initialization');</span>
       }
     }
   }
-  
+&nbsp;
   /**
    * Get all tool schemas for Claude
    * NOTE: Web search is not included here as it's handled by Anthropic API directly
    */
   getToolSchemas(): ToolSchema[] {
     const schemas: ToolSchema[] = [];
-    
+&nbsp;
     for (const [name, tool] of this.tools) {
       schemas.push({
         name,
@@ -1158,10 +1158,10 @@ export class ToolManager {
         input_schema: tool.getInputSchema(),
       });
     }
-    
+&nbsp;
     return schemas;
   }
-  
+&nbsp;
   /**
    * Get tool descriptions for system prompt
    * UPDATED: Includes note about web search being available through Anthropic API
@@ -1170,14 +1170,14 @@ export class ToolManager {
    */
 <span class="fstat-no" title="function not covered" >  getToolDescriptions(</span>): { name: string; description: string }[] {
     const descriptions: { name: string; description: string }[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const [name, tool] of this.tools) {</span>
 <span class="cstat-no" title="statement not covered" >      descriptions.push({</span>
         name,
         description: tool.getDescription(),
       });
     }
-    
+&nbsp;
     // Add note about web search if enabled
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.options.enableWebSearch) {</span>
 <span class="cstat-no" title="statement not covered" >      descriptions.push({</span>
@@ -1185,27 +1185,27 @@ export class ToolManager {
         description: 'Search the web for current information, documentation, best practices, and troubleshooting guidance (handled by Anthropic API)',
       });
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return descriptions;</span>
   }
-  
+&nbsp;
   /**
    * Execute a tool with user context and Phase 3.3 support
    * SECURITY: Removed sensitive user data from debug logs
    */
 <span class="fstat-no" title="function not covered" >  async </span>executeTool(
-    toolName: string, 
-    parameters: any, 
+    toolName: string,
+    parameters: any,
     context: AgentExecutionContext,
   ): Promise&lt;any&gt; {
     const tool = <span class="cstat-no" title="statement not covered" >this.tools.get(toolName);</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!tool) {</span>
       // Special case: web search is no longer a local tool
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (toolName === 'web_search') {</span>
 <span class="cstat-no" title="statement not covered" >        throw new Error('web_search is no longer a local tool. It\'s handled by the Anthropic API directly. Claude will automatically use it when needed.');</span>
       }
-      
+&nbsp;
       // Special case: Phase 3.3 tools require AgentTreeManager
       const phase33Tools = <span class="cstat-no" title="statement not covered" >['summon_agent', 'coordinate_agents', 'get_agent_status'];</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (phase33Tools.includes(toolName)) {</span>
@@ -1214,26 +1214,26 @@ export class ToolManager {
           'Please ensure the agent session is initialized with recursive spawning support.'
         );
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      throw new Error(`Unknown tool: ${toolName}`);</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
       // SECURITY: Only log that user context exists, not the actual data
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.userContext) {</span>
 <span class="cstat-no" title="statement not covered" >        this.logger.debug('toolmgr', `Executing ${toolName} with user context`);</span>
       }
-      
+&nbsp;
       // Log Phase 3.3 context
       const phase33Tools = <span class="cstat-no" title="statement not covered" >['summon_agent', 'coordinate_agents', 'get_agent_status'];</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (phase33Tools.includes(toolName)) {</span>
 <span class="cstat-no" title="statement not covered" >        this.logger.debug('toolmgr', `Phase 3.3 tool execution: ${toolName}`);</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-      
+&nbsp;
       // 🎯 Enhanced execution context with user authentication and Phase 3.3 support
       const enhancedContext = <span class="cstat-no" title="statement not covered" >{</span>
         ...context,
@@ -1243,10 +1243,10 @@ export class ToolManager {
         },
         userContext: this.userContext, // Pass user context to tools
       };
-      
+&nbsp;
       const result = <span class="cstat-no" title="statement not covered" >await tool.execute(parameters, enhancedContext);</span>
       const duration = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
         // Log Phase 3.3 results
         const phase33Tools = <span class="cstat-no" title="statement not covered" >['summon_agent', 'coordinate_agents', 'get_agent_status'];</span>
@@ -1256,17 +1256,17 @@ export class ToolManager {
           }
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return result;</span>
     } catch (error: any) {
       // SECURITY: Use Logger instead of console.error
 <span class="cstat-no" title="statement not covered" >      this.logger.error('toolmgr', `Tool ${toolName} failed: ${error.message}`);</span>
-      
+&nbsp;
       // SECURITY: Only log authentication status in debug mode, not sensitive data
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.userContext &amp;&amp; process.env.DEBUG) {</span>
 <span class="cstat-no" title="statement not covered" >        this.logger.debug('toolmgr', 'User: authenticated');</span>
       }
-      
+&nbsp;
       // Log Phase 3.3 specific errors
       const phase33Tools = <span class="cstat-no" title="statement not covered" >['summon_agent', 'coordinate_agents', 'get_agent_status'];</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (phase33Tools.includes(toolName)) {</span>
@@ -1278,11 +1278,11 @@ export class ToolManager {
 <span class="cstat-no" title="statement not covered" >          this.logger.error('toolmgr', 'Sequential execution constraint violation');</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
   }
-  
+&nbsp;
   /**
    * Check if a tool is available
    * UPDATED: web_search is considered available if enabled in options
@@ -1292,30 +1292,30 @@ export class ToolManager {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (toolName === 'web_search') {
 <span class="cstat-no" title="statement not covered" >      return this.options.enableWebSearch || false;</span>
     }
-    
+&nbsp;
     // Phase 3.3 tools require AgentTreeManager
     const phase33Tools = ['summon_agent', 'coordinate_agents', 'get_agent_status'];
     if (phase33Tools.includes(toolName)) {
       return !!this.agentTreeManager &amp;&amp; this.tools.has(toolName);
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return this.tools.has(toolName);</span>
   }
-  
+&nbsp;
   /**
    * Get list of available tool names
    * UPDATED: includes web_search if enabled and Phase 3.3 tools if AgentTreeManager is available
    */
   getAvailableTools(): string[] {
     const tools = Array.from(this.tools.keys());
-    
+&nbsp;
     if (this.options.enableWebSearch) {
       tools.push('web_search');
     }
-    
+&nbsp;
     return tools;
   }
-  
+&nbsp;
   /**
    * Validate tool parameters against schema
    */
@@ -1328,28 +1328,28 @@ export class ToolManager {
       // Web search parameters are validated by Anthropic API
 <span class="cstat-no" title="statement not covered" >      return { valid: true, errors: [] };</span>
     }
-    
+&nbsp;
     // Special case: Phase 3.3 tools validation
     const phase33Tools = <span class="cstat-no" title="statement not covered" >['summon_agent', 'coordinate_agents', 'get_agent_status'];</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (phase33Tools.includes(toolName)) {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.agentTreeManager) {</span>
-<span class="cstat-no" title="statement not covered" >        return { </span>
-          valid: false, 
-          errors: [`${toolName} requires AgentTreeManager (Phase 3.3 recursive spawning not enabled)`] 
+<span class="cstat-no" title="statement not covered" >        return {</span>
+          valid: false,
+          errors: [`${toolName} requires AgentTreeManager (Phase 3.3 recursive spawning not enabled)`]
         };
       }
     }
-    
+&nbsp;
     const tool = <span class="cstat-no" title="statement not covered" >this.tools.get(toolName);</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!tool) {</span>
 <span class="cstat-no" title="statement not covered" >      return { valid: false, errors: [`Unknown tool: ${toolName}`] };</span>
     }
-    
+&nbsp;
     // Basic validation - in a full implementation, this would use JSON schema validation
     const schema = <span class="cstat-no" title="statement not covered" >tool.getInputSchema();</span>
     const errors: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (schema.required) {</span>
 <span class="cstat-no" title="statement not covered" >      for (const requiredField of schema.required) {</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!(requiredField in parameters)) {</span>
@@ -1357,39 +1357,39 @@ export class ToolManager {
         }
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return {</span>
       valid: errors.length === 0,
       errors
     };
   }
-  
+&nbsp;
   /**
    * Check if validation tools are available
    */
 <span class="fstat-no" title="function not covered" >  hasValidationCapabilities(</span>): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.hasTool('validate_project');</span>
   }
-  
+&nbsp;
   /**
    * Get validation-related tools
    */
 <span class="fstat-no" title="function not covered" >  getValidationTools(</span>): string[] {
-<span class="cstat-no" title="statement not covered" >    return this.getAvailableTools().filter(<span class="fstat-no" title="function not covered" >tool </span>=&gt; </span>
+<span class="cstat-no" title="statement not covered" >    return this.getAvailableTools().filter(<span class="fstat-no" title="function not covered" >tool </span>=&gt;</span>
 <span class="cstat-no" title="statement not covered" >      tool.includes('validate') || tool.includes('validation')</span>
     );
   }
-  
+&nbsp;
   /**
    * 🌟 NEW: Check if Phase 3.3 recursive spawning is enabled
    */
   hasRecursiveSpawning(): boolean {
-    return !!this.agentTreeManager &amp;&amp; 
-           this.hasTool('summon_agent') &amp;&amp; 
-           this.hasTool('coordinate_agents') &amp;&amp; 
+    return !!this.agentTreeManager &amp;&amp;
+           this.hasTool('summon_agent') &amp;&amp;
+           this.hasTool('coordinate_agents') &amp;&amp;
            this.hasTool('get_agent_status');
   }
-  
+&nbsp;
   /**
    * 🌟 NEW: Get Phase 3.3 recursive spawning tools
    */
@@ -1397,24 +1397,24 @@ export class ToolManager {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.hasRecursiveSpawning()) {
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
-    
+&nbsp;
     return ['summon_agent', 'coordinate_agents', 'get_agent_status'];
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Check if user has admin privileges
    */
 <span class="fstat-no" title="function not covered" >  isAdminUser(</span>): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.userContext?.isAdmin || false;</span>
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Get current user context
    */
 <span class="fstat-no" title="function not covered" >  getUserContext(</span>): UserContext | undefined {
 <span class="cstat-no" title="statement not covered" >    return this.userContext;</span>
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Get user ID (safely)
    * SECURITY: Returns undefined instead of actual user ID
@@ -1422,14 +1422,14 @@ export class ToolManager {
 <span class="fstat-no" title="function not covered" >  getUserId(</span>): string | undefined {
 <span class="cstat-no" title="statement not covered" >    return this.userContext?.userId ? '[REDACTED]' : undefined;</span>
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Check authentication status
    */
 <span class="fstat-no" title="function not covered" >  isAuthenticated(</span>): boolean {
 <span class="cstat-no" title="statement not covered" >    return !!this.userContext?.userId;</span>
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Get authentication summary for logging
    * SECURITY: Sanitized to not expose sensitive user information
@@ -1441,14 +1441,14 @@ export class ToolManager {
       isAdmin: this.isAdminUser(),
     };
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Check if web search is enabled
    */
   isWebSearchEnabled(): boolean {
     return this.options.enableWebSearch || false;
   }
-  
+&nbsp;
   /**
    * 🎯 NEW: Get web search configuration for Anthropic API
    */
@@ -1456,7 +1456,7 @@ export class ToolManager {
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.options.enableWebSearch) {</span>
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
-    
+&nbsp;
     // Return the web search tool configuration for Anthropic API
 <span class="cstat-no" title="statement not covered" >    return {</span>
       type: "web_search_20250305",
@@ -1464,14 +1464,14 @@ export class ToolManager {
       max_uses: 5, // Reasonable default to prevent excessive usage
     };
   }
-  
+&nbsp;
   /**
    * 🌟 NEW: Get current agent tree manager
    */
 <span class="fstat-no" title="function not covered" >  getAgentTreeManager(</span>): AgentTreeManager | undefined {
 <span class="cstat-no" title="statement not covered" >    return this.agentTreeManager;</span>
   }
-  
+&nbsp;
   /**
    * 🌟 NEW: Get Phase 3.3 capabilities summary
    */
@@ -1488,21 +1488,21 @@ export class ToolManager {
       canSpawn: !!this.agentTreeManager,
     };
   }
-  
+&nbsp;
   /**
    * 🗑️ NEW: Check if file operations are available
    */
 <span class="fstat-no" title="function not covered" >  hasFileOperations(</span>): boolean {
-<span class="cstat-no" title="statement not covered" >    return this.hasTool('read_files') &amp;&amp; </span>
-           this.hasTool('write_files') &amp;&amp; 
+<span class="cstat-no" title="statement not covered" >    return this.hasTool('read_files') &amp;&amp;</span>
+           this.hasTool('write_files') &amp;&amp;
            this.hasTool('delete_files');
   }
-  
+&nbsp;
   /**
    * 🗑️ NEW: Get file operation tools
    */
 <span class="fstat-no" title="function not covered" >  getFileOperationTools(</span>): string[] {
-<span class="cstat-no" title="statement not covered" >    return this.getAvailableTools().filter(<span class="fstat-no" title="function not covered" >tool </span>=&gt; </span>
+<span class="cstat-no" title="statement not covered" >    return this.getAvailableTools().filter(<span class="fstat-no" title="function not covered" >tool </span>=&gt;</span>
 <span class="cstat-no" title="statement not covered" >      ['read_files', 'write_files', 'delete_files', 'get_project_tree'].includes(tool)</span>
     );
   }
@@ -1513,7 +1513,7 @@ export class ToolManager {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

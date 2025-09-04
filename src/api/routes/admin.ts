@@ -57,11 +57,11 @@ export function createAdminRouter(
         include_users,
         include_costs
       } = req.query;
-      
+
       // Convert string query parameters to boolean - fix TypeScript comparison errors
       const includeUsers = String(include_users) === 'true';
       const includeCosts = String(include_costs) === 'true';
-      
+
       try {
         // Get credit system analytics
         const creditAnalytics = await creditGateway.getAdminAnalytics(
@@ -77,7 +77,7 @@ export function createAdminRouter(
         // Get system status
         const systemStatus = await keenDB.getSystemStatus();
         const connectionStats = await keenDB.getDatabaseManager().getConnectionStats();
-        
+
         // Get user statistics (if requested)
         let userStats = {};
         if (includeUsers) {
@@ -86,7 +86,7 @@ export function createAdminRouter(
             isAdmin: true,
             adminPrivileges: user.admin_privileges,
           });
-          
+
           userStats = {
             total_users: allUsers.total,
             active_users: allUsers.users.filter(u => u.account_status === 'active').length,
@@ -140,13 +140,13 @@ export function createAdminRouter(
             timestamp: new Date().toISOString(),
           }
         });
-        
+
         return res.status(200).json({
           success: true,
           generated_at: new Date().toISOString(),
           time_range: range,
           admin_user: user.email,
-          
+
           // System overview
           system: {
             platform_ready: systemStatus.platform.ready,
@@ -165,16 +165,16 @@ export function createAdminRouter(
               thinking_enabled: systemStatus.anthropic.thinking,
             }
           },
-          
+
           // User analytics
           users: includeUsers ? userStats : undefined,
-          
+
           // Session analytics
           sessions: sessionAnalytics,
-          
+
           // Agent analytics
           agents: agentAnalytics,
-          
+
           // Credit system analytics
           credits: includeCosts ? {
             revenue: creditAnalytics.revenue || {
@@ -196,7 +196,7 @@ export function createAdminRouter(
               admin_bypass_enabled: true,
             }
           } : undefined,
-          
+
           // Performance metrics
           performance: {
             api_requests_per_hour: 1247, // TODO: implement real metrics
@@ -204,7 +204,7 @@ export function createAdminRouter(
             error_rate_percent: 1.2,
             websocket_connections: 23,
           },
-          
+
           // Security overview
           security: {
             failed_login_attempts: 12,
@@ -213,7 +213,7 @@ export function createAdminRouter(
             high_risk_events: 3,
           }
         });
-        
+
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         await auditLogger.logError({
@@ -222,7 +222,7 @@ export function createAdminRouter(
           error: `Admin analytics failed: ${errorMessage}`,
           isAdmin: true,
         });
-        
+
         throw error;
       }
     })
@@ -260,7 +260,7 @@ export function createAdminRouter(
         limit = 100,
         offset = 0
       } = req.query;
-      
+
       const filters = {
         startDate: start_date ? new Date(start_date as string) : undefined,
         endDate: end_date ? new Date(end_date as string) : undefined,
@@ -273,7 +273,7 @@ export function createAdminRouter(
 
       try {
         const auditLogs = await auditLogger.getAuditLogs(user.id, filters);
-        
+
         // Log audit access
         await auditLogger.logAdminAction({
           adminUserId: user.id,
@@ -283,7 +283,7 @@ export function createAdminRouter(
             results_count: auditLogs.logs.length,
           }
         });
-        
+
         return res.status(200).json({
           success: true,
           audit_logs: auditLogs.logs,
@@ -301,7 +301,7 @@ export function createAdminRouter(
             export_available: true,
           }
         });
-        
+
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         await auditLogger.logError({
@@ -310,7 +310,7 @@ export function createAdminRouter(
           error: `Audit log access failed: ${errorMessage}`,
           isAdmin: true,
         });
-        
+
         throw error;
       }
     })
@@ -337,7 +337,7 @@ export function createAdminRouter(
         offset = 0,
         search
       } = req.query;
-      
+
       const users = await keenDB.users.listUsers(
         Number(limit),
         Number(offset),
@@ -360,7 +360,7 @@ export function createAdminRouter(
 
       if (search) {
         const searchLower = (search as string).toLowerCase();
-        filteredUsers = filteredUsers.filter(u => 
+        filteredUsers = filteredUsers.filter(u =>
           u.email.toLowerCase().includes(searchLower) ||
           u.username.toLowerCase().includes(searchLower) ||
           (u.display_name && u.display_name.toLowerCase().includes(searchLower))
@@ -376,7 +376,7 @@ export function createAdminRouter(
           results_count: filteredUsers.length,
         }
       });
-      
+
       return res.status(200).json({
         success: true,
         users: filteredUsers.map(u => ({
@@ -419,7 +419,7 @@ export function createAdminRouter(
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const adminUser = req.user!;
       const userId = req.params.userId;
-      
+
       const user = await keenDB.users.getUserById(
         userId,
         {
@@ -471,7 +471,7 @@ export function createAdminRouter(
           admin_access: true,
         }
       });
-      
+
       return res.status(200).json({
         success: true,
         user: {
@@ -515,11 +515,11 @@ export function createAdminRouter(
   router.get('/system/health',
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
-      
+
       try {
         const systemStatus = await keenDB.getSystemStatus();
         const connectionStats = await keenDB.getDatabaseManager().getConnectionStats();
-        
+
         // Test all major components
         const healthChecks = {
           database: {
@@ -549,7 +549,7 @@ export function createAdminRouter(
         const overallStatus = Object.values(healthChecks).every(check => check.status === 'healthy')
           ? 'healthy'
           : 'degraded';
-        
+
         // Log system health check
         await auditLogger.logAdminAction({
           adminUserId: user.id,
@@ -559,7 +559,7 @@ export function createAdminRouter(
             timestamp: new Date().toISOString(),
           }
         });
-        
+
         return res.status(overallStatus === 'healthy' ? 200 : 503).json({
           success: true,
           overall_status: overallStatus,
@@ -572,7 +572,7 @@ export function createAdminRouter(
             phase: 'Phase 2 - API Gateway',
           }
         });
-        
+
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         await auditLogger.logError({
@@ -581,7 +581,7 @@ export function createAdminRouter(
           error: `System health check failed: ${errorMessage}`,
           isAdmin: true,
         });
-        
+
         throw error;
       }
     })

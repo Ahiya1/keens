@@ -53,12 +53,12 @@ export class EnvLoader {
       for (const line of lines) {
         try {
           const trimmed = line.trim();
-          
+
           // Skip empty lines and comments
           if (!trimmed || trimmed.startsWith("#")) {
             continue;
           }
-          
+
           // Parse key=value pairs more robustly
           const equalIndex = trimmed.indexOf('=');
           if (equalIndex === -1) {
@@ -68,10 +68,10 @@ export class EnvLoader {
             }
             continue;
           }
-          
+
           const key = trimmed.substring(0, equalIndex).trim();
           const value = trimmed.substring(equalIndex + 1).trim();
-          
+
           // Validate key format
           if (!key || !this.isValidEnvKey(key)) {
             if (this.debug) {
@@ -79,14 +79,14 @@ export class EnvLoader {
             }
             continue;
           }
-          
+
           // Only set if not already set (don't override existing env vars)
           if (!process.env[key]) {
             // Remove surrounding quotes if present
             const cleanValue = this.cleanQuotes(value);
             process.env[key] = cleanValue;
           }
-          
+
         } catch (lineError) {
           // FIXED: Never crash on individual line parsing errors
           if (this.debug) {
@@ -103,7 +103,7 @@ export class EnvLoader {
       // Don't throw - just log and continue
     }
   }
-  
+
   /**
    * Validate environment variable key format
    */
@@ -111,22 +111,22 @@ export class EnvLoader {
     // Basic validation: alphanumeric and underscores, not starting with number
     return /^[A-Za-z_][A-Za-z0-9_]*$/.test(key);
   }
-  
+
   /**
    * Clean quotes from environment variable values
    */
   private static cleanQuotes(value: string): string {
     if (!value) return value;
-    
+
     // Remove matching quotes from start and end
-    if ((value.startsWith('"') && value.endsWith('"')) || 
+    if ((value.startsWith('"') && value.endsWith('"')) ||
         (value.startsWith("'") && value.endsWith("'"))) {
       return value.slice(1, -1);
     }
-    
+
     return value;
   }
-  
+
   /**
    * Safe logging that won't crash if console methods don't exist
    */
@@ -170,7 +170,7 @@ DB_NAME=keen_development
 DB_USER=keen_user
 DB_PASSWORD=secure_password
 
-# Admin Configuration  
+# Admin Configuration
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=admin-password
 
@@ -195,7 +195,7 @@ JWT_SECRET=your-jwt-secret-here
       } catch (error) {
         this.safeLog(`Failed to create global env file at ${envFile}: ${(error as Error).message}`);
       }
-      
+
     } catch (error) {
       // FIXED: Never crash on global env file creation errors
       if (this.debug) {
@@ -212,7 +212,7 @@ JWT_SECRET=your-jwt-secret-here
       path.join(process.cwd(), "../../.env"),
     ];
   }
-  
+
   /**
    * Check if .env files exist and are readable
    */
@@ -222,9 +222,9 @@ JWT_SECRET=your-jwt-secret-here
       invalid: [] as string[],
       errors: [] as string[],
     };
-    
+
     const envFiles = this.getEnvFilePaths();
-    
+
     for (const envFile of envFiles) {
       try {
         if (fs.existsSync(envFile)) {
@@ -233,7 +233,7 @@ JWT_SECRET=your-jwt-secret-here
           // Basic validation - check if it's parseable
           const lines = content.split('\n');
           let hasValidLines = false;
-          
+
           for (const line of lines) {
             const trimmed = line.trim();
             if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
@@ -241,7 +241,7 @@ JWT_SECRET=your-jwt-secret-here
               break;
             }
           }
-          
+
           if (hasValidLines) {
             result.valid.push(envFile);
           } else {
@@ -254,7 +254,7 @@ JWT_SECRET=your-jwt-secret-here
         result.errors.push(`${envFile}: ${(error as Error).message}`);
       }
     }
-    
+
     return result;
   }
 }

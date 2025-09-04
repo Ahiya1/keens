@@ -225,7 +225,7 @@ export class CreditDAO {
         `
         INSERT INTO credit_transactions (
           id, user_id, account_id, transaction_type, amount, balance_after,
-          claude_cost_usd, markup_multiplier, session_id, description, 
+          claude_cost_usd, markup_multiplier, session_id, description,
           metadata, is_admin_bypass, created_at, reconciliation_status
         ) VALUES ($1, $2, $3, 'usage', $4, $5, $6, $7, $8, $9, $10, false, NOW(), 'pending')
         RETURNING *
@@ -276,7 +276,7 @@ export class CreditDAO {
       `
       INSERT INTO credit_transactions (
         id, user_id, account_id, transaction_type, amount, balance_after,
-        claude_cost_usd, markup_multiplier, session_id, description, 
+        claude_cost_usd, markup_multiplier, session_id, description,
         metadata, is_admin_bypass, created_at, reconciliation_status
       ) VALUES ($1, $2, $3, 'admin_bypass', $4, $5, $6, $7, $8, $9, $10, true, NOW(), 'reconciled')
       RETURNING *
@@ -352,7 +352,7 @@ export class CreditDAO {
         `
         INSERT INTO credit_transactions (
           id, user_id, account_id, transaction_type, amount, balance_after,
-          markup_multiplier, description, metadata, is_admin_bypass, 
+          markup_multiplier, description, metadata, is_admin_bypass,
           created_at, reconciliation_status
         ) VALUES ($1, $2, $3, 'purchase', $4, $5, $6, $7, $8, false, NOW(), 'pending')
         RETURNING *
@@ -398,9 +398,9 @@ export class CreditDAO {
 
     const transactions = await this.db.query<CreditTransaction>(
       `
-      SELECT * FROM credit_transactions 
-      WHERE user_id = $1 
-      ORDER BY created_at DESC 
+      SELECT * FROM credit_transactions
+      WHERE user_id = $1
+      ORDER BY created_at DESC
       LIMIT $2 OFFSET $3
       `,
       [userId, limit, offset],
@@ -442,7 +442,7 @@ export class CreditDAO {
 
     const [analytics] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) as total_revenue,
         COALESCE(SUM(claude_cost_usd), 0) as total_claude_costs,
         COALESCE(SUM(CASE WHEN is_admin_bypass THEN claude_cost_usd ELSE 0 END), 0) as total_admin_bypass,
@@ -457,7 +457,7 @@ export class CreditDAO {
 
     const topUsers = await this.db.query(
       `
-      SELECT 
+      SELECT
         user_id,
         SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END) as total_spent,
         COUNT(*) as transaction_count

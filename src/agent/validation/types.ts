@@ -64,7 +64,7 @@ export interface ValidationEngineOptions {
   debug?: boolean;
 }
 
-// NEW: Quality gate evaluation result  
+// NEW: Quality gate evaluation result
 export interface GateResult {
   gate: string;
   passed: boolean;
@@ -140,19 +140,19 @@ export interface CompilationResult {
   summary: string;
   executionTime: number;
   validationSteps: string[];
-  
+
   // Additional compilation-specific data
   tsCompilationResult?: {
     success: boolean;
     errors: CompilationError[];
     warnings: CompilationError[];
   };
-  
+
   buildScriptResult?: {
     success: boolean;
     errors: string[];
   };
-  
+
   dependencyResult?: {
     success: boolean;
     missingDependencies: string[];
@@ -269,11 +269,11 @@ export interface CompletionValidationResult {
   blockers: ValidationIssue[];
   warnings: ValidationIssue[];
   recommendations: string[];
-  
+
   compilationResult: CompilationResult;
   testResult?: TestExecutionResult;
   qualityScore?: number;
-  
+
   summary: string;
   nextSteps?: string[];
 }

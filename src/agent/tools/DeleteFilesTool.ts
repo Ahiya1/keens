@@ -302,7 +302,7 @@ export class DeleteFilesTool {
   static getCommonTrashPatterns(): string[] {
     return [
       '**/*.tmp',
-      '**/*.bak', 
+      '**/*.bak',
       '**/*~',
       '**/*.orig',
       '**/.DS_Store',
@@ -319,21 +319,21 @@ export class DeleteFilesTool {
   static async findTrashFiles(rootPath: string = '.'): Promise<string[]> {
     const trashFiles: string[] = [];
     const patterns = DeleteFilesTool.getCommonTrashPatterns();
-    
+
     // This is a simplified implementation
     // In a real implementation, you might use a glob library
     const extensions = ['.tmp', '.bak', '.orig', '.log'];
     const names = ['.DS_Store', 'Thumbs.db', 'desktop.ini'];
-    
+
     try {
       // Recursively find files (simplified approach)
       const findFiles = async (dir: string): Promise<void> => {
         try {
           const entries = await fs.readdir(dir, { withFileTypes: true });
-          
+
           for (const entry of entries) {
             const fullPath = path.join(dir, entry.name);
-            
+
             // Skip node_modules and other directories we don't want to clean
             if (entry.isDirectory()) {
               if (!['node_modules', '.git', 'dist', 'coverage'].includes(entry.name)) {
@@ -341,12 +341,12 @@ export class DeleteFilesTool {
               }
               continue;
             }
-            
+
             // Check if file matches trash patterns
             const isTrash = extensions.some(ext => entry.name.endsWith(ext)) ||
                            names.includes(entry.name) ||
                            entry.name.endsWith('~');
-                           
+
             if (isTrash) {
               trashFiles.push(fullPath);
             }
@@ -355,12 +355,12 @@ export class DeleteFilesTool {
           // Ignore errors for directories we can't read
         }
       };
-      
+
       await findFiles(rootPath);
     } catch (error) {
       // Return empty array if there are issues
     }
-    
+
     return trashFiles;
   }
 }

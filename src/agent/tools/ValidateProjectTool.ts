@@ -9,18 +9,18 @@ import chalk from 'chalk';
 
 export class ValidateProjectTool {
   private validationEngine: ValidationEngine;
-  
+
   constructor() {
     this.validationEngine = new ValidationEngine({
       enableAutoFix: true,
       qualityThreshold: 0.8,
     });
   }
-  
+
   getDescription(): string {
     return 'Execute comprehensive project validation and quality checks';
   }
-  
+
   getInputSchema(): any {
     return {
       type: 'object',
@@ -58,7 +58,7 @@ export class ValidateProjectTool {
       required: [],
     };
   }
-  
+
   async execute(parameters: any, context: any): Promise<ValidationResult> {
     const {
       validationType = 'full',
@@ -67,13 +67,13 @@ export class ValidateProjectTool {
       fixIssues = true,
       silentMode = true
     } = parameters;
-    
+
     const projectPath = context.workingDirectory || process.cwd();
-    
+
     if (context.verbose) {
       console.log(chalk.blue('🔍 Starting project validation...'));
     }
-    
+
     try {
       const validationOptions: ValidationOptions = {
         validationType,
@@ -83,17 +83,17 @@ export class ValidateProjectTool {
         silentMode,
         projectPath
       };
-      
+
       // Execute validation
       const result = await this.validationEngine.validateProject(projectPath, validationOptions);
-      
+
       // Display results
       if (!context.dryRun) {
         this.displayValidationResults(result);
       }
-      
+
       return result;
-      
+
     } catch (error: any) {
       console.error(chalk.red(`❌ Validation failed: ${error.message}`));
       return {
@@ -114,7 +114,7 @@ export class ValidateProjectTool {
       };
     }
   }
-  
+
   /**
    * Display validation results in a formatted way
    */
@@ -126,7 +126,7 @@ export class ValidateProjectTool {
     console.log(chalk.blue('\n📊 Validation Results'));
     console.log(`${overallEmoji} Overall: ${result.overall.toUpperCase()}`);
     console.log(`${scoreColor(`🎯 Score: ${result.score}/100`)}`);
-    
+
     // Category results
     if (Object.keys(result.categories).length > 0) {
       console.log(chalk.blue('\n📋 Category Results:'));
@@ -136,24 +136,24 @@ export class ValidateProjectTool {
         console.log(`   ${categoryEmoji} ${category}: ${categoryScore}/100`);
       }
     }
-    
+
     // Issues summary
     if (result.issues.length > 0) {
       console.log(chalk.blue('\n🚨 Issues Found:'));
-      
+
       // Group issues by severity
       const issuesBySeverity = result.issues.reduce((acc, issue) => {
         acc[issue.severity] = (acc[issue.severity] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      
+
       for (const [severity, count] of Object.entries(issuesBySeverity)) {
-        const severityColor = severity === 'critical' ? chalk.red : 
+        const severityColor = severity === 'critical' ? chalk.red :
                               severity === 'high' ? chalk.red :
                               severity === 'medium' ? chalk.yellow : chalk.gray;
         console.log(`   ${severityColor(`${severity.toUpperCase()}: ${count}`)}`);
       }
-      
+
       // Show first few issues
       const displayIssues = result.issues.slice(0, 5);
       console.log(chalk.blue('\n📝 Sample Issues:'));
@@ -166,12 +166,12 @@ export class ValidateProjectTool {
           console.log(`      📁 ${issue.file}:${issue.line}`);
         }
       });
-      
+
       if (result.issues.length > 5) {
         console.log(chalk.gray(`   ... and ${result.issues.length - 5} more issues`));
       }
     }
-    
+
     // Auto-fixes applied
     if (result.autoFixApplied.length > 0) {
       console.log(chalk.blue('\n🔧 Auto-fixes Applied:'));
@@ -182,7 +182,7 @@ export class ValidateProjectTool {
         console.log(chalk.gray(`   ... and ${result.autoFixApplied.length - 3} more fixes`));
       }
     }
-    
+
     // Suggestions
     if (result.suggestions.length > 0) {
       console.log(chalk.blue('\n💡 Suggestions:'));

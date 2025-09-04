@@ -575,20 +575,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1097,7 +1097,7 @@ interface SecurityOptions {
 &nbsp;
 export class SecurityValidator {
   private options: SecurityOptions;
-  
+&nbsp;
   constructor(options: SecurityOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
     this.options = {
       silentMode: true,
@@ -1105,7 +1105,7 @@ export class SecurityValidator {
       ...options
     };
   }
-  
+&nbsp;
   /**
    * Scan for security vulnerabilities
    */
@@ -1114,28 +1114,28 @@ export class SecurityValidator {
     const vulnerabilities: SecurityVulnerability[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const recommendations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const autoFixesAvailable: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // 1. Check for package.json and run npm audit if available
       const npmAuditResults = <span class="cstat-no" title="statement not covered" >await this.runNpmAudit(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      vulnerabilities.push(...npmAuditResults.vulnerabilities);</span>
 <span class="cstat-no" title="statement not covered" >      recommendations.push(...npmAuditResults.recommendations);</span>
 <span class="cstat-no" title="statement not covered" >      autoFixesAvailable.push(...npmAuditResults.autoFixes);</span>
-      
+&nbsp;
       // 2. Static code analysis for common security issues
       const codeAnalysisResults = <span class="cstat-no" title="statement not covered" >await this.analyzeCodeForSecurityIssues(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      vulnerabilities.push(...codeAnalysisResults.vulnerabilities);</span>
 <span class="cstat-no" title="statement not covered" >      recommendations.push(...codeAnalysisResults.recommendations);</span>
-      
+&nbsp;
       // 3. Configuration security checks
       const configResults = <span class="cstat-no" title="statement not covered" >await this.checkSecurityConfigurations(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      vulnerabilities.push(...configResults.vulnerabilities);</span>
 <span class="cstat-no" title="statement not covered" >      recommendations.push(...configResults.recommendations);</span>
-      
+&nbsp;
       // Determine overall severity
       const severity = <span class="cstat-no" title="statement not covered" >this.determineSeverity(vulnerabilities);</span>
       const scanDuration = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         vulnerabilities,
         severity,
@@ -1143,7 +1143,7 @@ export class SecurityValidator {
         recommendations: [...new Set(recommendations)], // Remove duplicates
         autoFixesAvailable: [...new Set(autoFixesAvailable)],
       };
-      
+&nbsp;
     } catch (error: any) {
       const scanDuration = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
 <span class="cstat-no" title="statement not covered" >      return {</span>
@@ -1160,7 +1160,7 @@ export class SecurityValidator {
       };
     }
   }
-  
+&nbsp;
   /**
    * Run npm audit for dependency vulnerabilities
    */
@@ -1172,23 +1172,23 @@ export class SecurityValidator {
     const vulnerabilities: SecurityVulnerability[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const recommendations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const autoFixes: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Check if package.json exists
       const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
 <span class="cstat-no" title="statement not covered" >      await fs.access(packagePath);</span>
-      
+&nbsp;
       // Run npm audit
       const silentFlag = <span class="cstat-no" title="statement not covered" >this.options.silentMode ? ' --silent' : '';</span>
       const { stdout, stderr } = <span class="cstat-no" title="statement not covered" >await execAsync(`cd "${projectPath}" &amp;&amp; npm audit --json${silentFlag}`, {</span>
         timeout: this.options.timeout,
         maxBuffer: 2 * 1024 * 1024,
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (stdout) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const auditResult = <span class="cstat-no" title="statement not covered" >JSON.parse(stdout);</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (auditResult.vulnerabilities) {</span>
 <span class="cstat-no" title="statement not covered" >            for (const [packageName, vulnData] of Object.entries(auditResult.vulnerabilities as any)) {</span>
               const vuln = <span class="cstat-no" title="statement not covered" >vulnData as any;</span>
@@ -1201,18 +1201,18 @@ export class SecurityValidator {
               });
             }
           }
-          
+&nbsp;
           // Check for fixable issues
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (auditResult.metadata &amp;&amp; auditResult.metadata.totalDependencies &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >            recommendations.push('Run "npm audit fix" to automatically fix vulnerabilities');</span>
 <span class="cstat-no" title="statement not covered" >            autoFixes.push('dependency_vulnerabilities');</span>
           }
-          
+&nbsp;
         } catch (parseError) {
 <span class="cstat-no" title="statement not covered" >          recommendations.push('npm audit output could not be parsed');</span>
         }
       }
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      if (error.message.includes('ENOENT') || error.message.includes('package.json')) {</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('No package.json found - dependency scanning skipped');</span>
@@ -1223,10 +1223,10 @@ export class SecurityValidator {
 <span class="cstat-no" title="statement not covered" >        recommendations.push('npm audit not available or failed');</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { vulnerabilities, recommendations, autoFixes };</span>
   }
-  
+&nbsp;
   /**
    * Analyze code for common security issues
    */
@@ -1236,46 +1236,46 @@ export class SecurityValidator {
   }&gt; {
     const vulnerabilities: SecurityVulnerability[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const recommendations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Find source files
       const sourceFiles = <span class="cstat-no" title="statement not covered" >await this.findSourceFiles(projectPath);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const file of sourceFiles.slice(0, 20)) { // Limit for performance</span>
         const fileVulns = <span class="cstat-no" title="statement not covered" >await this.scanFileForSecurityIssues(file, projectPath);</span>
 <span class="cstat-no" title="statement not covered" >        vulnerabilities.push(...fileVulns);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (vulnerabilities.length === 0) {</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('No obvious security issues found in code analysis');</span>
       } else {
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Review and fix identified security issues');</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Consider using a comprehensive security linter like ESLint security plugin');</span>
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      recommendations.push('Code security analysis failed - manual review recommended');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { vulnerabilities, recommendations };</span>
   }
-  
+&nbsp;
   /**
    * Find source files for security scanning
    */
   private <span class="fstat-no" title="function not covered" >async </span>findSourceFiles(projectPath: string): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const extensions = <span class="cstat-no" title="statement not covered" >['.ts', '.js', '.tsx', '.jsx', '.py', '.php', '.rb'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const srcDir = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'src');</span>
       const srcExists = <span class="cstat-no" title="statement not covered" >await fs.access(srcDir).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (srcExists) {</span>
         const srcFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(srcDir, extensions);</span>
 <span class="cstat-no" title="statement not covered" >        files.push(...srcFiles);</span>
       }
-      
+&nbsp;
       // Also check root directory for important files
       const rootFiles = <span class="cstat-no" title="statement not covered" >await fs.readdir(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      for (const file of rootFiles) {</span>
@@ -1285,31 +1285,31 @@ export class SecurityValidator {
 <span class="cstat-no" title="statement not covered" >          files.push(filePath);</span>
         }
       }
-      
+&nbsp;
     } catch (error) {
       // Return empty array if directory scanning fails
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Recursively find files with specific extensions
    */
   private <span class="fstat-no" title="function not covered" >async </span>findFilesRecursive(dir: string, extensions: string[]): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const items = <span class="cstat-no" title="statement not covered" >await fs.readdir(dir, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const item of items) {</span>
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dir, item.name);</span>
-        
+&nbsp;
         // Skip problematic directories
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (item.name.startsWith('.') || item.name === 'node_modules' || item.name === 'dist') {</span>
 <span class="cstat-no" title="statement not covered" >          continue;</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (item.isDirectory()) {</span>
           const subFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(fullPath, extensions);</span>
 <span class="cstat-no" title="statement not covered" >          files.push(...subFiles);</span>
@@ -1323,29 +1323,29 @@ export class SecurityValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Scan individual file for security issues
    */
   private <span class="fstat-no" title="function not covered" >async </span>scanFileForSecurityIssues(filePath: string, projectPath: string): Promise&lt;SecurityVulnerability[]&gt; {
     const vulnerabilities: SecurityVulnerability[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
       const lines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
       const relativeFilePath = <span class="cstat-no" title="statement not covered" >path.relative(projectPath, filePath);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; lines.length; i++) {</span>
         const line = <span class="cstat-no" title="statement not covered" >lines[i];</span>
         const lineNumber = <span class="cstat-no" title="statement not covered" >i + 1;</span>
-        
+&nbsp;
         // Check for common security anti-patterns
-        
+&nbsp;
         // 1. SQL Injection patterns
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/query\s*=\s*['"]SELECT.*\$\{|\+.*['"]/) || </span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/query\s*=\s*['"]SELECT.*\$\{|\+.*['"]/) ||</span>
             line.match(/\$\{.*\}.*SELECT|INSERT|UPDATE|DELETE/)) {
 <span class="cstat-no" title="statement not covered" >          vulnerabilities.push({</span>
             type: 'sql_injection_risk',
@@ -1357,7 +1357,7 @@ export class SecurityValidator {
             recommendation: 'Use parameterized queries or prepared statements',
           });
         }
-        
+&nbsp;
         // 2. Command injection patterns
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/exec\(|system\(|eval\(/) &amp;&amp; line.includes('${')) {</span>
 <span class="cstat-no" title="statement not covered" >          vulnerabilities.push({</span>
@@ -1370,7 +1370,7 @@ export class SecurityValidator {
             recommendation: 'Validate and sanitize user input before executing commands',
           });
         }
-        
+&nbsp;
         // 3. Hardcoded secrets
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/password\s*=\s*['"][^'"]{8,}['"]|api_key\s*=\s*['"][^'"]{20,}['"]|secret\s*=\s*['"][^'"]{16,}['"]/i)) {</span>
 <span class="cstat-no" title="statement not covered" >          vulnerabilities.push({</span>
@@ -1383,7 +1383,7 @@ export class SecurityValidator {
             recommendation: 'Use environment variables or secure configuration management',
           });
         }
-        
+&nbsp;
         // 4. Insecure random number generation
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.includes('Math.random()')) {</span>
 <span class="cstat-no" title="statement not covered" >          vulnerabilities.push({</span>
@@ -1396,7 +1396,7 @@ export class SecurityValidator {
             recommendation: 'Use cryptographically secure random number generator',
           });
         }
-        
+&nbsp;
         // 5. Debug/console statements in production
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.includes('console.log(') &amp;&amp; !line.includes('//')) {</span>
 <span class="cstat-no" title="statement not covered" >          vulnerabilities.push({</span>
@@ -1410,14 +1410,14 @@ export class SecurityValidator {
           });
         }
       }
-      
+&nbsp;
     } catch (error) {
       // Skip files that can't be read
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return vulnerabilities;</span>
   }
-  
+&nbsp;
   /**
    * Check security configurations
    */
@@ -1427,42 +1427,42 @@ export class SecurityValidator {
   }&gt; {
     const vulnerabilities: SecurityVulnerability[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const recommendations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Check package.json for security-related configurations
 <span class="cstat-no" title="statement not covered" >      await this.checkPackageJsonSecurity(projectPath, vulnerabilities, recommendations);</span>
-      
+&nbsp;
       // Check for .env files
 <span class="cstat-no" title="statement not covered" >      await this.checkEnvironmentFiles(projectPath, vulnerabilities, recommendations);</span>
-      
+&nbsp;
       // Check for common config files
 <span class="cstat-no" title="statement not covered" >      await this.checkConfigurationFiles(projectPath, vulnerabilities, recommendations);</span>
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      recommendations.push('Configuration security check failed');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { vulnerabilities, recommendations };</span>
   }
-  
+&nbsp;
   /**
    * Check package.json for security issues
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkPackageJsonSecurity(
-    projectPath: string, 
-    vulnerabilities: SecurityVulnerability[], 
+    projectPath: string,
+    vulnerabilities: SecurityVulnerability[],
     recommendations: string[],
   ): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(packagePath, 'utf8');</span>
       const packageJson = <span class="cstat-no" title="statement not covered" >JSON.parse(content);</span>
-      
+&nbsp;
       // Check for security-related packages
       const securityPackages = <span class="cstat-no" title="statement not covered" >['helmet', 'bcrypt', 'jsonwebtoken', 'express-rate-limit'];</span>
       const deps = <span class="cstat-no" title="statement not covered" >{ ...packageJson.dependencies, ...packageJson.devDependencies };</span>
       const hasSecurityPackages = <span class="cstat-no" title="statement not covered" >securityPackages.some(<span class="fstat-no" title="function not covered" >pkg </span>=&gt; <span class="cstat-no" title="statement not covered" >deps[pkg])</span>;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!hasSecurityPackages &amp;&amp; deps.express) {</span>
 <span class="cstat-no" title="statement not covered" >        vulnerabilities.push({</span>
           type: 'missing_security_middleware',
@@ -1471,7 +1471,7 @@ export class SecurityValidator {
           recommendation: 'Install security packages like helmet, express-rate-limit',
         });
       }
-      
+&nbsp;
       // Check for deprecated packages (simplified check)
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (deps.request) {</span>
 <span class="cstat-no" title="statement not covered" >        vulnerabilities.push({</span>
@@ -1481,32 +1481,32 @@ export class SecurityValidator {
           recommendation: 'Replace with axios or node-fetch',
         });
       }
-      
+&nbsp;
     } catch (error) {
       // package.json not found or not readable
     }
   }
-  
+&nbsp;
   /**
    * Check environment files
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkEnvironmentFiles(
-    projectPath: string, 
-    vulnerabilities: SecurityVulnerability[], 
+    projectPath: string,
+    vulnerabilities: SecurityVulnerability[],
     recommendations: string[],
   ): Promise&lt;void&gt; {
     const envFiles = <span class="cstat-no" title="statement not covered" >['.env', '.env.local', '.env.production', '.env.development'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const envFile of envFiles) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const envPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, envFile);</span>
 <span class="cstat-no" title="statement not covered" >        await fs.access(envPath);</span>
-        
+&nbsp;
         // Check if .env is in .gitignore
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const gitignorePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, '.gitignore');</span>
           const gitignoreContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(gitignorePath, 'utf8');</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (!gitignoreContent.includes('.env')) {</span>
 <span class="cstat-no" title="statement not covered" >            vulnerabilities.push({</span>
               type: 'env_file_exposure',
@@ -1524,29 +1524,29 @@ export class SecurityValidator {
             recommendation: 'Create .gitignore and add .env* to prevent secret exposure',
           });
         }
-        
+&nbsp;
       } catch (error) {
         // .env file doesn't exist, which is fine
       }
     }
   }
-  
+&nbsp;
   /**
    * Check configuration files
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkConfigurationFiles(
-    projectPath: string, 
-    vulnerabilities: SecurityVulnerability[], 
+    projectPath: string,
+    vulnerabilities: SecurityVulnerability[],
     recommendations: string[],
   ): Promise&lt;void&gt; {
     // Check for common sensitive config files
     const sensitiveFiles = <span class="cstat-no" title="statement not covered" >['config.json', 'secrets.json', 'keys.json'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const file of sensitiveFiles) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const filePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, file);</span>
 <span class="cstat-no" title="statement not covered" >        await fs.access(filePath);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        vulnerabilities.push({</span>
           type: 'sensitive_config_file',
           severity: 'medium',
@@ -1554,13 +1554,13 @@ export class SecurityValidator {
           file,
           recommendation: 'Ensure sensitive config files are in .gitignore and use environment variables instead',
         });
-        
+&nbsp;
       } catch (error) {
         // File doesn't exist, which is good
       }
     }
   }
-  
+&nbsp;
   /**
    * Map npm audit severity to our severity scale - FIXED: Removed 'info' type
    */
@@ -1573,7 +1573,7 @@ export class SecurityValidator {
       default: <span class="cstat-no" title="statement not covered" >return 'low'; </span>// FIXED: Default to 'low' instead of 'info',
     }
   }
-  
+&nbsp;
   /**
    * Determine overall severity from vulnerabilities - FIXED: Removed 'info' type
    */
@@ -1591,7 +1591,7 @@ export class SecurityValidator {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

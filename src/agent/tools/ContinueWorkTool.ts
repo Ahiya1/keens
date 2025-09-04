@@ -107,7 +107,7 @@ export class ContinueWorkTool {
     // SECURITY: Use Logger instead of console.log for secure output
     this.logger.info('display', 'Continuing Work', { status: 'continuing' });
     this.logger.info('display', `Next Action: ${plan.nextAction}`);
-    
+
     if (plan.reasoning) {
       this.logger.info('display', `Reasoning: ${plan.reasoning}`);
     }
@@ -127,7 +127,7 @@ export class ContinueWorkTool {
     if (plan.requiresUserInput) {
       this.logger.info('display', 'User input will be required');
     }
-    
+
     this.logger.debug('continue', 'Continuation plan displayed');
   }
 }

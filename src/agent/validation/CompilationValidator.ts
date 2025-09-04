@@ -1,7 +1,7 @@
 /**
  * CompilationValidator - Ensures code compiles before completion
  * CRITICAL: Prevents agents from completing tasks with non-compiling code
- * 
+ *
  * This validator performs comprehensive compilation checks using TypeScript compiler,
  * Node.js syntax validation, and build system verification.
  */
@@ -38,7 +38,7 @@ export class CompilationValidator {
    */
   async validateCompilation(projectPath: string): Promise<CompilationResult> {
     this.debugLog('COMPILATION_START', 'Starting compilation validation', { projectPath });
-    
+
     const result: CompilationResult = {
       success: false,
       errors: [],
@@ -54,7 +54,7 @@ export class CompilationValidator {
       // Step 1: Check project structure
       const structureCheck = await this.validateProjectStructure(projectPath);
       result.validationSteps.push('Project structure check');
-      
+
       if (!structureCheck.valid) {
         result.errors.push(...structureCheck.errors);
         result.summary = 'Project structure validation failed';
@@ -64,7 +64,7 @@ export class CompilationValidator {
       // Step 2: TypeScript compilation (if applicable)
       const tsResult = await this.validateTypeScriptCompilation(projectPath);
       result.validationSteps.push('TypeScript compilation check');
-      
+
       if (tsResult.errors.length > 0) {
         result.errors.push(...tsResult.errors);
       }
@@ -75,7 +75,7 @@ export class CompilationValidator {
       // Step 3: Node.js syntax validation
       const syntaxResult = await this.validateNodeSyntax(projectPath);
       result.validationSteps.push('Node.js syntax validation');
-      
+
       if (syntaxResult.errors.length > 0) {
         result.errors.push(...syntaxResult.errors);
       }
@@ -84,7 +84,7 @@ export class CompilationValidator {
       if (this.options.validateBuildScripts) {
         const buildResult = await this.validateBuildScripts(projectPath);
         result.validationSteps.push('Build scripts validation');
-        
+
         if (buildResult.errors.length > 0) {
           result.errors.push(...buildResult.errors);
         }
@@ -94,7 +94,7 @@ export class CompilationValidator {
       if (this.options.checkDependencies) {
         const depResult = await this.validateDependencies(projectPath);
         result.validationSteps.push('Dependency validation');
-        
+
         if (depResult.errors.length > 0) {
           result.errors.push(...depResult.errors);
         }
@@ -102,7 +102,7 @@ export class CompilationValidator {
 
       // Determine success
       result.success = result.errors.length === 0;
-      result.summary = result.success 
+      result.summary = result.success
         ? `Compilation validation passed (${result.validationSteps.length} checks)`
         : `Compilation validation failed with ${result.errors.length} errors`;
 
@@ -118,7 +118,7 @@ export class CompilationValidator {
       this.debugLog('COMPILATION_ERROR', 'Compilation validation failed', {
         error: error.message,
       });
-      
+
       result.errors.push({
         type: 'validation_error',
         severity: 'critical',
@@ -127,7 +127,7 @@ export class CompilationValidator {
         line: 0,
         autoFixable: false,
       });
-      
+
       result.summary = 'Compilation validation threw an exception';
       return this.finalizeResult(result, startTime);
     }
@@ -160,7 +160,7 @@ export class CompilationValidator {
       // Check for package.json (Node.js projects)
       const packageJsonPath = path.join(projectPath, 'package.json');
       const hasPackageJson = await fs.access(packageJsonPath).then(() => true).catch(() => false);
-      
+
       // Check for tsconfig.json (TypeScript projects)
       const tsconfigPath = path.join(projectPath, 'tsconfig.json');
       const hasTsConfig = await fs.access(tsconfigPath).then(() => true).catch(() => false);
@@ -212,7 +212,7 @@ export class CompilationValidator {
 
       // Run TypeScript compiler
       this.debugLog('TS_COMPILE', 'Running TypeScript compilation check');
-      
+
       try {
         const tscCommand = 'npx tsc --noEmit --skipLibCheck';
         const output = execSync(tscCommand, {
@@ -228,7 +228,7 @@ export class CompilationValidator {
         // Parse TypeScript compiler output
         const output = execError.stdout + execError.stderr;
         const tsErrors = this.parseTSCompilerOutput(output);
-        
+
         errors.push(...tsErrors.filter(err => err.severity === 'critical' || err.severity === 'high'));
         warnings.push(...tsErrors.filter(err => err.severity === 'medium' || err.severity === 'low'));
 
@@ -263,7 +263,7 @@ export class CompilationValidator {
     try {
       // Find all .js and .mjs files
       const jsFiles = await this.findJSFiles(projectPath);
-      
+
       for (const file of jsFiles) {
         try {
           // Use Node.js to check syntax
@@ -324,14 +324,14 @@ export class CompilationValidator {
 
       // Check common build scripts
       const buildScriptsToCheck = ['build', 'compile', 'tsc', 'webpack'];
-      
+
       for (const scriptName of buildScriptsToCheck) {
         if (scripts[scriptName]) {
           try {
             // Dry-run build scripts if possible
             if (scriptName === 'build' || scriptName === 'compile') {
               this.debugLog('BUILD_CHECK', `Testing build script: ${scriptName}`);
-              
+
               // For now, just validate the script exists and looks valid
               // TODO: Could implement actual dry-run execution
               const script = scripts[scriptName];
@@ -384,7 +384,7 @@ export class CompilationValidator {
     try {
       const packageJsonPath = path.join(projectPath, 'package.json');
       const nodeModulesPath = path.join(projectPath, 'node_modules');
-      
+
       const hasPackageJson = await fs.access(packageJsonPath).then(() => true).catch(() => false);
       const hasNodeModules = await fs.access(nodeModulesPath).then(() => true).catch(() => false);
 
@@ -410,7 +410,7 @@ export class CompilationValidator {
       // Check for critical missing dependencies that would cause compilation to fail
       const criticalDeps = ['typescript', '@types/node'];
       const installedDeps = hasNodeModules ? await fs.readdir(nodeModulesPath).catch(() => []) : [];
-      
+
       for (const depName of criticalDeps) {
         if (dependencies[depName] && !installedDeps.includes(depName)) {
           errors.push({
@@ -449,10 +449,10 @@ export class CompilationValidator {
     for (const line of lines) {
       // Match TypeScript compiler error format: path(line,col): error TS#### message
       const match = line.match(/^(.+?)\((\d+),(\d+)\):\s*(error|warning)\s+TS(\d+):\s*(.+)$/);
-      
+
       if (match) {
         const [, file, lineNum, col, type, code, message] = match;
-        
+
         issues.push({
           type: `typescript_${type}`,
           severity: type === 'error' ? 'critical' : 'medium',
@@ -480,7 +480,7 @@ export class CompilationValidator {
       2571: 'Object is of type unknown - add proper type annotations',
       7016: 'Could not find declaration file - install @types package or add type declarations'
     };
-    
+
     return suggestions[errorCode];
   }
 
@@ -489,13 +489,13 @@ export class CompilationValidator {
    */
   private async findJSFiles(projectPath: string): Promise<string[]> {
     const jsFiles: string[] = [];
-    
+
     const findFiles = async (dir: string): Promise<void> => {
       const entries = await fs.readdir(dir, { withFileTypes: true });
-      
+
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
-        
+
         if (entry.isDirectory() && !this.shouldSkipDirectory(entry.name)) {
           await findFiles(fullPath);
         } else if (entry.isFile() && this.isJSFile(entry.name)) {
@@ -503,7 +503,7 @@ export class CompilationValidator {
         }
       }
     };
-    
+
     await findFiles(projectPath);
     return jsFiles;
   }

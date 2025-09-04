@@ -1,7 +1,7 @@
 /**
  * CompletionBlocker - Prevents agent completion when code doesn't compile
  * CRITICAL: This enforces the compilation requirement before allowing task completion
- * 
+ *
  * This validator is called by ReportCompleteTool to ensure no agent can complete
  * a task without having compilable code.
  */
@@ -23,11 +23,11 @@ export class CompletionBlocker {
 
   constructor(options: { debug?: boolean } = {}) {
     this.debug = options.debug || false;
-    this.compilationValidator = new CompilationValidator({ 
-      silentMode: true, 
+    this.compilationValidator = new CompilationValidator({
+      silentMode: true,
       debug: this.debug ,
     });
-    this.validationEngine = new ValidationEngine({ 
+    this.validationEngine = new ValidationEngine({
       silentMode: true,
       enableAutoFix: false // Don't auto-fix during completion validation,
     });
@@ -77,11 +77,11 @@ export class CompletionBlocker {
         result.blockers.push(...compilationResult.errors);
         result.canComplete = false;
         result.summary = `COMPLETION BLOCKED: Code does not compile (${compilationResult.errors.length} errors)`;
-        
+
         this.debugLog('COMPILATION_BLOCKED', 'Completion blocked due to compilation errors', {
           errorCount: compilationResult.errors.length,
         });
-        
+
         return result;
       }
 
@@ -107,11 +107,11 @@ export class CompletionBlocker {
         result.blockers.push(...criticalIssues);
         result.canComplete = false;
         result.summary = `COMPLETION BLOCKED: ${criticalIssues.length} critical validation issues`;
-        
+
         this.debugLog('CRITICAL_ISSUES_BLOCKED', 'Completion blocked due to critical issues', {
           criticalCount: criticalIssues.length,
         });
-        
+
         return result;
       }
 
@@ -123,7 +123,7 @@ export class CompletionBlocker {
 
       // STEP 3: Additional checks based on specialization
       const specializationChecks = await this.performSpecializationChecks(
-        projectPath, 
+        projectPath,
         options.specialization || 'general'
       );
 
@@ -133,20 +133,20 @@ export class CompletionBlocker {
 
       // STEP 4: Final determination
       result.canComplete = result.blockers.length === 0;
-      
+
       if (result.canComplete) {
         result.summary = `Completion validation passed - agent can complete task`;
         if (result.warnings.length > 0) {
           result.summary += ` (${result.warnings.length} warnings)`;
         }
-        
+
         this.debugLog('COMPLETION_APPROVED', 'Agent completion approved', {
           warningCount: result.warnings.length,
           recommendationCount: result.recommendations.length,
         });
       } else {
         result.summary = `COMPLETION BLOCKED: ${result.blockers.length} blocking issues must be resolved`;
-        
+
         this.debugLog('COMPLETION_BLOCKED', 'Agent completion blocked', {
           blockerCount: result.blockers.length,
         });
@@ -158,7 +158,7 @@ export class CompletionBlocker {
       this.debugLog('COMPLETION_VALIDATION_ERROR', 'Completion validation failed', {
         error: error.message,
       });
-      
+
       result.blockers.push({
         type: 'completion_validation_error',
         severity: 'critical',
@@ -167,10 +167,10 @@ export class CompletionBlocker {
         line: 0,
         autoFixable: false,
       });
-      
+
       result.canComplete = false;
       result.summary = 'Completion validation threw an exception';
-      
+
       return result;
     }
   }
@@ -196,19 +196,19 @@ export class CompletionBlocker {
         recommendations.push('Ensure UI components render correctly');
         recommendations.push('Verify responsive design and accessibility');
         break;
-        
+
       case 'backend':
-        // Backend-specific checks 
+        // Backend-specific checks
         recommendations.push('Verify API endpoints respond correctly');
         recommendations.push('Check authentication and error handling');
         break;
-        
+
       case 'database':
         // Database-specific checks
         recommendations.push('Verify database schema is valid');
         recommendations.push('Test all database migrations');
         break;
-        
+
       case 'testing':
         // Testing-specific checks
         try {
@@ -226,19 +226,19 @@ export class CompletionBlocker {
           });
         }
         break;
-        
+
       case 'security':
         // Security-specific checks
         recommendations.push('Verify no security vulnerabilities introduced');
         recommendations.push('Check authentication and authorization');
         break;
-        
+
       case 'devops':
         // DevOps-specific checks
         recommendations.push('Verify deployment configurations are valid');
         recommendations.push('Check CI/CD pipeline compatibility');
         break;
-        
+
       case 'general':
       default:
         // General checks
@@ -255,10 +255,10 @@ export class CompletionBlocker {
    */
   generateBlockerReport(result: CompletionValidationResult): string {
     const lines = [];
-    
+
     lines.push('🚫 COMPLETION BLOCKED - CODE COMPILATION FAILED');
     lines.push('=' .repeat(60));
-    
+
     if (!result.compilationResult.success) {
       lines.push('\n📋 COMPILATION ERRORS:');
       result.compilationResult.errors.forEach((error, index) => {
@@ -266,7 +266,7 @@ export class CompletionBlocker {
         lines.push(`  ${index + 1}. ${error.message}${location}`);
       });
     }
-    
+
     if (result.blockers.length > 0) {
       lines.push('\n🔴 BLOCKING ISSUES:');
       result.blockers.forEach((blocker, index) => {
@@ -274,22 +274,22 @@ export class CompletionBlocker {
         lines.push(`  ${index + 1}. [${blocker.severity.toUpperCase()}] ${blocker.message}${location}`);
       });
     }
-    
+
     lines.push('\n🔧 REQUIRED ACTIONS:');
     lines.push('  1. Fix all compilation errors listed above');
     lines.push('  2. Use validate_project tool to verify fixes');
     lines.push('  3. Only report completion when validation passes');
-    
+
     if (result.recommendations.length > 0) {
       lines.push('\n💡 RECOMMENDATIONS:');
       result.recommendations.forEach((rec, index) => {
         lines.push(`  ${index + 1}. ${rec}`);
       });
     }
-    
+
     lines.push('\n' + '='.repeat(60));
     lines.push('❌ TASK CANNOT BE MARKED COMPLETE UNTIL ALL ISSUES ARE RESOLVED');
-    
+
     return lines.join('\n');
   }
 
@@ -298,10 +298,10 @@ export class CompletionBlocker {
    */
   generateSuccessReport(result: CompletionValidationResult): string {
     const lines = [];
-    
+
     lines.push('✅ COMPLETION VALIDATION PASSED');
     lines.push('=' .repeat(40));
-    
+
     lines.push(`\n✓ Compilation: SUCCESS`);
     lines.push(`✓ Validation Steps: ${result.compilationResult.validationSteps.length}`);
 
@@ -314,9 +314,9 @@ export class CompletionBlocker {
         lines.push(`  ... and ${result.warnings.length - 3} more warnings`);
       }
     }
-    
+
     lines.push('\n🎉 TASK CAN BE MARKED AS COMPLETE');
-    
+
     return lines.join('\n');
   }
 

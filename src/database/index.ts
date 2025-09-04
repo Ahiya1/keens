@@ -4,20 +4,20 @@
  */
 
 // Core database managers
-export { 
-  DatabaseManager, 
+export {
+  DatabaseManager,
   db,
   UserContext,
   DatabaseTransaction
 } from './DatabaseManager.js';
 
-export { 
+export {
   SupabaseManager,
   RealtimeSubscription
 } from './SupabaseManager.js';
 
 // Main database service
-export { 
+export {
   DatabaseService,
   databaseService
 } from './DatabaseService.js';

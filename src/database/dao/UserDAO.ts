@@ -2,6 +2,7 @@
  * UserDAO - Enhanced user management for keen-s-a with Supabase integration
  * Combines Supabase Auth with custom user management and admin privilege handling
  * FIXED: Always provide password_hash to satisfy database constraints
+ * FIXED: UserContext objects now include required 'id' property
  */
 
 import bcrypt from "bcrypt";
@@ -102,7 +103,7 @@ export class UserDAO {
 
     // FIXED: Always create password_hash to satisfy database constraints
     // For Supabase Auth users, create a dummy hash that won't be used
-    const hashedPassword = request.useSupabaseAuth === false 
+    const hashedPassword = request.useSupabaseAuth === false
       ? await bcrypt.hash(request.password, securityConfig.bcryptRounds)
       : await bcrypt.hash('dummy-password-supabase-auth', securityConfig.bcryptRounds);
 
@@ -505,12 +506,13 @@ export class UserDAO {
 
   /**
    * Verify JWT token and extract user context (supports both Supabase and custom JWT)
+   * FIXED: UserContext objects now include required 'id' property
    */
   async verifyToken(token: string): Promise<UserContext | null> {
     try {
       // Try Supabase token first
       const { data: { user }, error } = await supabase.auth.getUser(token);
-      
+
       if (user && !error) {
         // Get additional user data from our table
         const userData = await this.getUserById(user.id);
@@ -519,7 +521,7 @@ export class UserDAO {
             userId: user.id,
             isAdmin: userData.is_admin || false,
             adminPrivileges: userData.admin_privileges || {},
-            user,
+            user,                     // Include the Supabase user object
           };
         }
       }

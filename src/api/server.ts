@@ -69,16 +69,16 @@ export class KeenAPIServer {
 
     // Setup Express middleware
     this.setupMiddleware();
-    
+
     // Setup routes
     this.setupRoutes();
-    
+
     // Setup error handling
     this.setupErrorHandling();
-    
+
     // Create HTTP server
     this.server = createServer(this.app);
-    
+
     // Setup WebSocket server
     this.setupWebSocket();
   }
@@ -92,12 +92,12 @@ export class KeenAPIServer {
     this.app.use(helmet({
       crossOriginEmbedderPolicy: false, // Allow WebSocket connections
     }));
-    
+
     // CORS configuration - fixed to include all required headers
-    const corsOrigin = NODE_ENV === 'production' 
+    const corsOrigin = NODE_ENV === 'production'
       ? ['https://keen.dev', 'https://app.keen.dev', 'https://dashboard.keen.dev']
       : '*'; // Allow all origins in development/test
-    
+
     this.app.use(cors({
       origin: corsOrigin,
       credentials: true,
@@ -105,7 +105,7 @@ export class KeenAPIServer {
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],
       exposedHeaders: ['X-Request-ID', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset']
     }));
-    
+
     // Add manual CORS headers for tests
     this.app.use((req, res, next) => {
       // Ensure access-control-allow-origin is always set
@@ -114,10 +114,10 @@ export class KeenAPIServer {
       }
       next();
     });
-    
+
     // Compression middleware
     this.app.use(compression());
-    
+
     // Request logging - SECURITY: Conditional and sanitized
     if (NODE_ENV === 'development') {
       if (process.env.DEBUG) {
@@ -129,18 +129,18 @@ export class KeenAPIServer {
         skip: (req, res) => res.statusCode < 400
       }));
     }
-    
+
     // Body parsing middleware
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-    
+
     // Request ID middleware
     this.app.use((req, res, next) => {
       req.id = this.generateRequestId();
       res.setHeader('X-Request-ID', req.id);
       next();
     });
-    
+
     // Global rate limiting - set headers for rate limiting
     this.app.use((req, res, next) => {
       // Add default rate limit headers
@@ -150,13 +150,13 @@ export class KeenAPIServer {
       res.setHeader('RateLimit-Reset', '3600');
       next();
     });
-    
+
     this.app.use(rateLimitMiddleware as any);
-    
+
     // Add audit logging to all requests - SECURITY: Sanitized logging
     this.app.use(async (req, res, next) => {
       const startTime = Date.now();
-      
+
       // Log request start - SECURITY: No sensitive data logged
       try {
         await this.auditLogger.logAPIRequest({
@@ -175,12 +175,12 @@ export class KeenAPIServer {
           console.error('Failed to log API request');
         }
       }
-      
+
       // Override res.end to log response
       const originalEnd = res.end.bind(res);
       res.end = (...args: any[]) => {
         const duration = Date.now() - startTime;
-        
+
         // Log response (async, don't await) - SECURITY: Safe logging
         setImmediate(async () => {
           try {
@@ -196,10 +196,10 @@ export class KeenAPIServer {
             }
           }
         });
-        
+
         return originalEnd(...args);
       };
-      
+
       next();
     });
   }
@@ -210,28 +210,28 @@ export class KeenAPIServer {
   private setupRoutes(): void {
     // Health check endpoint (no auth required)
     this.app.use('/health', healthRouter);
-    
+
     // API version prefix
     const apiV1 = express.Router();
-    
+
     // Create authentication middleware
     const authMiddleware = createAuthMiddleware(this.authService, this.auditLogger);
-    
+
     // Authentication routes
     apiV1.use('/auth', createAuthRouter(this.authService, this.auditLogger, authMiddleware));
-    
+
     // Agent execution routes
     apiV1.use('/agents', createAgentsRouter(this.authService, this.auditLogger, authMiddleware));
-    
+
     // Credit management routes
     apiV1.use('/credits', createCreditsRouter(this.authService, this.auditLogger, authMiddleware));
-    
+
     // Admin routes (admin auth required)
     apiV1.use('/admin', createAdminRouter(this.authService, this.auditLogger, authMiddleware));
-    
+
     // Mount API v1 routes
     this.app.use('/api/v1', apiV1);
-    
+
     // API root endpoint
     this.app.get('/api', (req, res) => {
       res.json({
@@ -274,7 +274,7 @@ export class KeenAPIServer {
   private setupErrorHandling(): void {
     // 404 handler
     this.app.use(notFoundHandler as any);
-    
+
     // Global error handler
     this.app.use(errorHandler as any);
   }
@@ -283,12 +283,12 @@ export class KeenAPIServer {
    * Setup WebSocket server
    */
   private setupWebSocket(): void {
-    this.wss = new WebSocketServer({ 
+    this.wss = new WebSocketServer({
       server: this.server,
       path: '/ws',
       clientTracking: true,
     });
-    
+
     this.wsManager = new WebSocketManager(
       this.wss,
       this.keenDB,
@@ -306,11 +306,11 @@ export class KeenAPIServer {
           reject(err);
           return;
         }
-        
+
         if (NODE_ENV === 'development') {
           console.log(`🚀 keen API Gateway running on port ${PORT}`);
         }
-        
+
         resolve();
       });
     });
@@ -328,7 +328,7 @@ export class KeenAPIServer {
       if (this.wss) {
         this.wss.close(() => {});
       }
-      
+
       // Close HTTP server
       if (this.server) {
         this.server.close(async () => {
@@ -404,7 +404,7 @@ let server: KeenAPIServer;
 
 if (require.main === module) {
   server = new KeenAPIServer();
-  
+
   server.initialize()
     .then(() => server.start())
     .catch((error) => {

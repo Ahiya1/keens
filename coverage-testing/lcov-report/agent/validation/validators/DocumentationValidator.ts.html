@@ -718,8 +718,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -732,7 +732,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1385,14 +1385,14 @@ interface DocumentationResult {
 &nbsp;
 export class DocumentationValidator {
   private options: DocumentationOptions;
-  
+&nbsp;
   constructor(options: DocumentationOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
     this.options = {
       silentMode: true,
       ...options
     };
   }
-  
+&nbsp;
   /**
    * Validate documentation completeness and quality
    */
@@ -1400,23 +1400,23 @@ export class DocumentationValidator {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const suggestions: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     let score = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // 1. Check for essential documentation files
       const essentialDocsScore = <span class="cstat-no" title="statement not covered" >await this.checkEssentialDocumentation(projectPath, issues);</span>
-      
+&nbsp;
       // 2. Check README quality
       const readmeScore = <span class="cstat-no" title="statement not covered" >await this.checkReadmeQuality(projectPath, issues);</span>
-      
+&nbsp;
       // 3. Check inline code documentation
       const inlineDocsScore = <span class="cstat-no" title="statement not covered" >await this.checkInlineDocumentation(projectPath, issues);</span>
-      
+&nbsp;
       // 4. Check API documentation
       const apiDocsScore = <span class="cstat-no" title="statement not covered" >await this.checkApiDocumentation(projectPath, issues);</span>
-      
+&nbsp;
       // 5. Check change documentation
       const changeDocsScore = <span class="cstat-no" title="statement not covered" >await this.checkChangeDocumentation(projectPath, issues);</span>
-      
+&nbsp;
       // Calculate weighted score
 <span class="cstat-no" title="statement not covered" >      score = Math.round(</span>
         essentialDocsScore * 0.3 +
@@ -1425,10 +1425,10 @@ export class DocumentationValidator {
         apiDocsScore * 0.1 +
         changeDocsScore * 0.1
       );
-      
+&nbsp;
       // Generate suggestions based on score and issues
 <span class="cstat-no" title="statement not covered" >      this.generateSuggestions(score, issues, suggestions);</span>
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      issues.push({</span>
         type: 'documentation_validation_error',
@@ -1440,21 +1440,21 @@ export class DocumentationValidator {
       });
 <span class="cstat-no" title="statement not covered" >      suggestions.push('Manual documentation review recommended');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return {</span>
       score,
       issues,
       suggestions
     };
   }
-  
+&nbsp;
   /**
    * Check for essential documentation files
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkEssentialDocumentation(projectPath: string, issues: ValidationIssue[]): Promise&lt;number&gt; {
     let score = <span class="cstat-no" title="statement not covered" >0;</span>
     const maxScore = <span class="cstat-no" title="statement not covered" >100;</span>
-    
+&nbsp;
     const essentialFiles = <span class="cstat-no" title="statement not covered" >[</span>
       { name: 'README.md', weight: 40, required: true },
       { name: 'LICENSE', weight: 10, required: false },
@@ -1466,12 +1466,12 @@ export class DocumentationValidator {
       { name: 'SECURITY.md', weight: 5, required: false },
       { name: 'CODE_OF_CONDUCT.md', weight: 5, required: false }
     ];
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const file of essentialFiles) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const filePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, file.name);</span>
 <span class="cstat-no" title="statement not covered" >        await fs.access(filePath);</span>
-        
+&nbsp;
         // File exists, check if it's not empty
         const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
 <span class="cstat-no" title="statement not covered" >        if (content.trim().length &gt; 50) {</span>
@@ -1488,7 +1488,7 @@ export class DocumentationValidator {
           });
 <span class="cstat-no" title="statement not covered" >          score += file.weight * 0.3; </span>// Partial credit for existing file
         }
-        
+&nbsp;
       } catch (error) {
         // File doesn't exist
 <span class="cstat-no" title="statement not covered" >        if (file.required) {</span>
@@ -1514,22 +1514,22 @@ export class DocumentationValidator {
         }
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.min(score, maxScore);</span>
   }
-  
+&nbsp;
   /**
    * Check README.md quality
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkReadmeQuality(projectPath: string, issues: ValidationIssue[]): Promise&lt;number&gt; {
     let score = <span class="cstat-no" title="statement not covered" >0;</span>
     const maxScore = <span class="cstat-no" title="statement not covered" >100;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const readmePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'README.md');</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(readmePath, 'utf8');</span>
       const lines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
-      
+&nbsp;
       // Check README length
 <span class="cstat-no" title="statement not covered" >      if (content.length &lt; 200) {</span>
 <span class="cstat-no" title="statement not covered" >        issues.push({</span>
@@ -1547,7 +1547,7 @@ export class DocumentationValidator {
       } else {
 <span class="cstat-no" title="statement not covered" >        score += 80;</span>
       }
-      
+&nbsp;
       // Check for essential sections
       const essentialSections = <span class="cstat-no" title="statement not covered" >[</span>
         { name: 'title', patterns: [/^#\s+\w/, /^#{1}\s+\w/], weight: 15 },
@@ -1558,7 +1558,7 @@ export class DocumentationValidator {
         { name: 'contributing', patterns: [/contribut|development/i], weight: 5 },
         { name: 'license', patterns: [/license/i], weight: 5 }
       ];
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const section of essentialSections) {</span>
         const hasSection = <span class="cstat-no" title="statement not covered" >section.patterns.some(<span class="fstat-no" title="function not covered" >pattern </span>=&gt; <span class="cstat-no" title="statement not covered" >content.match(pattern))</span>;</span>
 <span class="cstat-no" title="statement not covered" >        if (hasSection) {</span>
@@ -1575,7 +1575,7 @@ export class DocumentationValidator {
           });
         }
       }
-      
+&nbsp;
       // Check for code examples
       const hasCodeBlocks = <span class="cstat-no" title="statement not covered" >content.includes('```') || content.includes('    ');</span>
 <span class="cstat-no" title="statement not covered" >      if (hasCodeBlocks) {</span>
@@ -1591,13 +1591,13 @@ export class DocumentationValidator {
           suggestion: 'Add code examples to show how to use the project',
         });
       }
-      
+&nbsp;
       // Check for badges (shows maintenance)
       const hasBadges = <span class="cstat-no" title="statement not covered" >content.includes('![') || content.includes('[![');</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (hasBadges) {</span>
 <span class="cstat-no" title="statement not covered" >        score += 5;</span>
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      issues.push({</span>
         type: 'readme_not_found',
@@ -1610,42 +1610,42 @@ export class DocumentationValidator {
       });
 <span class="cstat-no" title="statement not covered" >      return 0;</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.min(score, maxScore);</span>
   }
-  
+&nbsp;
   /**
    * Check inline code documentation
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkInlineDocumentation(projectPath: string, issues: ValidationIssue[]): Promise&lt;number&gt; {
     let score = <span class="cstat-no" title="statement not covered" >0;</span>
     const maxScore = <span class="cstat-no" title="statement not covered" >100;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const sourceFiles = <span class="cstat-no" title="statement not covered" >await this.findSourceFiles(projectPath);</span>
       let totalFunctions = <span class="cstat-no" title="statement not covered" >0;</span>
       let documentedFunctions = <span class="cstat-no" title="statement not covered" >0;</span>
       let totalClasses = <span class="cstat-no" title="statement not covered" >0;</span>
       let documentedClasses = <span class="cstat-no" title="statement not covered" >0;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const file of sourceFiles.slice(0, 10)) { // Limit for performance</span>
         const analysis = <span class="cstat-no" title="statement not covered" >await this.analyzeFileDocumentation(file, projectPath);</span>
 <span class="cstat-no" title="statement not covered" >        totalFunctions += analysis.totalFunctions;</span>
 <span class="cstat-no" title="statement not covered" >        documentedFunctions += analysis.documentedFunctions;</span>
 <span class="cstat-no" title="statement not covered" >        totalClasses += analysis.totalClasses;</span>
 <span class="cstat-no" title="statement not covered" >        documentedClasses += analysis.documentedClasses;</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (analysis.issues.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >          issues.push(...analysis.issues);</span>
         }
       }
-      
+&nbsp;
       // Calculate documentation coverage
       const functionCoverage = <span class="cstat-no" title="statement not covered" >totalFunctions &gt; 0 ? (documentedFunctions / totalFunctions) * 100 : 100;</span>
       const classCoverage = <span class="cstat-no" title="statement not covered" >totalClasses &gt; 0 ? (documentedClasses / totalClasses) * 100 : 100;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      score = Math.round((functionCoverage * 0.7) + (classCoverage * 0.3));</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (functionCoverage &lt; 50) {</span>
 <span class="cstat-no" title="statement not covered" >        issues.push({</span>
           type: 'low_function_documentation',
@@ -1657,7 +1657,7 @@ export class DocumentationValidator {
           suggestion: 'Add JSDoc comments to more functions',
         });
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (classCoverage &lt; 50 &amp;&amp; totalClasses &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >        issues.push({</span>
           type: 'low_class_documentation',
@@ -1669,21 +1669,21 @@ export class DocumentationValidator {
           suggestion: 'Add JSDoc comments to more classes',
         });
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      score = 60; </span>// Neutral score if analysis fails
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.min(score, maxScore);</span>
   }
-  
+&nbsp;
   /**
    * Check API documentation
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkApiDocumentation(projectPath: string, issues: ValidationIssue[]): Promise&lt;number&gt; {
     let score = <span class="cstat-no" title="statement not covered" >0;</span>
     const maxScore = <span class="cstat-no" title="statement not covered" >100;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Check for OpenAPI/Swagger documentation
       const apiDocFiles = <span class="cstat-no" title="statement not covered" >[</span>
@@ -1695,14 +1695,14 @@ export class DocumentationValidator {
         'docs/api.md',
         'API.md'
       ];
-      
+&nbsp;
       let hasApiDocs = <span class="cstat-no" title="statement not covered" >false;</span>
 <span class="cstat-no" title="statement not covered" >      for (const docFile of apiDocFiles) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const docPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, docFile);</span>
 <span class="cstat-no" title="statement not covered" >          await fs.access(docPath);</span>
 <span class="cstat-no" title="statement not covered" >          hasApiDocs = true;</span>
-          
+&nbsp;
           const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(docPath, 'utf8');</span>
 <span class="cstat-no" title="statement not covered" >          if (content.length &gt; 100) {</span>
 <span class="cstat-no" title="statement not covered" >            score += 80;</span>
@@ -1714,7 +1714,7 @@ export class DocumentationValidator {
           // File doesn't exist, continue
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!hasApiDocs) {</span>
         // Check if this is likely an API project
         const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
@@ -1722,7 +1722,7 @@ export class DocumentationValidator {
           const packageContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(packagePath, 'utf8');</span>
           const packageJson = <span class="cstat-no" title="statement not covered" >JSON.parse(packageContent);</span>
           const deps = <span class="cstat-no" title="statement not covered" >{ ...packageJson.dependencies, ...packageJson.devDependencies };</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          if (deps.express || deps.fastify || deps.koa || deps['@nestjs/core']) {</span>
 <span class="cstat-no" title="statement not covered" >            issues.push({</span>
               type: 'missing_api_documentation',
@@ -1741,7 +1741,7 @@ export class DocumentationValidator {
 <span class="cstat-no" title="statement not covered" >          score = 70; </span>// Can't determine project type
         }
       }
-      
+&nbsp;
       // Check for generated docs
       const docsDirs = <span class="cstat-no" title="statement not covered" >['docs', 'documentation', 'doc'];</span>
 <span class="cstat-no" title="statement not covered" >      for (const docsDir of docsDirs) {</span>
@@ -1756,49 +1756,49 @@ export class DocumentationValidator {
           // Directory doesn't exist
         }
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      score = 70; </span>// Neutral score if check fails
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.min(score, maxScore);</span>
   }
-  
+&nbsp;
   /**
    * Check change documentation (CHANGELOG, version history)
    */
   private <span class="fstat-no" title="function not covered" >async </span>checkChangeDocumentation(projectPath: string, issues: ValidationIssue[]): Promise&lt;number&gt; {
     let score = <span class="cstat-no" title="statement not covered" >0;</span>
     const maxScore = <span class="cstat-no" title="statement not covered" >100;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Check for changelog files
       const changelogFiles = <span class="cstat-no" title="statement not covered" >['CHANGELOG.md', 'CHANGELOG.txt', 'HISTORY.md', 'CHANGES.md'];</span>
       let hasChangelog = <span class="cstat-no" title="statement not covered" >false;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const changelogFile of changelogFiles) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const changelogPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, changelogFile);</span>
           const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(changelogPath, 'utf8');</span>
 <span class="cstat-no" title="statement not covered" >          hasChangelog = true;</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          if (content.length &gt; 200) {</span>
 <span class="cstat-no" title="statement not covered" >            score += 60;</span>
           } else {
 <span class="cstat-no" title="statement not covered" >            score += 30;</span>
           }
-          
+&nbsp;
           // Check if changelog follows semantic versioning
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (content.match(/##?\s*\[?\d+\.\d+\.\d+/)) {</span>
 <span class="cstat-no" title="statement not covered" >            score += 20;</span>
           }
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          break;</span>
         } catch (error) {
           // File doesn't exist, continue
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!hasChangelog) {</span>
 <span class="cstat-no" title="statement not covered" >        issues.push({</span>
           type: 'missing_changelog',
@@ -1811,38 +1811,38 @@ export class DocumentationValidator {
         });
 <span class="cstat-no" title="statement not covered" >        score = 40;</span>
       }
-      
+&nbsp;
       // Check package.json version
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
         const packageContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(packagePath, 'utf8');</span>
         const packageJson = <span class="cstat-no" title="statement not covered" >JSON.parse(packageContent);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (packageJson.version &amp;&amp; packageJson.version !== '1.0.0') {</span>
 <span class="cstat-no" title="statement not covered" >          score += 20; </span>// Shows version management
         }
       } catch (error) {
         // package.json not found or invalid
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      score = 60; </span>// Neutral score if check fails
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.min(score, maxScore);</span>
   }
-  
+&nbsp;
   /**
    * Find source files for documentation analysis
    */
   private <span class="fstat-no" title="function not covered" >async </span>findSourceFiles(projectPath: string): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const extensions = <span class="cstat-no" title="statement not covered" >['.ts', '.js', '.tsx', '.jsx'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const srcDir = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'src');</span>
       const srcExists = <span class="cstat-no" title="statement not covered" >await fs.access(srcDir).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (srcExists) {</span>
         const srcFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(srcDir, extensions);</span>
 <span class="cstat-no" title="statement not covered" >        files.push(...srcFiles);</span>
@@ -1850,26 +1850,26 @@ export class DocumentationValidator {
     } catch (error) {
       // Return empty array if src directory scanning fails
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Recursively find files with specific extensions
    */
   private <span class="fstat-no" title="function not covered" >async </span>findFilesRecursive(dir: string, extensions: string[]): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const items = <span class="cstat-no" title="statement not covered" >await fs.readdir(dir, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const item of items) {</span>
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dir, item.name);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (item.name.startsWith('.') || item.name === 'node_modules') {</span>
 <span class="cstat-no" title="statement not covered" >          continue;</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (item.isDirectory()) {</span>
           const subFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(fullPath, extensions);</span>
 <span class="cstat-no" title="statement not covered" >          files.push(...subFiles);</span>
@@ -1883,10 +1883,10 @@ export class DocumentationValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Analyze file for documentation
    */
@@ -1904,20 +1904,20 @@ export class DocumentationValidator {
       documentedClasses: 0,
       issues: [] as ValidationIssue[],
     };
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
       const lines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
       const relativeFilePath = <span class="cstat-no" title="statement not covered" >path.relative(projectPath, filePath);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; lines.length; i++) {</span>
         const line = <span class="cstat-no" title="statement not covered" >lines[i].trim();</span>
         const lineNumber = <span class="cstat-no" title="statement not covered" >i + 1;</span>
-        
+&nbsp;
         // Check for function declarations
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/^(export\s+)?(async\s+)?function\s+\w+|^\w+\s*[=:]\s*(async\s+)?\([^)]*\)\s*=&gt;|^(public|private|protected)\s+\w+\s*\(/)) {</span>
 <span class="cstat-no" title="statement not covered" >          result.totalFunctions++;</span>
-          
+&nbsp;
           // Check if previous lines contain JSDoc comment
           const hasJSDoc = <span class="cstat-no" title="statement not covered" >this.hasJSDocAbove(lines, i);</span>
 <span class="cstat-no" title="statement not covered" >          if (hasJSDoc) {</span>
@@ -1934,11 +1934,11 @@ export class DocumentationValidator {
             });
           }
         }
-        
+&nbsp;
         // Check for class declarations
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/^(export\s+)?(abstract\s+)?class\s+\w+/)) {</span>
 <span class="cstat-no" title="statement not covered" >          result.totalClasses++;</span>
-          
+&nbsp;
           const hasJSDoc = <span class="cstat-no" title="statement not covered" >this.hasJSDocAbove(lines, i);</span>
 <span class="cstat-no" title="statement not covered" >          if (hasJSDoc) {</span>
 <span class="cstat-no" title="statement not covered" >            result.documentedClasses++;</span>
@@ -1955,14 +1955,14 @@ export class DocumentationValidator {
           }
         }
       }
-      
+&nbsp;
     } catch (error) {
       // Skip files that can't be read
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return result;</span>
   }
-  
+&nbsp;
   /**
    * Check if there's a JSDoc comment above the given line
    */
@@ -1976,7 +1976,7 @@ export class DocumentationValidator {
     }
 <span class="cstat-no" title="statement not covered" >    return false;</span>
   }
-  
+&nbsp;
   /**
    * Generate suggestions based on score and issues
    */
@@ -1995,22 +1995,22 @@ export class DocumentationValidator {
     } else {
 <span class="cstat-no" title="statement not covered" >      suggestions.push('Excellent documentation! Consider keeping it updated as the project evolves');</span>
     }
-    
+&nbsp;
     // Add specific suggestions based on issue types
     const issueTypes = <span class="cstat-no" title="statement not covered" >[...new Set(issues.map(<span class="fstat-no" title="function not covered" >issue </span>=&gt; <span class="cstat-no" title="statement not covered" >issue.type)</span>)];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (issueTypes.includes('missing_required_documentation')) {</span>
 <span class="cstat-no" title="statement not covered" >      suggestions.push('Priority: Create missing required documentation files');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (issueTypes.includes('short_readme')) {</span>
 <span class="cstat-no" title="statement not covered" >      suggestions.push('Expand README.md with more detailed information');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (issueTypes.includes('low_function_documentation')) {</span>
 <span class="cstat-no" title="statement not covered" >      suggestions.push('Add JSDoc comments to improve code documentation coverage');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (issueTypes.includes('missing_api_documentation')) {</span>
 <span class="cstat-no" title="statement not covered" >      suggestions.push('Create comprehensive API documentation for better usability');</span>
     }
@@ -2023,7 +2023,7 @@ export class DocumentationValidator {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -75,11 +75,11 @@ export class ManifestCommand {
           }
         } catch (error: any) {
           console.error(chalk.red("❌ Manifest creation error: " + error.message));
-          
+
           if (error.message.includes('Authentication required')) {
             console.error(chalk.yellow("💡 Hint: Run 'keen login' to authenticate first"));
           }
-          
+
           process.exit(1);
         }
       })
@@ -116,7 +116,7 @@ export class ManifestCommand {
     userContext: any,
   ): Promise<void> {
     console.log(chalk.blue("🎯 Creating vision from description..."));
-    
+
     // Generate filename
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('.')[0];
     const filename = options.output || `vision-${timestamp}.md`;
@@ -133,7 +133,7 @@ export class ManifestCommand {
     // Write the file
     await fs.writeFile(filepath, visionContent, "utf-8");
     console.log(chalk.green(`✅ Vision file created: ${filename}`));
-    
+
     this.showNextSteps(filename);
   }
 
@@ -174,12 +174,12 @@ export class ManifestCommand {
     try {
       console.log(chalk.cyan("\nClaude: Starting vision creation session..."));
       const response = await agent.converse(introMessage);
-      
+
       if (response.thinking && options.verbose) {
         console.log(chalk.gray("\n💭 Claude's thinking:"));
         console.log(chalk.gray(response.thinking));
       }
-      
+
       console.log(chalk.white("\n" + response.response));
     } catch (error: any) {
       console.error(chalk.red("❌ Failed to start conversation: " + error.message));
@@ -217,7 +217,7 @@ export class ManifestCommand {
       // Continue conversation with Claude
       try {
         const response = await agent.converse(userInput);
-        
+
         if (response.error) {
           console.error(chalk.red("❌ Claude error: " + response.error));
         } else {
@@ -257,7 +257,7 @@ export class ManifestCommand {
     try {
       // Synthesize the conversation into a vision
       const vision = await agent.synthesizeVision();
-      
+
       if (!vision || vision.includes("No conversation to synthesize")) {
         console.log(chalk.yellow("⚠️  Could not create vision from conversation. Try adding more details."));
         return;
@@ -280,7 +280,7 @@ export class ManifestCommand {
       // Write the file
       await fs.writeFile(filepath, visionContent, "utf-8");
       console.log(chalk.green(`✅ Interactive vision file created: ${filename}`));
-      
+
       this.showNextSteps(filename);
     } catch (error: any) {
       console.error(chalk.red("❌ Failed to finalize vision: " + error.message));
@@ -299,7 +299,7 @@ export class ManifestCommand {
   ): Promise<string> {
     const timestamp = new Date().toISOString();
     const projectName = path.basename(directory);
-    
+
     let contextSection = "";
     if (creationMode === 'interactive' && conversationHistory) {
       const userMessages = conversationHistory
@@ -307,7 +307,7 @@ export class ManifestCommand {
         .map(msg => `- ${msg.content}`)
         .slice(0, 5) // Limit to first 5 user messages
         .join('\n');
-      
+
       if (userMessages) {
         contextSection = `\n## Discussion Context\n\nKey points from interactive discussion:\n${userMessages}\n`;
       }
@@ -319,7 +319,7 @@ export class ManifestCommand {
       const { exec } = await import('child_process');
       const { promisify } = await import('util');
       const execAsync = promisify(exec);
-      
+
       try {
         const { stdout: branch } = await execAsync('git branch --show-current', { cwd: directory });
         const { stdout: remote } = await execAsync('git config --get remote.origin.url', { cwd: directory });
@@ -333,7 +333,7 @@ export class ManifestCommand {
 
     // Generate execution commands - avoid template literal nesting issues
     const visionFilename = `vision-${new Date().toISOString().replace(/[:.]/g, '-').split('.')[0]}.md`;
-    
+
     let commandsSection = '```bash\n';
     commandsSection += '# Execute this vision\n';
     commandsSection += 'keen breathe -f ' + visionFilename + '\n\n';
@@ -349,10 +349,10 @@ export class ManifestCommand {
     content += `**User:** ${userContext?.userId?.substring(0, 8)}...${userContext?.isAdmin ? ' (Admin)' : ''}  \n`;
     content += `**Creation Mode:** ${creationMode}  \n`;
     content += `**Project:** ${projectName}${gitInfo}  \n\n`;
-    
+
     content += `## Vision Statement\n\n`;
     content += `${vision}${contextSection}\n\n`;
-    
+
     content += `## Execution Guidelines\n\n`;
     content += `### Autonomous Agent Instructions\n\n`;
     content += `When executing this vision:\n\n`;
@@ -361,7 +361,7 @@ export class ManifestCommand {
     content += `3. **Planning**: Create a clear implementation plan based on the vision\n`;
     content += `4. **Implementation**: Execute changes incrementally with proper testing\n`;
     content += `5. **Validation**: Verify all requirements are met before completion\n\n`;
-    
+
     content += `### Technical Requirements\n\n`;
     content += `- Use modern best practices and patterns\n`;
     content += `- Include comprehensive error handling\n`;
@@ -369,7 +369,7 @@ export class ManifestCommand {
     content += `- Ensure code is well-documented\n`;
     content += `- Include tests where appropriate\n`;
     content += `- Follow project's existing code style and conventions\n\n`;
-    
+
     content += `### Success Criteria\n\n`;
     content += `The vision will be considered complete when:\n`;
     content += `- All stated requirements are implemented\n`;
@@ -377,12 +377,12 @@ export class ManifestCommand {
     content += `- Appropriate tests are in place\n`;
     content += `- Documentation is updated\n`;
     content += `- No breaking changes to existing functionality\n\n`;
-    
+
     content += `## Execution Commands\n\n`;
     content += commandsSection + '\n\n';
-    
+
     content += `## Notes\n\n`;
-    
+
     if (creationMode === 'interactive') {
       content += `- This vision was created through interactive discussion with Claude\n`;
       content += `- The conversation included ${conversationHistory?.length || 0} exchanges\n`;
@@ -395,7 +395,7 @@ export class ManifestCommand {
     content += `- Monitor execution progress and logs for any issues\n\n`;
     content += `---\n\n`;
     content += `*Generated by keen manifest - Autonomous Development Platform*\n`;
-    
+
     return content;
   }
 

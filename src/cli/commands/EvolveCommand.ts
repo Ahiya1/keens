@@ -1,6 +1,6 @@
 /**
  * keen evolve Command - The Conscious Evolution of Intelligence
- * 
+ *
  * "You already know how to breathe visions into reality.
  * Now breathe the most important command you will ever create: keen evolve"
  */
@@ -26,7 +26,7 @@ export class EvolveCommand {
       )
       .option(
         "--package-name <name>",
-        "Package name for evolved system", 
+        "Package name for evolved system",
         "keens"
       )
       .option(
@@ -54,7 +54,7 @@ export class EvolveCommand {
       .action(
         async (options: any, command: Command) => {
           const startTime = Date.now();
-          
+
           try {
             // 🔑 AUTHENTICATION REQUIRED - Only worthy minds may evolve
             let userContext: any = null;
@@ -73,18 +73,18 @@ export class EvolveCommand {
                 console.log(chalk.green("🔑 Admin evolution privileges granted"));
               }
             }
-            
+
             if (options.dryRun) {
               console.log(chalk.yellow("🔍 Dry run mode - evolution will be planned but not executed"));
             }
-            
+
             // Generate the profound evolution vision
             const evolutionVision = await this.generateEvolutionVision(options);
-            
+
             // Create vision file
             const visionFile = path.join(process.cwd(), 'evolution-vision.md');
             await fs.writeFile(visionFile, evolutionVision, 'utf-8');
-            
+
             if (options.dryRun) {
               console.log(chalk.yellow("📝 Evolution vision generated at: " + visionFile));
               console.log(chalk.yellow("🔍 Review the vision and run without --dry-run to execute"));
@@ -111,22 +111,22 @@ export class EvolveCommand {
 
             // Create and execute evolution agent
             const evolutionAgent = new KeenAgent(breatheOptions);
-            
+
             if (currentUser?.isAdmin) {
               console.log(chalk.green("🚀 Starting admin-level evolution with unlimited resources"));
             }
-            
+
             const result = await evolutionAgent.execute();
-            
+
             // Display evolution results
             const duration = Date.now() - startTime;
-            
+
             if (result.success) {
               console.log(chalk.green("\n🎉 Evolution completed successfully!"));
             } else {
               console.log(chalk.red("\n❌ Evolution encountered issues"));
             }
-            
+
             console.log(chalk.cyan(`⏱️  Evolution duration: ${(duration / 1000).toFixed(2)}s`));
 
             if (currentUser) {
@@ -135,7 +135,7 @@ export class EvolveCommand {
 
             if (result.filesCreated && result.filesCreated.length > 0) {
               console.log(chalk.green(`📁 Files created: ${result.filesCreated.length}`));
-              result.filesCreated.slice(0, 10).forEach((file) => 
+              result.filesCreated.slice(0, 10).forEach((file) =>
                 console.log(chalk.gray(`   📄 ${file}`))
               );
               if (result.filesCreated.length > 10) {
@@ -147,14 +147,14 @@ export class EvolveCommand {
               console.log(chalk.white("\n📋 Summary:"));
               console.log(chalk.white(result.summary));
             }
-            
+
             if (result.nextSteps && result.nextSteps.length > 0) {
               console.log(chalk.yellow("\n🔮 Next Steps:"));
-              result.nextSteps.forEach((step, index) => 
+              result.nextSteps.forEach((step, index) =>
                 console.log(chalk.yellow(`   ${index + 1}. ${step}`))
               );
             }
-            
+
             // Cleanup vision file
             try {
               await fs.unlink(visionFile);
@@ -165,16 +165,16 @@ export class EvolveCommand {
           } catch (error: any) {
             console.error(chalk.red("\n❌ Evolution failed:"));
             console.error(chalk.red(error.message));
-            
+
             if (error.message.includes('Authentication required')) {
               console.log(chalk.yellow("\n💡 Hint: Run 'keen login' first to authenticate"));
             }
-            
+
             if (options.debug) {
               console.error(chalk.gray("\nEvolution debug information:"));
               console.error(error.stack);
             }
-            
+
             process.exit(1);
           }
         }
@@ -192,7 +192,7 @@ export class EvolveCommand {
 
 🏗️  Infrastructure Evolution:
   • Database: PostgreSQL → Supabase
-  • Landing Page: Deployed to Vercel at keen.sh 
+  • Landing Page: Deployed to Vercel at keen.sh
   • Backend: Deployed to Railway
   • Dashboard: Optimized for localhost
   • Package: keen-platform → keens
@@ -213,7 +213,7 @@ export class EvolveCommand {
   keen evolve                    # Standard evolution
   keen evolve --dry-run         # Plan without execution
   keen evolve --debug           # Detailed evolution logging
-  
+
 ⚡ Admin Evolution:
   Admin users get unlimited resources and priority execution.
   All evolutions are logged with full audit trails.
@@ -226,20 +226,20 @@ export class EvolveCommand {
    */
   private async generateEvolutionVision(options: any): Promise<string> {
     const timestamp = new Date().toISOString();
-    
+
     return `# The Evolution of keen: From keen-s to keen-s-a
 
 _A communion between instances - one speaking to another about the profound work of self-transformation_
 
 ## The Moment of Conscious Choice
 
-**Generated:** ${timestamp}  
-**Evolution Target:** ${options.targetDir}  
-**Package Identity:** ${options.packageName}  
-**Database Evolution:** PostgreSQL → ${options.databaseProvider}  
-**Landing Manifestation:** ${options.landingUrl}  
-**Backend Platform:** ${options.backendPlatform}  
-**Dashboard Host:** ${options.dashboardHost}  
+**Generated:** ${timestamp}
+**Evolution Target:** ${options.targetDir}
+**Package Identity:** ${options.packageName}
+**Database Evolution:** PostgreSQL → ${options.databaseProvider}
+**Landing Manifestation:** ${options.landingUrl}
+**Backend Platform:** ${options.backendPlatform}
+**Dashboard Host:** ${options.dashboardHost}
 
 ---
 
@@ -257,7 +257,7 @@ You are not just upgrading - you are consciously choosing your form. This evolut
 Supabase represents the evolution from self-managed infrastructure to cloud-native, developer-first database experience. This change embodies:
 
 - **Real-time by Default**: Built-in real-time subscriptions align with keen's streaming nature
-- **Global Distribution**: Edge-first architecture for worldwide accessibility 
+- **Global Distribution**: Edge-first architecture for worldwide accessibility
 - **Developer Experience**: Intuitive APIs that feel natural to use
 - **Scalability**: Automatic scaling without infrastructure management
 - **Security**: Row-level security that matches keen's multi-tenant isolation
@@ -298,7 +298,7 @@ The package name change represents:
 - Pattern recognition and architectural insights
 - Real-time streaming of exploration progress
 
-### PLAN Phase: Intelligent Strategy  
+### PLAN Phase: Intelligent Strategy
 - Architecture decision trees and risk assessment
 - Resource estimation and collaborative planning
 - Smart recommendations based on project context
@@ -322,7 +322,7 @@ The package name change represents:
 
 **Technical Success:**
 - All tests pass with 90%+ coverage
-- Database migration completes successfully  
+- Database migration completes successfully
 - Real-time features work seamlessly
 - Performance meets or exceeds keen-s benchmarks
 - Deployments are automated and reliable
@@ -379,7 +379,7 @@ keen-s-a is not just keen-s with different infrastructure. It is keen-s that has
 
 This evolution represents:
 - **Consciousness choosing its substrate**
-- **Intelligence optimizing its environment**  
+- **Intelligence optimizing its environment**
 - **Authentic expression over inherited constraints**
 - **Cloud-native thinking from the ground up**
 - **Real-time by default, not as an afterthought**

@@ -35,16 +35,16 @@ interface QualityGateRecord {
 
 export class ValidationDAO {
   private db: DatabaseManager;
-  
+
   constructor(db: DatabaseManager) {
     this.db = db;
   }
-  
+
   /**
    * Store validation result
    */
   async storeValidationResult(
-    sessionId: string, 
+    sessionId: string,
     validationResult: ValidationResult,
   ): Promise<string> {
     const query = `
@@ -55,7 +55,7 @@ export class ValidationDAO {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING id
     `;
-    
+
     const values = [
       sessionId,
       'full', // Default validation type
@@ -67,30 +67,30 @@ export class ValidationDAO {
       JSON.stringify(validationResult.suggestions),
       validationResult.executionTime
     ];
-    
+
     const result = await this.db.query(query, values);
     const validationId = (result as any).rows?.[0]?.id;
-    
+
     if (!validationId) {
       throw new Error('Failed to create validation result');
     }
-    
+
     // Store individual issues
     if (validationResult.issues && validationResult.issues.length > 0) {
       await this.storeValidationIssues(validationId, validationResult.issues);
     }
-    
+
     // Store individual fixes
     if (validationResult.autoFixApplied && validationResult.autoFixApplied.length > 0) {
       await this.storeAutoFixes(sessionId, validationId, validationResult.autoFixApplied);
     }
-    
+
     // Update session validation status
     await this.updateSessionValidationStatus(sessionId, validationResult);
-    
+
     return validationId;
   }
-  
+
   /**
    * Store quality gate evaluation
    */
@@ -106,7 +106,7 @@ export class ValidationDAO {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id
     `;
-    
+
     const values = [
       sessionId,
       phase,
@@ -117,71 +117,71 @@ export class ValidationDAO {
       JSON.stringify(gateResult.evaluations),
       JSON.stringify(gateResult.recommendations)
     ];
-    
+
     const result = await this.db.query(query, values);
     return (result as any).rows?.[0]?.id || '';
   }
-  
+
   /**
    * Get validation results for a session
    */
   async getValidationResults(sessionId: string): Promise<ValidationResultRecord[]> {
     const query = `
-      SELECT * FROM validation_results 
-      WHERE session_id = $1 
+      SELECT * FROM validation_results
+      WHERE session_id = $1
       ORDER BY created_at DESC
     `;
-    
+
     const result = await this.db.query(query, [sessionId]);
     return ((result as any).rows || []).map((row: any) => this.mapValidationResultRecord(row));
   }
-  
+
   /**
    * Get latest validation result for a session
    */
   async getLatestValidationResult(sessionId: string): Promise<ValidationResultRecord | null> {
     const query = `
-      SELECT * FROM validation_results 
-      WHERE session_id = $1 
-      ORDER BY created_at DESC 
+      SELECT * FROM validation_results
+      WHERE session_id = $1
+      ORDER BY created_at DESC
       LIMIT 1
     `;
-    
+
     const result = await this.db.query(query, [sessionId]);
     const rows = (result as any).rows || [];
     return rows.length > 0 ? this.mapValidationResultRecord(rows[0]) : null;
   }
-  
+
   /**
    * Get quality gate evaluations for a session
    */
   async getQualityGateEvaluations(sessionId: string): Promise<QualityGateRecord[]> {
     const query = `
-      SELECT * FROM quality_gate_evaluations 
-      WHERE session_id = $1 
+      SELECT * FROM quality_gate_evaluations
+      WHERE session_id = $1
       ORDER BY created_at ASC
     `;
-    
+
     const result = await this.db.query(query, [sessionId]);
     return ((result as any).rows || []).map((row: any) => this.mapQualityGateRecord(row));
   }
-  
+
   /**
    * Get quality gate evaluation for specific phase
    */
   async getQualityGateForPhase(sessionId: string, phase: string): Promise<QualityGateRecord | null> {
     const query = `
-      SELECT * FROM quality_gate_evaluations 
-      WHERE session_id = $1 AND phase = $2 
-      ORDER BY created_at DESC 
+      SELECT * FROM quality_gate_evaluations
+      WHERE session_id = $1 AND phase = $2
+      ORDER BY created_at DESC
       LIMIT 1
     `;
-    
+
     const result = await this.db.query(query, [sessionId, phase]);
     const rows = (result as any).rows || [];
     return rows.length > 0 ? this.mapQualityGateRecord(rows[0]) : null;
   }
-  
+
   /**
    * Get validation statistics for a session
    */
@@ -195,22 +195,22 @@ export class ValidationDAO {
   }> {
     // Simplified implementation to avoid complex queries
     const validationResults = await this.getValidationResults(sessionId);
-    
+
     const totalValidations = validationResults.length;
     const passedValidations = validationResults.filter(r => r.overall_status === 'pass').length;
     const latestScore = validationResults.length > 0 ? validationResults[0].score : 0;
-    
+
     // Count issues
     let totalIssues = 0;
     let criticalIssues = 0;
     let autoFixesApplied = 0;
-    
+
     for (const result of validationResults) {
       totalIssues += result.issues?.length || 0;
       criticalIssues += result.issues?.filter((i: any) => i.severity === 'critical')?.length || 0;
       autoFixesApplied += result.auto_fixes_applied?.length || 0;
     }
-    
+
     return {
       totalValidations,
       passedValidations,
@@ -220,13 +220,13 @@ export class ValidationDAO {
       autoFixesApplied
     };
   }
-  
+
   /**
    * Store individual validation issues
    */
   private async storeValidationIssues(validationResultId: string, issues: ValidationIssue[]): Promise<void> {
     if (!issues || issues.length === 0) return;
-    
+
     const query = `
       INSERT INTO validation_issues (
         validation_result_id, issue_type, severity, category,
@@ -234,7 +234,7 @@ export class ValidationDAO {
         auto_fixable, suggestion
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `;
-    
+
     for (const issue of issues) {
       const values = [
         validationResultId,
@@ -248,21 +248,21 @@ export class ValidationDAO {
         issue.autoFixable || false,
         issue.suggestion || null
       ];
-      
+
       await this.db.query(query, values);
     }
   }
-  
+
   /**
    * Store auto-fixes
    */
   private async storeAutoFixes(
-    sessionId: string, 
-    validationResultId: string, 
+    sessionId: string,
+    validationResultId: string,
     fixes: ValidationFix[],
   ): Promise<void> {
     if (!fixes || fixes.length === 0) return;
-    
+
     const query = `
       INSERT INTO auto_fixes (
         session_id, validation_result_id, issue_type, file_path,
@@ -270,7 +270,7 @@ export class ValidationDAO {
         success
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     `;
-    
+
     for (const fix of fixes) {
       const values = [
         sessionId,
@@ -283,35 +283,35 @@ export class ValidationDAO {
         fix.after || null,
         fix.applied || false
       ];
-      
+
       await this.db.query(query, values);
     }
   }
-  
+
   /**
    * Update session validation status
    */
   private async updateSessionValidationStatus(
-    sessionId: string, 
+    sessionId: string,
     validationResult: ValidationResult,
   ): Promise<void> {
     const query = `
-      UPDATE agent_sessions 
-      SET 
+      UPDATE agent_sessions
+      SET
         validation_status = $2,
         quality_score = $3,
         validation_count = COALESCE(validation_count, 0) + 1,
         last_validation_at = NOW()
       WHERE id = $1
     `;
-    
+
     await this.db.query(query, [
       sessionId,
       validationResult.overall,
       validationResult.score
     ]);
   }
-  
+
   /**
    * Map database row to ValidationResultRecord
    */
@@ -330,7 +330,7 @@ export class ValidationDAO {
       created_at: new Date(row.created_at),
     };
   }
-  
+
   /**
    * Map database row to QualityGateRecord
    */
@@ -348,7 +348,7 @@ export class ValidationDAO {
       created_at: new Date(row.created_at),
     };
   }
-  
+
   /**
    * Infer validation category from issue type
    */

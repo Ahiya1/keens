@@ -201,7 +201,7 @@ export class AnalyticsDAO {
 
         const [updated] = await transaction.query<DailyAnalytics>(
           `
-          UPDATE daily_analytics 
+          UPDATE daily_analytics
           SET ${updateClause.join(", ")}
           WHERE user_id = $${paramIndex++} AND date_bucket = $${paramIndex++}
           RETURNING *
@@ -278,7 +278,7 @@ export class AnalyticsDAO {
 
     const analytics = await this.db.query<DailyAnalytics>(
       `
-      SELECT * FROM daily_analytics 
+      SELECT * FROM daily_analytics
       ${whereClause}
       ORDER BY date_bucket DESC, user_id NULLS FIRST
       `,
@@ -299,7 +299,7 @@ export class AnalyticsDAO {
 
     const [userMetrics] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COUNT(*) as total_users,
         COUNT(*) FILTER (WHERE last_login_at > NOW() - INTERVAL '24 hours') as active_users,
         COUNT(*) FILTER (WHERE is_admin = true) as admin_users
@@ -311,7 +311,7 @@ export class AnalyticsDAO {
 
     const [sessionMetrics] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COUNT(*) as total_sessions,
         COUNT(*) FILTER (WHERE execution_status = 'running') as active_sessions
       FROM agent_sessions
@@ -322,7 +322,7 @@ export class AnalyticsDAO {
 
     const [creditMetrics] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COALESCE(SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END), 0) as total_credits_consumed,
         COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) as total_revenue,
         COALESCE(SUM(claude_cost_usd), 0) as total_claude_costs,
@@ -345,7 +345,7 @@ export class AnalyticsDAO {
 
     const topBranches = await this.db.query(
       `
-      SELECT 
+      SELECT
         git_branch,
         COUNT(*) as session_count,
         (COUNT(*) FILTER (WHERE success = true)::FLOAT / COUNT(*)) as success_rate
@@ -401,7 +401,7 @@ export class AnalyticsDAO {
 
     const [summary] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COUNT(*) as total_sessions,
         COUNT(*) FILTER (WHERE execution_status = 'completed') as completed_sessions,
         COALESCE(SUM(total_cost), 0) as total_cost,
@@ -453,7 +453,7 @@ export class AnalyticsDAO {
 
     const analytics = await this.db.query<DailyAnalytics>(
       `
-      SELECT * FROM daily_analytics 
+      SELECT * FROM daily_analytics
       ${whereClause}
       ORDER BY date_bucket DESC, user_id NULLS FIRST
       `,
@@ -490,7 +490,7 @@ export class AnalyticsDAO {
 
     const [sessionHealth] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COUNT(*) FILTER (WHERE execution_status = 'running') as active_sessions,
         COALESCE(AVG(EXTRACT(EPOCH FROM (last_activity_at - start_time))), 0) as avg_response_time,
         (COUNT(*) FILTER (WHERE execution_status = 'failed')::FLOAT / NULLIF(COUNT(*), 0)) as error_rate
@@ -503,7 +503,7 @@ export class AnalyticsDAO {
 
     const [creditHealth] = await this.db.query(
       `
-      SELECT 
+      SELECT
         COALESCE(SUM(current_balance), 0) as total_balance,
         COALESCE(SUM(CASE WHEN amount > 0 AND DATE(created_at) = CURRENT_DATE THEN amount ELSE 0 END), 0) as daily_revenue,
         COALESCE(SUM(CASE WHEN is_admin_bypass AND DATE(created_at) = CURRENT_DATE THEN claude_cost_usd ELSE 0 END), 0) as admin_bypass_today

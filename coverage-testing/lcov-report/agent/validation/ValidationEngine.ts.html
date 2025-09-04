@@ -768,8 +768,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -781,14 +781,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1494,7 +1494,7 @@ export class ValidationEngine {
   private securityValidator: SecurityValidator;
   private performanceValidator: PerformanceValidator;
   private documentationValidator: DocumentationValidator;
-  
+&nbsp;
   constructor(options: ValidationEngineOptions) {
     this.options = {
       enableAutoFix: true,
@@ -1503,7 +1503,7 @@ export class ValidationEngine {
       silentMode: true,
       ...options
     };
-    
+&nbsp;
     // Initialize validators with SILENT MODE ENFORCED
     this.codeQualityValidator = new CodeQualityValidator({ silentMode: true });
     this.testValidator = new TestValidator({ silentMode: true });
@@ -1511,19 +1511,19 @@ export class ValidationEngine {
     this.performanceValidator = new PerformanceValidator({ silentMode: true });
     this.documentationValidator = new DocumentationValidator({ silentMode: true });
   }
-  
+&nbsp;
   /**
    * Main validation orchestrator - FIXED: Auto-fix BEFORE reporting to save credits
    */
 <span class="fstat-no" title="function not covered" >  async </span>validateProject(projectPath: string, options: ValidationOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;ValidationResult&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
     const categories = <span class="cstat-no" title="statement not covered" >options.categories || ['syntax', 'style', 'tests', 'security', 'performance', 'documentation'];</span>
-    
+&nbsp;
     const validationResults: { [category: string]: CategoryValidation } = <span class="cstat-no" title="statement not covered" >{};</span>
     let allIssues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const allSuggestions: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     let autoFixApplied: ValidationFix[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Step 1: Collect all issues from all categories
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (categories.includes('syntax')) {</span>
@@ -1534,7 +1534,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          allSuggestions.push(...syntaxResult.suggestions);</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (categories.includes('style')) {</span>
         const styleResult = <span class="cstat-no" title="statement not covered" >await this.validateStyle(projectPath, options);</span>
 <span class="cstat-no" title="statement not covered" >        validationResults.style = styleResult;</span>
@@ -1543,7 +1543,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          allSuggestions.push(...styleResult.suggestions);</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (categories.includes('tests')) {</span>
         const testResult = <span class="cstat-no" title="statement not covered" >await this.validateTests(projectPath, options);</span>
 <span class="cstat-no" title="statement not covered" >        validationResults.tests = testResult;</span>
@@ -1552,7 +1552,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          allSuggestions.push(...testResult.suggestions);</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (categories.includes('security')) {</span>
         const securityResult = <span class="cstat-no" title="statement not covered" >await this.validateSecurity(projectPath, options);</span>
 <span class="cstat-no" title="statement not covered" >        validationResults.security = securityResult;</span>
@@ -1561,7 +1561,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          allSuggestions.push(...securityResult.suggestions);</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (categories.includes('performance')) {</span>
         const performanceResult = <span class="cstat-no" title="statement not covered" >await this.validatePerformance(projectPath, options);</span>
 <span class="cstat-no" title="statement not covered" >        validationResults.performance = performanceResult;</span>
@@ -1570,7 +1570,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          allSuggestions.push(...performanceResult.suggestions);</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (categories.includes('documentation')) {</span>
         const docResult = <span class="cstat-no" title="statement not covered" >await this.validateDocumentation(projectPath, options);</span>
 <span class="cstat-no" title="statement not covered" >        validationResults.documentation = docResult;</span>
@@ -1579,22 +1579,22 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          allSuggestions.push(...docResult.suggestions);</span>
         }
       }
-      
+&nbsp;
       // Step 2: CRITICAL FIX - Apply auto-fixes FIRST if enabled
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (options.fixIssues &amp;&amp; this.options.enableAutoFix) {</span>
 <span class="cstat-no" title="statement not covered" >        autoFixApplied = await this.applyAutoFixes(allIssues, projectPath);</span>
-        
+&nbsp;
         // Step 3: Remove fixed issues from the list to avoid reporting them to AI
 <span class="cstat-no" title="statement not covered" >        allIssues = this.filterOutFixedIssues(allIssues, autoFixApplied);</span>
-        
+&nbsp;
         // Step 4: Update category results to reflect fixed issues
 <span class="cstat-no" title="statement not covered" >        this.updateCategoryResultsAfterFixes(validationResults, autoFixApplied);</span>
       }
-      
+&nbsp;
       // Step 5: Calculate overall score and status with filtered issues
       const overallScore = <span class="cstat-no" title="statement not covered" >this.calculateOverallScore(validationResults);</span>
       const overallStatus = <span class="cstat-no" title="statement not covered" >this.determineOverallStatus(overallScore, allIssues);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         overall: overallStatus,
         score: overallScore,
@@ -1605,7 +1605,7 @@ export class ValidationEngine {
         executionTime: Date.now() - startTime,
         timestamp: new Date().toISOString(),
       };
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      return {</span>
         overall: 'fail',
@@ -1625,21 +1625,21 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Filter out issues that were successfully auto-fixed
    */
   private <span class="fstat-no" title="function not covered" >filterOutFixedIssues(</span>allIssues: ValidationIssue[], autoFixApplied: ValidationFix[]): ValidationIssue[] {
-    const fixedIssueKeys = <span class="cstat-no" title="statement not covered" >new Set(autoFixApplied.map(<span class="fstat-no" title="function not covered" >fix </span>=&gt; </span>
+    const fixedIssueKeys = <span class="cstat-no" title="statement not covered" >new Set(autoFixApplied.map(<span class="fstat-no" title="function not covered" >fix </span>=&gt;</span>
 <span class="cstat-no" title="statement not covered" >      `${fix.file}:${fix.line}:${fix.issueType}`</span>
     ));
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return allIssues.filter(<span class="fstat-no" title="function not covered" >issue </span>=&gt; {</span>
       const issueKey = <span class="cstat-no" title="statement not covered" >`${issue.file}:${issue.line}:${issue.type}`;</span>
 <span class="cstat-no" title="statement not covered" >      return !fixedIssueKeys.has(issueKey);</span>
     });
   }
-  
+&nbsp;
   /**
    * Update category results after auto-fixes are applied
    */
@@ -1648,32 +1648,32 @@ export class ValidationEngine {
     autoFixApplied: ValidationFix[],
   ): void {
     const fixesByCategory: { [category: string]: number } = <span class="cstat-no" title="statement not covered" >{};</span>
-    
+&nbsp;
     // Count fixes by category
 <span class="cstat-no" title="statement not covered" >    for (const fix of autoFixApplied) {</span>
       // Determine category from issue type
       const category = <span class="cstat-no" title="statement not covered" >this.getCategoryForIssueType(fix.issueType);</span>
 <span class="cstat-no" title="statement not covered" >      fixesByCategory[category] = (fixesByCategory[category] || 0) + 1;</span>
     }
-    
+&nbsp;
     // Update category scores and issue counts
 <span class="cstat-no" title="statement not covered" >    for (const [category, fixCount] of Object.entries(fixesByCategory)) {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (validationResults[category]) {</span>
         const categoryResult = <span class="cstat-no" title="statement not covered" >validationResults[category];</span>
-        
+&nbsp;
         // Remove fixed issues from the category
 <span class="cstat-no" title="statement not covered" >        categoryResult.issues = categoryResult.issues.filter(<span class="fstat-no" title="function not covered" >issue </span>=&gt; {</span>
           const issueKey = <span class="cstat-no" title="statement not covered" >`${issue.file}:${issue.line}:${issue.type}`;</span>
-<span class="cstat-no" title="statement not covered" >          return !autoFixApplied.some(<span class="fstat-no" title="function not covered" >fix </span>=&gt; </span>
+<span class="cstat-no" title="statement not covered" >          return !autoFixApplied.some(<span class="fstat-no" title="function not covered" >fix </span>=&gt;</span>
 <span class="cstat-no" title="statement not covered" >            `${fix.file}:${fix.line}:${fix.issueType}` === issueKey</span>
           );
         });
-        
+&nbsp;
         // Recalculate score based on remaining issues
         const remainingIssues = <span class="cstat-no" title="statement not covered" >categoryResult.issues.length;</span>
 <span class="cstat-no" title="statement not covered" >        categoryResult.score = Math.max(0, 100 - (remainingIssues * 10));</span>
 <span class="cstat-no" title="statement not covered" >        categoryResult.passed = remainingIssues === 0;</span>
-        
+&nbsp;
         // Add auto-fix success to suggestions
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (fixCount &gt; 0 &amp;&amp; categoryResult.suggestions) {</span>
 <span class="cstat-no" title="statement not covered" >          categoryResult.suggestions.push(`Auto-fixed ${fixCount} issues`);</span>
@@ -1681,12 +1681,12 @@ export class ValidationEngine {
       }
     }
   }
-  
+&nbsp;
   /**
    * Get category for issue type (for organizing fixes)
    */
   private <span class="fstat-no" title="function not covered" >getCategoryForIssueType(</span>issueType: string): string {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (issueType.includes('trailing_whitespace') || </span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (issueType.includes('trailing_whitespace') ||</span>
         issueType.includes('inconsistent_indentation') ||
         issueType.includes('missing_semicolon')) {
 <span class="cstat-no" title="statement not covered" >      return 'style';</span>
@@ -1708,16 +1708,16 @@ export class ValidationEngine {
     }
 <span class="cstat-no" title="statement not covered" >    return 'style'; </span>// Default to style
   }
-  
+&nbsp;
   /**
    * Validate syntax
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateSyntax(projectPath: string, options: ValidationOptions): Promise&lt;CategoryValidation&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const result = <span class="cstat-no" title="statement not covered" >await this.codeQualityValidator.validateSyntax(projectPath, options.scope);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         category: 'syntax',
         passed: result.issues.length === 0,
@@ -1744,16 +1744,16 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Validate code style
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateStyle(projectPath: string, options: ValidationOptions): Promise&lt;CategoryValidation&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const result = <span class="cstat-no" title="statement not covered" >await this.codeQualityValidator.validateStyle(projectPath, options.scope);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         category: 'style',
         passed: result.criticalIssues === 0,
@@ -1780,21 +1780,21 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Validate tests - ENFORCES SILENT MODE
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateTests(projectPath: string, options: ValidationOptions): Promise&lt;CategoryValidation&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const result = <span class="cstat-no" title="statement not covered" >await this.testValidator.executeTests(projectPath, {</span>
         silentMode: true  // ALWAYS SILENT,
       });
-      
+&nbsp;
       const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
       const testsRun: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!result.passed) {</span>
 <span class="cstat-no" title="statement not covered" >        issues.push({</span>
           type: 'test_failure',
@@ -1805,7 +1805,7 @@ export class ValidationEngine {
           autoFixable: false,
         });
       }
-      
+&nbsp;
       // Check test coverage if available
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (result.coverage) {</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (result.coverage.lines &lt; 60) {</span>
@@ -1820,12 +1820,12 @@ export class ValidationEngine {
           });
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      testsRun.push(`${result.total} tests executed`);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (result.coverage) {</span>
 <span class="cstat-no" title="statement not covered" >        testsRun.push(`${result.coverage.lines}% line coverage`);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         category: 'tests',
         passed: result.passed &amp;&amp; (result.coverage?.lines || 100) &gt;= 60,
@@ -1853,19 +1853,19 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Validate security
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateSecurity(projectPath: string, options: ValidationOptions): Promise&lt;CategoryValidation&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const result = <span class="cstat-no" title="statement not covered" >await this.securityValidator.scanVulnerabilities(projectPath);</span>
-      
+&nbsp;
       const criticalVulns = <span class="cstat-no" title="statement not covered" >result.vulnerabilities.filter(<span class="fstat-no" title="function not covered" >v </span>=&gt; <span class="cstat-no" title="statement not covered" >v.severity === 'critical')</span>.length;</span>
       const highVulns = <span class="cstat-no" title="statement not covered" >result.vulnerabilities.filter(<span class="fstat-no" title="function not covered" >v </span>=&gt; <span class="cstat-no" title="statement not covered" >v.severity === 'high')</span>.length;</span>
-      
+&nbsp;
       const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >result.vulnerabilities.map(<span class="fstat-no" title="function not covered" >vuln </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
         type: 'security_vulnerability',
         severity: vuln.severity,
@@ -1875,7 +1875,7 @@ export class ValidationEngine {
         autoFixable: result.autoFixesAvailable.includes(vuln.type),
         suggestion: vuln.recommendation,
       }));
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         category: 'security',
         passed: criticalVulns === 0 &amp;&amp; highVulns === 0,
@@ -1902,19 +1902,19 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Validate performance
    */
   private <span class="fstat-no" title="function not covered" >async </span>validatePerformance(projectPath: string, options: ValidationOptions): Promise&lt;CategoryValidation&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const result = <span class="cstat-no" title="statement not covered" >await this.performanceValidator.analyzePerformance(projectPath);</span>
-      
+&nbsp;
       const criticalBottlenecks = <span class="cstat-no" title="statement not covered" >result.bottlenecks.filter(<span class="fstat-no" title="function not covered" >b </span>=&gt; <span class="cstat-no" title="statement not covered" >b.severity === 'critical')</span>.length;</span>
       const highBottlenecks = <span class="cstat-no" title="statement not covered" >result.bottlenecks.filter(<span class="fstat-no" title="function not covered" >b </span>=&gt; <span class="cstat-no" title="statement not covered" >b.severity === 'high')</span>.length;</span>
-      
+&nbsp;
       const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >result.bottlenecks.map(<span class="fstat-no" title="function not covered" >bottleneck </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
         type: 'performance_issue',
         severity: bottleneck.severity,
@@ -1924,7 +1924,7 @@ export class ValidationEngine {
         autoFixable: false,
         suggestion: bottleneck.recommendation,
       }));
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         category: 'performance',
         passed: result.score &gt;= 70,
@@ -1951,16 +1951,16 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Validate documentation
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateDocumentation(projectPath: string, options: ValidationOptions): Promise&lt;CategoryValidation&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const result = <span class="cstat-no" title="statement not covered" >await this.documentationValidator.validateDocumentation(projectPath);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         category: 'documentation',
         passed: result.score &gt;= 70,
@@ -1987,17 +1987,17 @@ export class ValidationEngine {
       };
     }
   }
-  
+&nbsp;
   /**
    * Apply automatic fixes to identified issues
    * ENHANCED: Added more auto-fix types and better error handling
    */
   private <span class="fstat-no" title="function not covered" >async </span>applyAutoFixes(issues: ValidationIssue[], projectPath: string): Promise&lt;ValidationFix[]&gt; {
     const fixes: ValidationFix[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
     // Group auto-fixable issues by file for efficient processing
     const issuesByFile = <span class="cstat-no" title="statement not covered" >new Map&lt;string, ValidationIssue[]&gt;();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const issue of issues) {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (issue.autoFixable &amp;&amp; issue.file) {</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!issuesByFile.has(issue.file)) {</span>
@@ -2006,7 +2006,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >        issuesByFile.get(issue.file)!.push(issue);</span>
       }
     }
-    
+&nbsp;
     // Process each file
 <span class="cstat-no" title="statement not covered" >    for (const [file, fileIssues] of issuesByFile) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
@@ -2017,25 +2017,25 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >        console.warn(chalk.yellow(`Warning: Auto-fix failed for ${file}: ${error.message}`));</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return fixes;</span>
   }
-  
+&nbsp;
   /**
    * Apply auto-fixes for a single file
    */
   private <span class="fstat-no" title="function not covered" >async </span>applyFileAutoFixes(issues: ValidationIssue[], file: string, projectPath: string): Promise&lt;ValidationFix[]&gt; {
     const fixes: ValidationFix[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const filePath = <span class="cstat-no" title="statement not covered" >path.resolve(projectPath, file);</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       let content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
       let lines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
       let modified = <span class="cstat-no" title="statement not covered" >false;</span>
-      
+&nbsp;
       // Sort issues by line number (descending) to avoid line number shifts
       const sortedIssues = <span class="cstat-no" title="statement not covered" >issues.sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >(b.line || 0) - (a.line || 0))</span>;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const issue of sortedIssues) {</span>
         const fix = <span class="cstat-no" title="statement not covered" >await this.applyLineFix(issue, lines, file);</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (fix) {</span>
@@ -2043,49 +2043,49 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          modified = true;</span>
         }
       }
-      
+&nbsp;
       // Write back if modified
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (modified) {</span>
 <span class="cstat-no" title="statement not covered" >        await fs.writeFile(filePath, lines.join('\n'));</span>
       }
-      
+&nbsp;
     } catch (error) {
       // File processing failed, skip
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return fixes;</span>
   }
-  
+&nbsp;
   /**
    * Apply a single line fix
    */
   private <span class="fstat-no" title="function not covered" >async </span>applyLineFix(issue: ValidationIssue, lines: string[], file: string): Promise&lt;ValidationFix | null&gt; {
     const lineIndex = <span class="cstat-no" title="statement not covered" >(issue.line || 1) - 1;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (lineIndex &lt; 0 || lineIndex &gt;= lines.length) {</span>
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
-    
+&nbsp;
     const beforeLine = <span class="cstat-no" title="statement not covered" >lines[lineIndex];</span>
     let afterLine = <span class="cstat-no" title="statement not covered" >beforeLine;</span>
     let fixApplied = <span class="cstat-no" title="statement not covered" >false;</span>
-    
+&nbsp;
     // Enhanced auto-fix implementations
 <span class="cstat-no" title="statement not covered" >    switch (issue.type) {</span>
       case 'trailing_whitespace':
 <span class="cstat-no" title="statement not covered" >        afterLine = beforeLine.replace(/\s+$/, '');</span>
 <span class="cstat-no" title="statement not covered" >        fixApplied = afterLine !== beforeLine;</span>
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'missing_semicolon':
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!beforeLine.trim().endsWith(';') &amp;&amp; </span>
-            !beforeLine.trim().endsWith('{') &amp;&amp; 
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!beforeLine.trim().endsWith(';') &amp;&amp;</span>
+            !beforeLine.trim().endsWith('{') &amp;&amp;
             !beforeLine.trim().endsWith('}')) {
 <span class="cstat-no" title="statement not covered" >          afterLine = beforeLine.trimEnd() + ';';</span>
 <span class="cstat-no" title="statement not covered" >          fixApplied = true;</span>
         }
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'inconsistent_indentation':
         // Convert tabs to spaces (assuming 2-space indentation)
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (beforeLine.startsWith('\t')) {</span>
@@ -2093,7 +2093,7 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          fixApplied = afterLine !== beforeLine;</span>
         }
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'console_log_found':
         // Comment out console.log statements
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (beforeLine.includes('console.log(')) {</span>
@@ -2101,11 +2101,11 @@ export class ValidationEngine {
 <span class="cstat-no" title="statement not covered" >          fixApplied = afterLine !== beforeLine;</span>
         }
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       default:
 <span class="cstat-no" title="statement not covered" >        return null;</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (fixApplied) {</span>
 <span class="cstat-no" title="statement not covered" >      lines[lineIndex] = afterLine;</span>
 <span class="cstat-no" title="statement not covered" >      return {</span>
@@ -2117,10 +2117,10 @@ export class ValidationEngine {
         applied: true,
       };
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return null;</span>
   }
-  
+&nbsp;
   /**
    * Calculate overall score from category results
    */
@@ -2133,30 +2133,30 @@ export class ValidationEngine {
       performance: 0.1,
       documentation: 0.1,
     };
-    
+&nbsp;
     let totalScore = <span class="cstat-no" title="statement not covered" >0;</span>
     let totalWeight = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const [category, result] of Object.entries(categories)) {</span>
       const weight = <span class="cstat-no" title="statement not covered" >weights[category as keyof typeof weights] || 0.1;</span>
 <span class="cstat-no" title="statement not covered" >      totalScore += (result.score || 0) * weight;</span>
 <span class="cstat-no" title="statement not covered" >      totalWeight += weight;</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return totalWeight &gt; 0 ? Math.round(totalScore / totalWeight) : 0;</span>
   }
-  
+&nbsp;
   /**
    * Determine overall status
    */
   private <span class="fstat-no" title="function not covered" >determineOverallStatus(</span>score: number, issues: ValidationIssue[]): 'pass' | 'fail' | 'warning' {
     const criticalIssues = <span class="cstat-no" title="statement not covered" >issues.filter(<span class="fstat-no" title="function not covered" >i </span>=&gt; <span class="cstat-no" title="statement not covered" >i.severity === 'critical')</span>.length;</span>
     const highIssues = <span class="cstat-no" title="statement not covered" >issues.filter(<span class="fstat-no" title="function not covered" >i </span>=&gt; <span class="cstat-no" title="statement not covered" >i.severity === 'high')</span>.length;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (criticalIssues &gt; 0) <span class="cstat-no" title="statement not covered" >return 'fail';</span></span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (score &lt; 60 || highIssues &gt; 3) <span class="cstat-no" title="statement not covered" >return 'fail';</span></span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (score &lt; 80 || highIssues &gt; 0) <span class="cstat-no" title="statement not covered" >return 'warning';</span></span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return 'pass';</span>
   }
 }
@@ -2167,7 +2167,7 @@ export class ValidationEngine {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

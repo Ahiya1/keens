@@ -52,14 +52,14 @@ export class CLIAuthManager {
     // Initialize auth file path in user's home directory
     const keenDir = join(homedir(), '.keen');
     this.authFile = join(keenDir, 'auth.json');
-    
+
     // Initialize database and services
     this.db = new DatabaseManager();
     this.userDAO = new UserDAO(this.db);
-    
+
     // Create audit logger (simplified for CLI)
     const auditLogger = new AuditLogger(this.db);
-    
+
     this.authService = new AuthenticationService(
       this.db,
       this.userDAO,
@@ -76,7 +76,7 @@ export class CLIAuthManager {
       // Load existing auth state FIRST before initializing database
       // This ensures we don't lose auth if database init fails
       await this.loadAuthState();
-      
+
       // Initialize database connection only if needed
       if (!this.db.isConnected) {
         try {
@@ -89,7 +89,7 @@ export class CLIAuthManager {
           }
         }
       }
-      
+
       // Only validate tokens if we have a database connection
       if (this.currentAuth && this.db.isConnected) {
         try {
@@ -129,12 +129,12 @@ export class CLIAuthManager {
       };
 
       const authResult = await this.authService.login(credentials, clientInfo);
-      
+
       // Handle potential undefined values properly with fallbacks
       if (!authResult.user || !authResult.tokens) {
         throw new Error('Invalid authentication result');
       }
-      
+
       // Create CLI auth state with proper null checking and fallbacks
       this.currentAuth = {
         user: {
@@ -158,7 +158,7 @@ export class CLIAuthManager {
       // Save auth state to file and ensure it completes
       try {
         await this.saveAuthState();
-        
+
         // Verify the file was actually saved
         const exists = await fs.access(this.authFile).then(() => true).catch(() => false);
         if (!exists) {
@@ -281,7 +281,7 @@ export class CLIAuthManager {
         'Authentication required. Please run "keen login" to authenticate.'
       );
     }
-    
+
     this.updateActivity();
     return userContext;
   }
@@ -353,18 +353,18 @@ export class CLIAuthManager {
   private async loadAuthState(): Promise<void> {
     try {
       await this.ensureAuthDirectory();
-      
+
       if (process.env.DEBUG) {
         console.log('Loading auth state from file');
       }
-      
+
       const data = await fs.readFile(this.authFile, 'utf-8');
       const parsed = JSON.parse(data);
-      
+
       // Validate required fields
       if (parsed.user?.id && parsed.tokens?.accessToken && parsed.tokens?.refreshToken) {
         this.currentAuth = parsed;
-        
+
         if (process.env.DEBUG) {
           console.log('Auth state loaded successfully');
         }
@@ -389,13 +389,13 @@ export class CLIAuthManager {
   private async saveAuthState(): Promise<void> {
     try {
       await this.ensureAuthDirectory();
-      
+
       if (process.env.DEBUG) {
         console.log('Saving auth state to file');
       }
-      
+
       await fs.writeFile(
-        this.authFile, 
+        this.authFile,
         JSON.stringify(this.currentAuth, null, 2),
         { mode: 0o600 } // Read/write for owner only
       );
@@ -442,7 +442,7 @@ export class CLIAuthManager {
    */
   private async getDeviceId(): Promise<string> {
     const deviceFile = join(homedir(), '.keen', 'device-id');
-    
+
     try {
       return await fs.readFile(deviceFile, 'utf-8');
     } catch (error) {

@@ -43,7 +43,7 @@ export interface CostEstimation {
 
 export class CreditGatewayService {
   private readonly MARKUP_MULTIPLIER = 5.0; // 5x markup over Claude API costs
-  
+
   constructor(
     private creditDAO: CreditDAO,
     private userDAO: UserDAO,
@@ -62,7 +62,7 @@ export class CreditGatewayService {
     try {
       // Check if user is admin (unlimited credits)
       const adminCheck = await this.isAdminUser(userId);
-      
+
       if (adminCheck.isAdmin) {
         return {
           reservationId: `admin_bypass_${Date.now()}_${randomBytes(8).toString('hex')}`, // SECURITY: Fixed weak random
@@ -81,7 +81,7 @@ export class CreditGatewayService {
 
       // 2. Check if user has sufficient credits
       const balance = await this.getBalance(userId, context);
-      
+
       if (balance.availableBalance.lt(creditCost)) {
         const error = new Error('Insufficient credits') as InsufficientCreditsError;
         error.name = 'InsufficientCreditsError';
@@ -123,7 +123,7 @@ export class CreditGatewayService {
       if ((error as any).name === 'InsufficientCreditsError') {
         throw error;
       }
-      
+
       // SECURITY: Don't log detailed error information
       throw new Error('Credit validation failed due to system error');
     }
@@ -142,7 +142,7 @@ export class CreditGatewayService {
     try {
       // Check for admin bypass
       const adminCheck = await this.isAdminUser(userId);
-      
+
       if (adminCheck.isAdmin || reservationId.startsWith('admin_bypass_')) {
         return await this.handleAdminBypassFinalization(
           userId,
@@ -154,7 +154,7 @@ export class CreditGatewayService {
       }
 
       const actualCreditCost = actualClaudeCost.mul(this.MARKUP_MULTIPLIER);
-      
+
       // Finalize the reservation with actual costs
       return await this.creditDAO.deductCredits({
         userId,
@@ -168,7 +168,7 @@ export class CreditGatewayService {
           markupMultiplier: this.MARKUP_MULTIPLIER,
         }
       }, context);
-      
+
     } catch (error) {
       // SECURITY: Don't log detailed error information
       throw new Error('Credit finalization failed');
@@ -193,14 +193,14 @@ export class CreditGatewayService {
     unlimitedCredits: boolean;
   }> {
     const account = await this.creditDAO.getCreditAccount(userId, context);
-    
+
     if (!account) {
       throw new Error('Credit account not found');
     }
 
     // Calculate reserved balance (active reservations)
     const reservedBalance = await this.calculateReservedBalance(userId, context);
-    
+
     // Calculate daily usage
     const dailyUsed = await this.calculateDailyUsage(userId, context);
 
@@ -264,25 +264,25 @@ export class CreditGatewayService {
     };
   }> {
     const { limit = 50, offset = 0 } = options;
-    
+
     // Get paginated transaction history
     const result = await this.creditDAO.getTransactionHistory(userId, limit, offset, context);
-    
+
     // Calculate summary statistics
     const allTransactions = result.transactions;
-    
+
     const totalSpent = allTransactions
       .filter(t => t.amount.lt(0))
       .reduce((sum, t) => sum.add(t.amount.abs()), new Decimal(0));
-    
+
     const totalPurchased = allTransactions
       .filter(t => t.amount.gt(0))
       .reduce((sum, t) => sum.add(t.amount), new Decimal(0));
-    
+
     const adminBypasses = allTransactions
       .filter(t => t.is_admin_bypass)
       .length;
-    
+
     const avgTransactionAmount = allTransactions.length > 0
       ? allTransactions.reduce((sum, t) => sum.add(t.amount.abs()), new Decimal(0)).div(allTransactions.length)
       : new Decimal(0);
@@ -309,12 +309,12 @@ export class CreditGatewayService {
     const complexity = this.analyzeVisionComplexity(request.vision);
     const maxIterations = request.options.maxIterations || 50;
     const webSearchEnabled = request.options.enableWebSearch !== false;
-    
+
     // Base estimation factors
     let baseInputTokens = 50000; // Base context
     let baseOutputTokens = 10000; // Base output
     let thinkingTokens = 5000; // Base thinking
-    
+
     // Adjust based on complexity
     switch (complexity) {
       case 'very_high':
@@ -334,22 +334,22 @@ export class CreditGatewayService {
         break;
       // 'low' uses base values
     }
-    
+
     // Adjust for iterations
     const iterationMultiplier = Math.min(maxIterations / 20, 3); // Cap at 3x
     baseInputTokens *= iterationMultiplier;
     baseOutputTokens *= iterationMultiplier;
-    
+
     // Adjust for web search
     if (webSearchEnabled) {
       baseInputTokens += 20000; // Additional context from search results
       baseOutputTokens += 5000; // Additional processing
     }
-    
+
     const totalInputTokens = Math.floor(baseInputTokens);
     const totalOutputTokens = Math.floor(baseOutputTokens);
     const totalThinkingTokens = Math.floor(thinkingTokens);
-    
+
     // Calculate costs using Claude pricing
     const claudeCost = this.calculateClaudeCost(
       totalInputTokens,
@@ -359,10 +359,10 @@ export class CreditGatewayService {
 
     // Estimate duration
     const estimatedMinutes = Math.max(5, Math.floor(maxIterations * 0.5 + (complexity === 'very_high' ? 10 : 5)));
-    const estimatedDuration = estimatedMinutes < 60 
+    const estimatedDuration = estimatedMinutes < 60
       ? `${estimatedMinutes} minutes`
       : `${Math.floor(estimatedMinutes / 60)}h ${estimatedMinutes % 60}m`;
-    
+
     return {
       estimatedClaudeCostUSD: claudeCost,
       estimatedDuration,
@@ -395,11 +395,11 @@ export class CreditGatewayService {
       /\b(deployment|docker|kubernetes|aws)\b/gi,
       /\b(performance|optimization|caching)\b/gi
     ];
-    
+
     const matches = complexityIndicators.reduce((count, regex) => {
       return count + (vision.match(regex) || []).length;
     }, 0);
-    
+
     if (length > 1000 || matches >= 8) return 'very_high';
     if (length > 500 || matches >= 5) return 'high';
     if (length > 200 || matches >= 3) return 'medium';
@@ -415,10 +415,10 @@ export class CreditGatewayService {
     thinkingTokens: number = 0,
   ): Decimal {
     const isExtendedContext = inputTokens > 200000;
-    
+
     let inputCostPer1K: Decimal;
     let outputCostPer1K: Decimal;
-    
+
     if (isExtendedContext) {
       // Extended context pricing (>200K tokens)
       inputCostPer1K = new Decimal(0.006); // $0.006 per 1K input tokens
@@ -428,11 +428,11 @@ export class CreditGatewayService {
       inputCostPer1K = new Decimal(0.003); // $0.003 per 1K input tokens
       outputCostPer1K = new Decimal(0.015); // $0.015 per 1K output tokens
     }
-    
+
     const inputCost = new Decimal(inputTokens).div(1000).mul(inputCostPer1K);
     const outputCost = new Decimal(outputTokens).div(1000).mul(outputCostPer1K);
     const thinkingCost = new Decimal(thinkingTokens).div(1000).mul(inputCostPer1K); // Thinking tokens priced as input
-    
+
     return inputCost.add(outputCost).add(thinkingCost);
   }
 
@@ -475,13 +475,13 @@ export class CreditGatewayService {
     // TODO: Implement actual reservation system
     // For now, return a reservation ID with secure random generation
     const reservationId = `res_${Date.now()}_${randomBytes(8).toString('hex')}`; // SECURITY: Fixed weak random
-    
+
     // Store reservation in database (TODO: create reservations table)
     // SECURITY: Don't log sensitive user information
     if (process.env.DEBUG) {
       console.log('Credit reservation created:', reservationId);
     }
-    
+
     return reservationId;
   }
 
@@ -508,12 +508,12 @@ export class CreditGatewayService {
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     try {
       const result = await this.db.query(
         `
         SELECT COALESCE(SUM(ABS(amount)), 0) as daily_spent
-        FROM credit_transactions 
+        FROM credit_transactions
         WHERE user_id = $1 AND amount < 0 AND created_at >= $2 AND created_at < $3
         `,
         [userId, today, tomorrow],
@@ -594,7 +594,7 @@ export class CreditGatewayService {
     // Get the basic analytics from DAO and transform to expected structure
     try {
       const basicAnalytics = await this.creditDAO.getAdminAnalytics(undefined, undefined, context);
-      
+
       // Transform to expected structure
       return {
         revenue: {

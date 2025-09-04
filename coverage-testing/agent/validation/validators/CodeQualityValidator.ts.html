@@ -611,19 +611,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -638,7 +636,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1183,24 +1183,24 @@ interface StyleResult {
 &nbsp;
 export class CodeQualityValidator {
   private options: CodeQualityOptions;
-  
+&nbsp;
   constructor(options: CodeQualityOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
     this.options = {
       silentMode: true, // ALWAYS ENFORCED
       ...options
     };
   }
-  
+&nbsp;
   /**
    * Truncate output to prevent massive responses
    */
   private <span class="fstat-no" title="function not covered" >truncateOutput(</span>output: string): string {
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!output) <span class="cstat-no" title="statement not covered" >return '';</span></span>
-    
+&nbsp;
     // First truncate by lines
     const lines = <span class="cstat-no" title="statement not covered" >output.split('\n');</span>
     let result = <span class="cstat-no" title="statement not covered" >lines;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (lines.length &gt; MAX_OUTPUT_LINES) {</span>
 <span class="cstat-no" title="statement not covered" >      result = [</span>
         ...lines.slice(0, Math.floor(MAX_OUTPUT_LINES / 2)),
@@ -1208,54 +1208,54 @@ export class CodeQualityValidator {
         ...lines.slice(-Math.floor(MAX_OUTPUT_LINES / 2))
       ];
     }
-    
+&nbsp;
     let finalResult = <span class="cstat-no" title="statement not covered" >result.join('\n');</span>
-    
+&nbsp;
     // Then truncate by character count
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (finalResult.length &gt; MAX_OUTPUT_LENGTH) {</span>
       const halfLength = <span class="cstat-no" title="statement not covered" >Math.floor(MAX_OUTPUT_LENGTH / 2) - 50;</span>
-<span class="cstat-no" title="statement not covered" >      finalResult = finalResult.substring(0, halfLength) + </span>
+<span class="cstat-no" title="statement not covered" >      finalResult = finalResult.substring(0, halfLength) +</span>
         `\n... [TRUNCATED: ${finalResult.length - MAX_OUTPUT_LENGTH} chars] ...\n` +
         finalResult.substring(finalResult.length - halfLength);
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return finalResult;</span>
   }
-  
+&nbsp;
   /**
    * Validate syntax of project files
    */
 <span class="fstat-no" title="function not covered" >  async </span>validateSyntax(projectPath: string, scope: string[] = <span class="branch-0 cbranch-no" title="branch not covered" >[])</span>: Promise&lt;SyntaxResult&gt; {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const suggestions: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Find TypeScript/JavaScript files (limit to prevent excessive processing)
       const files = <span class="cstat-no" title="statement not covered" >await this.findSourceFiles(projectPath, scope);</span>
-      
+&nbsp;
       // Check TypeScript compilation
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (await this.hasTypeScriptConfig(projectPath)) {</span>
         const tsResult = <span class="cstat-no" title="statement not covered" >await this.validateTypeScriptSyntax(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >        issues.push(...tsResult.issues);</span>
 <span class="cstat-no" title="statement not covered" >        suggestions.push(...tsResult.suggestions);</span>
       }
-      
+&nbsp;
       // Basic syntax checks for individual files (limit to first 20 files)
       const filesToCheck = <span class="cstat-no" title="statement not covered" >files.slice(0, 20);</span>
 <span class="cstat-no" title="statement not covered" >      for (const file of filesToCheck) {</span>
         const fileIssues = <span class="cstat-no" title="statement not covered" >await this.validateFileSyntax(file);</span>
 <span class="cstat-no" title="statement not covered" >        issues.push(...fileIssues);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (files.length &gt; 20) {</span>
 <span class="cstat-no" title="statement not covered" >        suggestions.push(`Note: Only checked first 20 files out of ${files.length} total`);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         issues,
         suggestions: suggestions.length &gt; 0 ? suggestions : ['Syntax validation completed'],
       };
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      return {</span>
         issues: [{
@@ -1270,41 +1270,41 @@ export class CodeQualityValidator {
       };
     }
   }
-  
+&nbsp;
   /**
    * Validate code style
    */
 <span class="fstat-no" title="function not covered" >  async </span>validateStyle(projectPath: string, scope: string[] = <span class="branch-0 cbranch-no" title="branch not covered" >[])</span>: Promise&lt;StyleResult&gt; {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const suggestions: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Try ESLint if available
       const eslintResult = <span class="cstat-no" title="statement not covered" >await this.runESLint(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      issues.push(...eslintResult.issues);</span>
 <span class="cstat-no" title="statement not covered" >      suggestions.push(...eslintResult.suggestions);</span>
-      
+&nbsp;
       // Basic style checks (limit to first 10 files for performance)
       const files = <span class="cstat-no" title="statement not covered" >await this.findSourceFiles(projectPath, scope);</span>
       const filesToCheck = <span class="cstat-no" title="statement not covered" >files.slice(0, 10);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const file of filesToCheck) {</span>
         const styleIssues = <span class="cstat-no" title="statement not covered" >await this.validateFileStyle(file);</span>
 <span class="cstat-no" title="statement not covered" >        issues.push(...styleIssues);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (files.length &gt; 10) {</span>
 <span class="cstat-no" title="statement not covered" >        suggestions.push(`Note: Only style-checked first 10 files out of ${files.length} total`);</span>
       }
-      
+&nbsp;
       const criticalIssues = <span class="cstat-no" title="statement not covered" >issues.filter(<span class="fstat-no" title="function not covered" >i </span>=&gt; <span class="cstat-no" title="statement not covered" >i.severity === 'critical' || i.severity === 'high')</span>.length;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         issues,
         criticalIssues,
         suggestions: suggestions.length &gt; 0 ? suggestions : ['Consider setting up ESLint and Prettier for better code quality'],
       };
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      return {</span>
         issues: [{
@@ -1320,7 +1320,7 @@ export class CodeQualityValidator {
       };
     }
   }
-  
+&nbsp;
   /**
    * Find source files in project (with limits)
    */
@@ -1328,14 +1328,14 @@ export class CodeQualityValidator {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const extensions = <span class="cstat-no" title="statement not covered" >['.ts', '.js', '.tsx', '.jsx'];</span>
     const maxFiles = <span class="cstat-no" title="statement not covered" >100;</span> // Limit total files to prevent excessive processing
-    
+&nbsp;
     const searchDirs = <span class="cstat-no" title="statement not covered" >scope.length &gt; 0 ? scope : ['src', '.'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const searchDir of searchDirs) {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (files.length &gt;= maxFiles) <span class="cstat-no" title="statement not covered" >break;</span></span>
-      
+&nbsp;
       const fullPath = <span class="cstat-no" title="statement not covered" >path.resolve(projectPath, searchDir);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const stat = <span class="cstat-no" title="statement not covered" >await fs.stat(fullPath);</span>
 <span class="cstat-no" title="statement not covered" >        if (stat.isFile()) {</span>
@@ -1351,35 +1351,35 @@ export class CodeQualityValidator {
         // Skip inaccessible files/directories
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files.slice(0, maxFiles);</span>
   }
-  
+&nbsp;
   /**
    * Recursively find files with specific extensions (with limits)
    */
   private <span class="fstat-no" title="function not covered" >async </span>findFilesRecursive(dir: string, extensions: string[], maxFiles: number): Promise&lt;string[]&gt; {
     const files: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (maxFiles &lt;= 0) <span class="cstat-no" title="statement not covered" >return files;</span></span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const items = <span class="cstat-no" title="statement not covered" >await fs.readdir(dir, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const item of items) {</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (files.length &gt;= maxFiles) <span class="cstat-no" title="statement not covered" >break;</span></span>
-        
+&nbsp;
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dir, item.name);</span>
-        
+&nbsp;
         // Skip node_modules, dist, and hidden directories
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (item.name.startsWith('.') || </span>
-            item.name === 'node_modules' || 
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (item.name.startsWith('.') ||</span>
+            item.name === 'node_modules' ||
             item.name === 'dist' ||
             item.name === 'build' ||
             item.name === 'coverage') {
 <span class="cstat-no" title="statement not covered" >          continue;</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (item.isDirectory()) {</span>
           const subFiles = <span class="cstat-no" title="statement not covered" >await this.findFilesRecursive(fullPath, extensions, maxFiles - files.length);</span>
 <span class="cstat-no" title="statement not covered" >          files.push(...subFiles);</span>
@@ -1393,10 +1393,10 @@ export class CodeQualityValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return files;</span>
   }
-  
+&nbsp;
   /**
    * Check if project has TypeScript configuration
    */
@@ -1408,14 +1408,14 @@ export class CodeQualityValidator {
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
-  
+&nbsp;
   /**
    * Validate TypeScript syntax using tsc - ALWAYS SILENT
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateTypeScriptSyntax(projectPath: string): Promise&lt;{ issues: ValidationIssue[]; suggestions: string[] }&gt; {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const suggestions: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // ENFORCED: Always use --silent flag and other quiet flags
       const { stdout, stderr } = <span class="cstat-no" title="statement not covered" >await execAsync(</span>
@@ -1426,16 +1426,16 @@ export class CodeQualityValidator {
           env: { ...process.env, NODE_ENV: 'production' }
         }
       );
-      
+&nbsp;
       // Parse TypeScript compiler output (truncated)
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (stderr) {</span>
         const truncatedStderr = <span class="cstat-no" title="statement not covered" >this.truncateOutput(stderr);</span>
         const lines = <span class="cstat-no" title="statement not covered" >truncatedStderr.split('\n');</span>
-        
+&nbsp;
         let issueCount = <span class="cstat-no" title="statement not covered" >0;</span>
 <span class="cstat-no" title="statement not covered" >        for (const line of lines) {</span>
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (issueCount &gt;= 10) <span class="cstat-no" title="statement not covered" >break; </span></span>// Limit to 10 issues max
-          
+&nbsp;
           const match = <span class="cstat-no" title="statement not covered" >line.match(/(.+)\((\d+),(\d+)\):\s+error\s+TS\d+:\s+(.+)/);</span>
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (match) {</span>
             const [, file, line, column, message] = <span class="cstat-no" title="statement not covered" >match;</span>
@@ -1451,18 +1451,18 @@ export class CodeQualityValidator {
 <span class="cstat-no" title="statement not covered" >            issueCount++;</span>
           }
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (issues.length &gt;= 10) {</span>
 <span class="cstat-no" title="statement not covered" >          suggestions.push('Note: Only showing first 10 TypeScript errors');</span>
         }
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (issues.length === 0) {</span>
 <span class="cstat-no" title="statement not covered" >        suggestions.push('TypeScript compilation successful');</span>
       } else {
 <span class="cstat-no" title="statement not covered" >        suggestions.push('Fix TypeScript compilation errors');</span>
       }
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      if (error.message.includes('tsc')) {</span>
 <span class="cstat-no" title="statement not covered" >        suggestions.push('Install TypeScript compiler: npm install -g typescript');</span>
@@ -1477,19 +1477,19 @@ export class CodeQualityValidator {
         });
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { issues, suggestions };</span>
   }
-  
+&nbsp;
   /**
    * Validate individual file syntax (with limits)
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateFileSyntax(filePath: string): Promise&lt;ValidationIssue[]&gt; {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
-      
+&nbsp;
       // Limit file size processing
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (content.length &gt; 100000) { // 100KB limit</span>
 <span class="cstat-no" title="statement not covered" >        return [{</span>
@@ -1501,16 +1501,16 @@ export class CodeQualityValidator {
           autoFixable: false,
         }];
       }
-      
+&nbsp;
       const lines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
-      
+&nbsp;
       // Basic syntax checks (limit to first 100 lines)
       const linesToCheck = <span class="cstat-no" title="statement not covered" >Math.min(lines.length, 100);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; linesToCheck; i++) {</span>
         const line = <span class="cstat-no" title="statement not covered" >lines[i];</span>
         const lineNumber = <span class="cstat-no" title="statement not covered" >i + 1;</span>
-        
+&nbsp;
         // Check for common syntax issues
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.includes('console.log(') &amp;&amp; !line.includes('//')) {</span>
 <span class="cstat-no" title="statement not covered" >          issues.push({</span>
@@ -1522,7 +1522,7 @@ export class CodeQualityValidator {
             autoFixable: true // Can be commented out automatically,
           });
         }
-        
+&nbsp;
         // Check for trailing whitespace
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/\s+$/)) {</span>
 <span class="cstat-no" title="statement not covered" >          issues.push({</span>
@@ -1534,7 +1534,7 @@ export class CodeQualityValidator {
             autoFixable: true,
           });
         }
-        
+&nbsp;
         // Limit total issues per file
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (issues.length &gt;= 20) {</span>
 <span class="cstat-no" title="statement not covered" >          issues.push({</span>
@@ -1548,7 +1548,7 @@ export class CodeQualityValidator {
 <span class="cstat-no" title="statement not covered" >          break;</span>
         }
       }
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      issues.push({</span>
         type: 'file_read_error',
@@ -1559,17 +1559,17 @@ export class CodeQualityValidator {
         autoFixable: false,
       });
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return issues;</span>
   }
-  
+&nbsp;
   /**
    * Run ESLint if available - ALWAYS SILENT
    */
   private <span class="fstat-no" title="function not covered" >async </span>runESLint(projectPath: string): Promise&lt;{ issues: ValidationIssue[]; suggestions: string[] }&gt; {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const suggestions: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // ENFORCED: Always use --quiet flag for ESLint
       const { stdout, stderr } = <span class="cstat-no" title="statement not covered" >await execAsync(</span>
@@ -1580,18 +1580,18 @@ export class CodeQualityValidator {
           env: { ...process.env, NODE_ENV: 'production' }
         }
       );
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (stdout) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const results = <span class="cstat-no" title="statement not covered" >JSON.parse(stdout);</span>
           let issueCount = <span class="cstat-no" title="statement not covered" >0;</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          for (const result of results) {</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (issueCount &gt;= 20) <span class="cstat-no" title="statement not covered" >break; </span></span>// Limit to 20 issues max
-            
+&nbsp;
 <span class="cstat-no" title="statement not covered" >            for (const message of result.messages || []) {</span>
 <span class="cstat-no" title="statement not covered" >              <span class="missing-if-branch" title="if path not taken" >I</span>if (issueCount &gt;= 20) <span class="cstat-no" title="statement not covered" >break;</span></span>
-              
+&nbsp;
 <span class="cstat-no" title="statement not covered" >              issues.push({</span>
                 type: `eslint_${message.ruleId || 'error'}`,
                 severity: message.severity === 2 ? 'high' : 'medium',
@@ -1604,22 +1604,22 @@ export class CodeQualityValidator {
 <span class="cstat-no" title="statement not covered" >              issueCount++;</span>
             }
           }
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (issueCount &gt;= 20) {</span>
 <span class="cstat-no" title="statement not covered" >            suggestions.push('Note: Only showing first 20 ESLint issues');</span>
           }
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          if (issues.length === 0) {</span>
 <span class="cstat-no" title="statement not covered" >            suggestions.push('ESLint passed with no issues');</span>
           } else {
 <span class="cstat-no" title="statement not covered" >            suggestions.push('Run "npx eslint . --fix" to auto-fix some issues');</span>
           }
-          
+&nbsp;
         } catch (parseError) {
 <span class="cstat-no" title="statement not covered" >          suggestions.push('ESLint output could not be parsed');</span>
         }
       }
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      if (error.message.includes('eslint')) {</span>
 <span class="cstat-no" title="statement not covered" >        suggestions.push('Install ESLint: npm install --save-dev eslint');</span>
@@ -1627,31 +1627,31 @@ export class CodeQualityValidator {
 <span class="cstat-no" title="statement not covered" >        suggestions.push('ESLint not configured or available');</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return { issues, suggestions };</span>
   }
-  
+&nbsp;
   /**
    * Validate file style (with limits)
    */
   private <span class="fstat-no" title="function not covered" >async </span>validateFileStyle(filePath: string): Promise&lt;ValidationIssue[]&gt; {
     const issues: ValidationIssue[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const content = <span class="cstat-no" title="statement not covered" >await fs.readFile(filePath, 'utf8');</span>
-      
+&nbsp;
       // Limit file size processing
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (content.length &gt; 50000) { // 50KB limit for style checking</span>
 <span class="cstat-no" title="statement not covered" >        return [];</span>
       }
-      
+&nbsp;
       const lines = <span class="cstat-no" title="statement not covered" >content.split('\n');</span>
       const linesToCheck = <span class="cstat-no" title="statement not covered" >Math.min(lines.length, 50);</span> // Check max 50 lines
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; linesToCheck; i++) {</span>
         const line = <span class="cstat-no" title="statement not covered" >lines[i];</span>
         const lineNumber = <span class="cstat-no" title="statement not covered" >i + 1;</span>
-        
+&nbsp;
         // Check line length
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.length &gt; 120) {</span>
 <span class="cstat-no" title="statement not covered" >          issues.push({</span>
@@ -1663,7 +1663,7 @@ export class CodeQualityValidator {
             autoFixable: false,
           });
         }
-        
+&nbsp;
         // Check for inconsistent indentation (basic check)
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (line.match(/^\t/)) {</span>
           const nextLine = <span class="cstat-no" title="statement not covered" >lines[i + 1];</span>
@@ -1678,17 +1678,17 @@ export class CodeQualityValidator {
             });
           }
         }
-        
+&nbsp;
         // Limit issues per file
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (issues.length &gt;= 10) {</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         }
       }
-      
+&nbsp;
     } catch (error) {
       // Skip files that can't be read
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return issues;</span>
   }
 }
@@ -1699,7 +1699,7 @@ export class CodeQualityValidator {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

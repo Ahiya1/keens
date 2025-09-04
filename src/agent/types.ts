@@ -11,7 +11,7 @@ import { UserContext } from '../database/DatabaseManager.js';
 export type AgentPhase = 'EXPLORE' | 'PLAN' | 'FOUND' | 'SUMMON' | 'COMPLETE';
 
 // NEW: Sub-vision specialization types
-export type AgentSpecialization = 
+export type AgentSpecialization =
   | 'frontend' // UI, React/Vue, accessibility, styling
   | 'backend' // APIs, authentication, server logic
   | 'database' // Schema design, query optimization
@@ -288,7 +288,7 @@ export interface SessionSummary {
 }
 
 // Export commonly used type unions - UPDATED for Phase 3.3
-export type ToolName = 
+export type ToolName =
   | 'get_project_tree'
   | 'read_files'
   | 'write_files'
@@ -304,7 +304,7 @@ export type ToolName =
   | 'coordinate_agents'
   | 'get_agent_status';
 
-export type ValidationCategory = 
+export type ValidationCategory =
   | 'syntax'
   | 'style'
   | 'tests'
@@ -321,7 +321,7 @@ export const GitBranchUtils = {
    */
   nextChildBranch(parentBranch: string, existingChildren: string[] = []): string {
     const basePrefix = parentBranch === 'main' ? 'summon' : `${parentBranch}-summon`;
-    
+
     // Find the next available letter
     const usedLetters = existingChildren
       .filter(branch => branch.startsWith(basePrefix))
@@ -330,22 +330,22 @@ export const GitBranchUtils = {
         return parts[parts.length - 1]; // Get last part (letter)
       })
       .filter(letter => /^[A-Z]$/.test(letter));
-    
+
     let nextLetter = 'A';
     while (usedLetters.includes(nextLetter)) {
       nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
     }
-    
+
     return `${basePrefix}-${nextLetter}`;
   },
-  
+
   /**
    * Validate branch name format
    */
   isValidChildBranch(branchName: string): boolean {
     return /^(main|summon(-[A-Z])+)$/.test(branchName) || /^summon-[A-Z]$/.test(branchName);
   },
-  
+
   /**
    * Get parent branch from child branch name
    */
@@ -354,11 +354,11 @@ export const GitBranchUtils = {
     if (childBranch.startsWith('summon-') && childBranch.split('-').length === 2) {
       return 'main';
     }
-    
+
     const parts = childBranch.split('-');
     return parts.slice(0, -2).join('-'); // Remove last two parts (-summon-X)
   },
-  
+
   /**
    * Get branch depth
    */

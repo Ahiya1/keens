@@ -81,15 +81,15 @@ export class LoginCommand {
             // Hide password input
             const stdin = process.stdin;
             stdin.setRawMode!(true);
-            
+
             console.log(chalk.cyan("🔒 Password: "));
-            
+
             password = await new Promise<string>((resolve) => {
               let password = '';
-              
+
               const onData = (char: Buffer) => {
                 const c = char.toString('utf8');
-                
+
                 if (c === '\r' || c === '\n') {
                   // Enter pressed
                   stdin.setRawMode!(false);
@@ -111,7 +111,7 @@ export class LoginCommand {
                   password += c;
                 }
               };
-              
+
               stdin.on('data', onData);
             });
           }
@@ -123,7 +123,7 @@ export class LoginCommand {
 
           // Attempt login
           console.log(chalk.blue('🔐 Authenticating...'));
-          
+
           const result = await cliAuth.login({
             email: email.trim(),
             password: password.trim(),
@@ -132,17 +132,17 @@ export class LoginCommand {
 
           if (result.success) {
             console.log(chalk.green('✅ ' + result.message));
-            
+
             const user = cliAuth.getCurrentUser();
             if (user) {
               console.log(chalk.cyan(`👤 User: ${user.username || user.email}`));
               console.log(chalk.cyan(`🎭 Role: ${user.role}`));
-              
+
               if (user.isAdmin) {
                 console.log(chalk.magenta('👑 Admin privileges enabled'));
               }
             }
-            
+
             // Don't cleanup immediately - let the auth state persist
             // The CLI framework will handle cleanup on exit
           } else {
@@ -152,11 +152,11 @@ export class LoginCommand {
 
         } catch (error: any) {
           console.error(chalk.red("\n❌ Login error: " + error.message));
-          
+
           if (error.message.includes('database') || error.message.includes('connection')) {
             console.error(chalk.yellow('💡 Hint: Check your network connection and try again'));
           }
-          
+
           process.exit(1);
         }
       })

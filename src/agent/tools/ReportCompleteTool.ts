@@ -49,7 +49,7 @@ export class ReportCompleteTool {
       success: parameters.success !== false,
     });
     this.logger.info('complete', `Summary: ${parameters.summary}`);
-    
+
     return {
       success: true,
       completed: true,

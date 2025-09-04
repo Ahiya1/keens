@@ -18,14 +18,14 @@ interface DocumentationResult {
 
 export class DocumentationValidator {
   private options: DocumentationOptions;
-  
+
   constructor(options: DocumentationOptions = {}) {
     this.options = {
       silentMode: true,
       ...options
     };
   }
-  
+
   /**
    * Validate documentation completeness and quality
    */
@@ -33,23 +33,23 @@ export class DocumentationValidator {
     const issues: ValidationIssue[] = [];
     const suggestions: string[] = [];
     let score = 0;
-    
+
     try {
       // 1. Check for essential documentation files
       const essentialDocsScore = await this.checkEssentialDocumentation(projectPath, issues);
-      
+
       // 2. Check README quality
       const readmeScore = await this.checkReadmeQuality(projectPath, issues);
-      
+
       // 3. Check inline code documentation
       const inlineDocsScore = await this.checkInlineDocumentation(projectPath, issues);
-      
+
       // 4. Check API documentation
       const apiDocsScore = await this.checkApiDocumentation(projectPath, issues);
-      
+
       // 5. Check change documentation
       const changeDocsScore = await this.checkChangeDocumentation(projectPath, issues);
-      
+
       // Calculate weighted score
       score = Math.round(
         essentialDocsScore * 0.3 +
@@ -58,10 +58,10 @@ export class DocumentationValidator {
         apiDocsScore * 0.1 +
         changeDocsScore * 0.1
       );
-      
+
       // Generate suggestions based on score and issues
       this.generateSuggestions(score, issues, suggestions);
-      
+
     } catch (error: any) {
       issues.push({
         type: 'documentation_validation_error',
@@ -73,21 +73,21 @@ export class DocumentationValidator {
       });
       suggestions.push('Manual documentation review recommended');
     }
-    
+
     return {
       score,
       issues,
       suggestions
     };
   }
-  
+
   /**
    * Check for essential documentation files
    */
   private async checkEssentialDocumentation(projectPath: string, issues: ValidationIssue[]): Promise<number> {
     let score = 0;
     const maxScore = 100;
-    
+
     const essentialFiles = [
       { name: 'README.md', weight: 40, required: true },
       { name: 'LICENSE', weight: 10, required: false },
@@ -99,12 +99,12 @@ export class DocumentationValidator {
       { name: 'SECURITY.md', weight: 5, required: false },
       { name: 'CODE_OF_CONDUCT.md', weight: 5, required: false }
     ];
-    
+
     for (const file of essentialFiles) {
       try {
         const filePath = path.join(projectPath, file.name);
         await fs.access(filePath);
-        
+
         // File exists, check if it's not empty
         const content = await fs.readFile(filePath, 'utf8');
         if (content.trim().length > 50) {
@@ -121,7 +121,7 @@ export class DocumentationValidator {
           });
           score += file.weight * 0.3; // Partial credit for existing file
         }
-        
+
       } catch (error) {
         // File doesn't exist
         if (file.required) {
@@ -147,22 +147,22 @@ export class DocumentationValidator {
         }
       }
     }
-    
+
     return Math.min(score, maxScore);
   }
-  
+
   /**
    * Check README.md quality
    */
   private async checkReadmeQuality(projectPath: string, issues: ValidationIssue[]): Promise<number> {
     let score = 0;
     const maxScore = 100;
-    
+
     try {
       const readmePath = path.join(projectPath, 'README.md');
       const content = await fs.readFile(readmePath, 'utf8');
       const lines = content.split('\n');
-      
+
       // Check README length
       if (content.length < 200) {
         issues.push({
@@ -180,7 +180,7 @@ export class DocumentationValidator {
       } else {
         score += 80;
       }
-      
+
       // Check for essential sections
       const essentialSections = [
         { name: 'title', patterns: [/^#\s+\w/, /^#{1}\s+\w/], weight: 15 },
@@ -191,7 +191,7 @@ export class DocumentationValidator {
         { name: 'contributing', patterns: [/contribut|development/i], weight: 5 },
         { name: 'license', patterns: [/license/i], weight: 5 }
       ];
-      
+
       for (const section of essentialSections) {
         const hasSection = section.patterns.some(pattern => content.match(pattern));
         if (hasSection) {
@@ -208,7 +208,7 @@ export class DocumentationValidator {
           });
         }
       }
-      
+
       // Check for code examples
       const hasCodeBlocks = content.includes('```') || content.includes('    ');
       if (hasCodeBlocks) {
@@ -224,13 +224,13 @@ export class DocumentationValidator {
           suggestion: 'Add code examples to show how to use the project',
         });
       }
-      
+
       // Check for badges (shows maintenance)
       const hasBadges = content.includes('![') || content.includes('[![');
       if (hasBadges) {
         score += 5;
       }
-      
+
     } catch (error) {
       issues.push({
         type: 'readme_not_found',
@@ -243,42 +243,42 @@ export class DocumentationValidator {
       });
       return 0;
     }
-    
+
     return Math.min(score, maxScore);
   }
-  
+
   /**
    * Check inline code documentation
    */
   private async checkInlineDocumentation(projectPath: string, issues: ValidationIssue[]): Promise<number> {
     let score = 0;
     const maxScore = 100;
-    
+
     try {
       const sourceFiles = await this.findSourceFiles(projectPath);
       let totalFunctions = 0;
       let documentedFunctions = 0;
       let totalClasses = 0;
       let documentedClasses = 0;
-      
+
       for (const file of sourceFiles.slice(0, 10)) { // Limit for performance
         const analysis = await this.analyzeFileDocumentation(file, projectPath);
         totalFunctions += analysis.totalFunctions;
         documentedFunctions += analysis.documentedFunctions;
         totalClasses += analysis.totalClasses;
         documentedClasses += analysis.documentedClasses;
-        
+
         if (analysis.issues.length > 0) {
           issues.push(...analysis.issues);
         }
       }
-      
+
       // Calculate documentation coverage
       const functionCoverage = totalFunctions > 0 ? (documentedFunctions / totalFunctions) * 100 : 100;
       const classCoverage = totalClasses > 0 ? (documentedClasses / totalClasses) * 100 : 100;
-      
+
       score = Math.round((functionCoverage * 0.7) + (classCoverage * 0.3));
-      
+
       if (functionCoverage < 50) {
         issues.push({
           type: 'low_function_documentation',
@@ -290,7 +290,7 @@ export class DocumentationValidator {
           suggestion: 'Add JSDoc comments to more functions',
         });
       }
-      
+
       if (classCoverage < 50 && totalClasses > 0) {
         issues.push({
           type: 'low_class_documentation',
@@ -302,21 +302,21 @@ export class DocumentationValidator {
           suggestion: 'Add JSDoc comments to more classes',
         });
       }
-      
+
     } catch (error) {
       score = 60; // Neutral score if analysis fails
     }
-    
+
     return Math.min(score, maxScore);
   }
-  
+
   /**
    * Check API documentation
    */
   private async checkApiDocumentation(projectPath: string, issues: ValidationIssue[]): Promise<number> {
     let score = 0;
     const maxScore = 100;
-    
+
     try {
       // Check for OpenAPI/Swagger documentation
       const apiDocFiles = [
@@ -328,14 +328,14 @@ export class DocumentationValidator {
         'docs/api.md',
         'API.md'
       ];
-      
+
       let hasApiDocs = false;
       for (const docFile of apiDocFiles) {
         try {
           const docPath = path.join(projectPath, docFile);
           await fs.access(docPath);
           hasApiDocs = true;
-          
+
           const content = await fs.readFile(docPath, 'utf8');
           if (content.length > 100) {
             score += 80;
@@ -347,7 +347,7 @@ export class DocumentationValidator {
           // File doesn't exist, continue
         }
       }
-      
+
       if (!hasApiDocs) {
         // Check if this is likely an API project
         const packagePath = path.join(projectPath, 'package.json');
@@ -355,7 +355,7 @@ export class DocumentationValidator {
           const packageContent = await fs.readFile(packagePath, 'utf8');
           const packageJson = JSON.parse(packageContent);
           const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
-          
+
           if (deps.express || deps.fastify || deps.koa || deps['@nestjs/core']) {
             issues.push({
               type: 'missing_api_documentation',
@@ -374,7 +374,7 @@ export class DocumentationValidator {
           score = 70; // Can't determine project type
         }
       }
-      
+
       // Check for generated docs
       const docsDirs = ['docs', 'documentation', 'doc'];
       for (const docsDir of docsDirs) {
@@ -389,49 +389,49 @@ export class DocumentationValidator {
           // Directory doesn't exist
         }
       }
-      
+
     } catch (error) {
       score = 70; // Neutral score if check fails
     }
-    
+
     return Math.min(score, maxScore);
   }
-  
+
   /**
    * Check change documentation (CHANGELOG, version history)
    */
   private async checkChangeDocumentation(projectPath: string, issues: ValidationIssue[]): Promise<number> {
     let score = 0;
     const maxScore = 100;
-    
+
     try {
       // Check for changelog files
       const changelogFiles = ['CHANGELOG.md', 'CHANGELOG.txt', 'HISTORY.md', 'CHANGES.md'];
       let hasChangelog = false;
-      
+
       for (const changelogFile of changelogFiles) {
         try {
           const changelogPath = path.join(projectPath, changelogFile);
           const content = await fs.readFile(changelogPath, 'utf8');
           hasChangelog = true;
-          
+
           if (content.length > 200) {
             score += 60;
           } else {
             score += 30;
           }
-          
+
           // Check if changelog follows semantic versioning
           if (content.match(/##?\s*\[?\d+\.\d+\.\d+/)) {
             score += 20;
           }
-          
+
           break;
         } catch (error) {
           // File doesn't exist, continue
         }
       }
-      
+
       if (!hasChangelog) {
         issues.push({
           type: 'missing_changelog',
@@ -444,38 +444,38 @@ export class DocumentationValidator {
         });
         score = 40;
       }
-      
+
       // Check package.json version
       try {
         const packagePath = path.join(projectPath, 'package.json');
         const packageContent = await fs.readFile(packagePath, 'utf8');
         const packageJson = JSON.parse(packageContent);
-        
+
         if (packageJson.version && packageJson.version !== '1.0.0') {
           score += 20; // Shows version management
         }
       } catch (error) {
         // package.json not found or invalid
       }
-      
+
     } catch (error) {
       score = 60; // Neutral score if check fails
     }
-    
+
     return Math.min(score, maxScore);
   }
-  
+
   /**
    * Find source files for documentation analysis
    */
   private async findSourceFiles(projectPath: string): Promise<string[]> {
     const files: string[] = [];
     const extensions = ['.ts', '.js', '.tsx', '.jsx'];
-    
+
     try {
       const srcDir = path.join(projectPath, 'src');
       const srcExists = await fs.access(srcDir).then(() => true).catch(() => false);
-      
+
       if (srcExists) {
         const srcFiles = await this.findFilesRecursive(srcDir, extensions);
         files.push(...srcFiles);
@@ -483,26 +483,26 @@ export class DocumentationValidator {
     } catch (error) {
       // Return empty array if src directory scanning fails
     }
-    
+
     return files;
   }
-  
+
   /**
    * Recursively find files with specific extensions
    */
   private async findFilesRecursive(dir: string, extensions: string[]): Promise<string[]> {
     const files: string[] = [];
-    
+
     try {
       const items = await fs.readdir(dir, { withFileTypes: true });
-      
+
       for (const item of items) {
         const fullPath = path.join(dir, item.name);
-        
+
         if (item.name.startsWith('.') || item.name === 'node_modules') {
           continue;
         }
-        
+
         if (item.isDirectory()) {
           const subFiles = await this.findFilesRecursive(fullPath, extensions);
           files.push(...subFiles);
@@ -516,10 +516,10 @@ export class DocumentationValidator {
     } catch (error) {
       // Skip inaccessible directories
     }
-    
+
     return files;
   }
-  
+
   /**
    * Analyze file for documentation
    */
@@ -537,20 +537,20 @@ export class DocumentationValidator {
       documentedClasses: 0,
       issues: [] as ValidationIssue[],
     };
-    
+
     try {
       const content = await fs.readFile(filePath, 'utf8');
       const lines = content.split('\n');
       const relativeFilePath = path.relative(projectPath, filePath);
-      
+
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         const lineNumber = i + 1;
-        
+
         // Check for function declarations
         if (line.match(/^(export\s+)?(async\s+)?function\s+\w+|^\w+\s*[=:]\s*(async\s+)?\([^)]*\)\s*=>|^(public|private|protected)\s+\w+\s*\(/)) {
           result.totalFunctions++;
-          
+
           // Check if previous lines contain JSDoc comment
           const hasJSDoc = this.hasJSDocAbove(lines, i);
           if (hasJSDoc) {
@@ -567,11 +567,11 @@ export class DocumentationValidator {
             });
           }
         }
-        
+
         // Check for class declarations
         if (line.match(/^(export\s+)?(abstract\s+)?class\s+\w+/)) {
           result.totalClasses++;
-          
+
           const hasJSDoc = this.hasJSDocAbove(lines, i);
           if (hasJSDoc) {
             result.documentedClasses++;
@@ -588,14 +588,14 @@ export class DocumentationValidator {
           }
         }
       }
-      
+
     } catch (error) {
       // Skip files that can't be read
     }
-    
+
     return result;
   }
-  
+
   /**
    * Check if there's a JSDoc comment above the given line
    */
@@ -609,7 +609,7 @@ export class DocumentationValidator {
     }
     return false;
   }
-  
+
   /**
    * Generate suggestions based on score and issues
    */
@@ -628,22 +628,22 @@ export class DocumentationValidator {
     } else {
       suggestions.push('Excellent documentation! Consider keeping it updated as the project evolves');
     }
-    
+
     // Add specific suggestions based on issue types
     const issueTypes = [...new Set(issues.map(issue => issue.type))];
-    
+
     if (issueTypes.includes('missing_required_documentation')) {
       suggestions.push('Priority: Create missing required documentation files');
     }
-    
+
     if (issueTypes.includes('short_readme')) {
       suggestions.push('Expand README.md with more detailed information');
     }
-    
+
     if (issueTypes.includes('low_function_documentation')) {
       suggestions.push('Add JSDoc comments to improve code documentation coverage');
     }
-    
+
     if (issueTypes.includes('missing_api_documentation')) {
       suggestions.push('Create comprehensive API documentation for better usability');
     }

@@ -97,7 +97,7 @@ export class CoordinateAgentsTool {
       activeNodes: treeStatus.activeNodes,
       completedNodes: treeStatus.completedNodes,
     });
-    
+
     if (currentNode) {
       this.logger.info('coordinate', 'Current Node Status', {
         sessionId: currentNode.sessionId,
@@ -119,7 +119,7 @@ export class CoordinateAgentsTool {
 
     // Simple validation - check for multiple active nodes at same level
     const activeNodes = Object.values(treeStatus.tree).filter((node: any) => node.status === "running");
-    
+
     if (activeNodes.length > 1) {
       violations.push(`Multiple active nodes detected: ${activeNodes.length}`);
     }
@@ -134,7 +134,7 @@ export class CoordinateAgentsTool {
 
   private async checkDependencies(agentTreeManager: any, context: AgentExecutionContext, dependencies: string[]): Promise<any> {
     const unmetDependencies = [];
-    
+
     for (const dep of dependencies) {
       const node = agentTreeManager.getNode(dep);
       if (!node || node.status !== 'completed') {
@@ -156,7 +156,7 @@ export class CoordinateAgentsTool {
       targetPhase,
       sessionId: context.sessionId,
     });
-    
+
     const currentNode = agentTreeManager.getNode(context.sessionId);
     if (currentNode) {
       this.logger.info('coordinate', 'Current phase information', {

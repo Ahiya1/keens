@@ -21,14 +21,14 @@ export class VersionCommand {
   private async showDetailedInfo(): Promise<void> {
     console.log(chalk.cyan('🚀 keen Platform Information'));
     console.log(chalk.gray('=' .repeat(40)));
-    
+
     // Read package.json for version info
     try {
       const packageJsonPath = path.join(__dirname, "../../../package.json");
       const packageJson = JSON.parse(
         await fs.readFile(packageJsonPath, "utf-8")
       );
-      
+
       console.log(chalk.blue(`Version: ${packageJson.version}`));
       console.log(chalk.blue(`Description: ${packageJson.description}`));
     } catch (error) {
@@ -39,13 +39,13 @@ export class VersionCommand {
     // Check environment variables
     const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY;
     const hasDbConfig = !!(process.env.DB_HOST && process.env.DB_NAME);
-    
+
     console.log('\n' + chalk.yellow('Configuration:'));
     console.log(`  Anthropic API Key: ${hasAnthropicKey ? chalk.green('✅ Configured') : chalk.red('❌ Missing')}`);
     console.log(`  Database Config: ${hasDbConfig ? chalk.green('✅ Configured') : chalk.red('❌ Missing')}`);
     console.log(`  Node.js Version: ${chalk.green(process.version)}`);
     console.log(`  Platform: ${chalk.green(process.platform)}`);
-    
+
     console.log('\n' + chalk.magenta('For more help:'));
     console.log('  keen --help     - Show available commands');
     console.log('  keen login      - Authenticate with the platform');

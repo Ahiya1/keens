@@ -88,7 +88,7 @@ export class GetAgentStatusTool {
       if (!agentTreeManager) {
         throw new Error('AgentTreeManager not available - cannot report agent status');
       }
-      
+
       // Get tree status
       const treeStatus: AgentTreeStatus = agentTreeManager.getTreeStatus();
       const currentNode = agentTreeManager.getNode(context.sessionId);
@@ -321,7 +321,7 @@ export class GetAgentStatusTool {
     console.log(chalk.red(`   Failed: ${treeStatus.failedNodes}`));
     console.log(chalk.gray(`   Max Depth: ${treeStatus.maxDepth}`));
     console.log(chalk.gray(`   Filtered Results: ${filteredCount}`));
-    
+
     if (currentNode) {
       console.log(chalk.yellow(`\n🤖 Current Agent: ${currentNode.sessionId}`));
       console.log(chalk.gray(`   Specialization: ${currentNode.specialization}`));
@@ -340,12 +340,12 @@ export class GetAgentStatusTool {
     console.log(chalk.cyan(`   Average Duration: ${Math.round(metrics.timing.averageDuration / 1000)}s`));
     console.log(chalk.cyan(`   Total Execution Time: ${Math.round(metrics.timing.totalExecutionTime / 1000)}s`));
     console.log(chalk.cyan(`   Average Depth: ${metrics.hierarchy.averageDepth.toFixed(1)}`));
-    
+
     console.log(chalk.blue("\n🔧 Specialization Distribution:"));
     Object.entries(metrics.specialization.distribution).forEach(([spec, count]: [string, any]) => {
       console.log(chalk.gray(`   ${spec}: ${count} agents`));
     });
-    
+
     console.log(chalk.blue("\n🔄 Phase Distribution:"));
     Object.entries(metrics.phases.distribution).forEach(([phase, count]: [string, any]) => {
       console.log(chalk.gray(`   ${phase}: ${count} agents`));

@@ -11,15 +11,15 @@ import { WebSocketDAO } from './database/dao/WebSocketDAO.js';
 import { AnalyticsDAO } from './database/dao/AnalyticsDAO.js';
 
 // NEW: Anthropic configuration exports
-import { 
-  AnthropicConfigManager, 
+import {
+  AnthropicConfigManager,
   KEEN_DEFAULT_CONFIG,
   type AnthropicConfig,
   type ContextUtilization
 } from './config/AnthropicConfig.js';
 
 // Configuration exports
-import { 
+import {
   databaseConfig,
   adminConfig,
   creditConfig,
@@ -35,7 +35,7 @@ export class keen {
   private static instance: keen;
   private dbManager: DatabaseManager;
   private anthropicConfigManager: AnthropicConfigManager;
-  
+
   // DAO instances
   public readonly users: UserDAO;
   public readonly sessions: SessionDAO;
@@ -49,13 +49,13 @@ export class keen {
   ) {
     // Load environment variables from multiple locations
     EnvLoader.load();
-    
+
     this.dbManager = new DatabaseManager(customDbConfig || databaseConfig);
     this.anthropicConfigManager = new AnthropicConfigManager({
       ...KEEN_DEFAULT_CONFIG,
       ...customAnthropicConfig
     });
-    
+
     // Initialize DAOs
     this.users = new UserDAO(this.dbManager);
     this.sessions = new SessionDAO(this.dbManager);
@@ -83,13 +83,13 @@ export class keen {
   async initialize(): Promise<void> {
     await this.dbManager.initialize();
     console.log('keen database initialized successfully');
-    
+
     // Validate Anthropic configuration
     const validation = this.anthropicConfigManager.validateKeenRequirements();
     if (!validation.valid) {
       console.warn('Anthropic configuration warnings:', validation.issues);
     }
-    
+
     console.log('keen platform ready with 1M context and thinking enabled');
   }
 
@@ -132,7 +132,7 @@ export class keen {
     ready: boolean;
   }> {
     const issues: string[] = [];
-    
+
     // Test database connection
     let databaseReady = false;
     try {
@@ -141,15 +141,15 @@ export class keen {
     } catch (error) {
       issues.push(`Database connection failed: ${error}`);
     }
-    
+
     // Validate Anthropic configuration
     const anthropicValidation = this.anthropicConfigManager.validateKeenRequirements();
     const anthropicReady = anthropicValidation.valid;
-    
+
     if (!anthropicReady) {
       issues.push(...anthropicValidation.issues);
     }
-    
+
     return {
       database: databaseReady,
       anthropic: anthropicReady,
@@ -181,7 +181,7 @@ export class keen {
     const dbStats = await this.dbManager.getConnectionStats();
     const anthropicConfig = this.anthropicConfigManager.getConfig();
     const validation = this.anthropicConfigManager.validateKeenRequirements();
-    
+
     return {
       database: {
         connected: dbStats.totalConnections > 0,
@@ -217,17 +217,17 @@ export {
   // Database exports
   DatabaseManager,
   UserDAO,
-  SessionDAO, 
+  SessionDAO,
   CreditDAO,
   WebSocketDAO,
   AnalyticsDAO,
-  
+
   // Anthropic configuration exports
   AnthropicConfigManager,
   KEEN_DEFAULT_CONFIG,
   type AnthropicConfig,
   type ContextUtilization,
-  
+
   // Configuration exports
   databaseConfig,
   adminConfig,

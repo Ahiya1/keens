@@ -89,7 +89,7 @@ export class AuthenticationService {
       const user = await this.userDAO.getUserByEmailForAuth(email);
       if (!user || !user.password_hash || !await this.verifyPassword(password, user.password_hash)) {
         // Safe audit logging - don't let it break authentication
-        this.safeAuditLog(() => 
+        this.safeAuditLog(() =>
           this.auditLogger.logFailedLogin(email, clientInfo, 'invalid_credentials')
         );
         throw new AuthenticationError('Invalid email or password');
@@ -97,7 +97,7 @@ export class AuthenticationService {
 
       // 3. Account status checks
       if (user.account_status !== 'active') {
-        this.safeAuditLog(() => 
+        this.safeAuditLog(() =>
           this.auditLogger.logFailedLogin(email, clientInfo, 'account_suspended')
         );
         throw new AuthenticationError('Account is suspended or inactive');
@@ -110,7 +110,7 @@ export class AuthenticationService {
         }
 
         if (!await this.verifyMFAToken(user.mfa_secret!, mfaToken)) {
-          this.safeAuditLog(() => 
+          this.safeAuditLog(() =>
             this.auditLogger.logFailedLogin(email, clientInfo, 'invalid_mfa')
           );
           throw new AuthenticationError('Invalid two-factor authentication token');
@@ -125,7 +125,7 @@ export class AuthenticationService {
       await this.updateLoginTracking(user.id, clientInfo.ip);
 
       // 7. Audit successful login (safe)
-      this.safeAuditLog(() => 
+      this.safeAuditLog(() =>
         this.auditLogger.logSuccessfulLogin(user.id, clientInfo, {
           isAdmin: user.is_admin,
           adminPrivileges: user.admin_privileges,
@@ -153,9 +153,9 @@ export class AuthenticationService {
       if (error instanceof AuthenticationError || error instanceof MFARequiredError) {
         throw error;
       }
-      
+
       console.error('Login error:', error);
-      this.safeAuditLog(() => 
+      this.safeAuditLog(() =>
         this.auditLogger.logFailedLogin(email, clientInfo, 'system_error')
       );
       throw new AuthenticationError('Login failed due to system error');
@@ -269,7 +269,7 @@ export class AuthenticationService {
 
     const result = await this.db.query<any>(
       `
-      SELECT t.*, u.is_admin, u.admin_privileges 
+      SELECT t.*, u.is_admin, u.admin_privileges
       FROM auth_tokens t
       JOIN users u ON t.user_id = u.id
       WHERE t.token_hash = $1 AND t.token_type = 'api_key' AND t.is_active = true
@@ -328,7 +328,7 @@ export class AuthenticationService {
       await this.db.query(
         `
         INSERT INTO auth_tokens (
-          id, user_id, token_type, token_hash, scopes, 
+          id, user_id, token_type, token_hash, scopes,
           expires_at, created_ip, is_active
         ) VALUES ($1, $2, 'jwt_refresh', $3, $4, $5, $6, $7)
         `,
@@ -393,7 +393,7 @@ export class AuthenticationService {
    */
   private getUserScopes(user: User): string[] {
     const baseScopes = ['profile:read', 'credits:read', 'agents:execute', 'sessions:read'];
-    
+
     if (user.is_admin) {
       return [
         ...baseScopes,
@@ -447,7 +447,7 @@ export class AuthenticationService {
    */
   async revokeRefreshToken(tokenValue: string): Promise<void> {
     this.refreshTokens.delete(tokenValue);
-    
+
     const tokenHash = this.hashToken(tokenValue);
     await this.db.query(
       'UPDATE auth_tokens SET is_active = false WHERE token_hash = $1 AND token_type = $2',
@@ -460,7 +460,7 @@ export class AuthenticationService {
    */
   async refreshAccessToken(refreshToken: string): Promise<{ access_token: string; expires_in: number }> {
     const tokenData = this.refreshTokens.get(refreshToken);
-    
+
     if (!tokenData || tokenData.expiresAt < new Date()) {
       throw new AuthenticationError('Invalid or expired refresh token');
     }
@@ -471,7 +471,7 @@ export class AuthenticationService {
     }
 
     const accessToken = await this.generateAccessToken(user);
-    
+
     return {
       access_token: accessToken,
       expires_in: user.is_admin ? 3600 : 900,
@@ -482,14 +482,14 @@ export class AuthenticationService {
    * List user's API keys
    */
   async listAPIKeys(
-    userId: string, 
+    userId: string,
     context?: UserContext
   ): Promise<Array<Omit<APIKeyResult, 'key'>>> {
     const keys = await this.db.query<any>(
       `
-      SELECT id, token_name as name, scopes, rate_limit_per_hour, 
+      SELECT id, token_name as name, scopes, rate_limit_per_hour,
              is_active, created_at, last_used_at, expires_at
-      FROM auth_tokens 
+      FROM auth_tokens
       WHERE user_id = $1 AND token_type = 'api_key' AND is_active = true
       ORDER BY created_at DESC
       `,
@@ -511,8 +511,8 @@ export class AuthenticationService {
    * Revoke API key
    */
   async revokeAPIKey(
-    userId: string, 
-    keyId: string, 
+    userId: string,
+    keyId: string,
     context?: UserContext
   ): Promise<boolean> {
     const result = await this.db.query(

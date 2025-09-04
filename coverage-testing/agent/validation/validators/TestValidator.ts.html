@@ -480,24 +480,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -911,7 +911,7 @@ interface TestOptions {
 &nbsp;
 export class TestValidator {
   private options: TestOptions;
-  
+&nbsp;
   constructor(options: TestOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
     this.options = {
       silentMode: true, // ALWAYS ENFORCED - NEVER ALLOW VERBOSE TESTS
@@ -919,17 +919,17 @@ export class TestValidator {
       ...options
     };
   }
-  
+&nbsp;
   /**
    * Truncate test output to prevent massive responses
    */
   private <span class="fstat-no" title="function not covered" >truncateOutput(</span>output: string): string {
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!output) <span class="cstat-no" title="statement not covered" >return '';</span></span>
-    
+&nbsp;
     // First truncate by lines
     const lines = <span class="cstat-no" title="statement not covered" >output.split('\n');</span>
     let result = <span class="cstat-no" title="statement not covered" >lines;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (lines.length &gt; MAX_OUTPUT_LINES) {</span>
 <span class="cstat-no" title="statement not covered" >      result = [</span>
         ...lines.slice(0, Math.floor(MAX_OUTPUT_LINES / 2)),
@@ -937,35 +937,35 @@ export class TestValidator {
         ...lines.slice(-Math.floor(MAX_OUTPUT_LINES / 2))
       ];
     }
-    
+&nbsp;
     let finalResult = <span class="cstat-no" title="statement not covered" >result.join('\n');</span>
-    
+&nbsp;
     // Then truncate by character count
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (finalResult.length &gt; MAX_OUTPUT_LENGTH) {</span>
       const halfLength = <span class="cstat-no" title="statement not covered" >Math.floor(MAX_OUTPUT_LENGTH / 2) - 70;</span>
-<span class="cstat-no" title="statement not covered" >      finalResult = finalResult.substring(0, halfLength) + </span>
+<span class="cstat-no" title="statement not covered" >      finalResult = finalResult.substring(0, halfLength) +</span>
         `\n\n... [TEST OUTPUT TRUNCATED: ${finalResult.length - MAX_OUTPUT_LENGTH} characters omitted] ...\n\n` +
         finalResult.substring(finalResult.length - halfLength);
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return finalResult;</span>
   }
-  
+&nbsp;
   /**
    * Execute tests and return results - ENFORCED SILENT MODE
    */
 <span class="fstat-no" title="function not covered" >  async </span>executeTests(projectPath: string, options: TestOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;TestExecutionResult&gt; {
-    const testOptions = <span class="cstat-no" title="statement not covered" >{ </span>
+    const testOptions = <span class="cstat-no" title="statement not covered" >{</span>
       silentMode: true, // ALWAYS ENFORCED
       timeout: 60000,
-      ...this.options, 
-      ...options 
+      ...this.options,
+      ...options
     };
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Check if package.json exists and has test scripts
       const packageInfo = <span class="cstat-no" title="statement not covered" >await this.getPackageInfo(projectPath);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!packageInfo.hasTests) {</span>
 <span class="cstat-no" title="statement not covered" >        return {</span>
           passed: false,
@@ -976,15 +976,15 @@ export class TestValidator {
           errors: ['No test scripts found in package.json'],
         };
       }
-      
+&nbsp;
       // Determine test runner and command - ALWAYS SILENT
       const testCommand = <span class="cstat-no" title="statement not covered" >this.getSilentTestCommand(packageInfo);</span>
-      
+&nbsp;
       // Execute tests with ENFORCED silent mode
       const result = <span class="cstat-no" title="statement not covered" >await this.runTests(projectPath, testCommand, testOptions);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return result;</span>
-      
+&nbsp;
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      return {</span>
         passed: false,
@@ -996,7 +996,7 @@ export class TestValidator {
       };
     }
   }
-  
+&nbsp;
   /**
    * Get package.json information
    */
@@ -1009,10 +1009,10 @@ export class TestValidator {
       const packagePath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
       const packageContent = <span class="cstat-no" title="statement not covered" >await fs.readFile(packagePath, 'utf8');</span>
       const packageJson = <span class="cstat-no" title="statement not covered" >JSON.parse(packageContent);</span>
-      
+&nbsp;
       const scripts = <span class="cstat-no" title="statement not covered" >packageJson.scripts || {};</span>
       const hasTests = <span class="cstat-no" title="statement not covered" >'test' in scripts;</span>
-      
+&nbsp;
       let testRunner = <span class="cstat-no" title="statement not covered" >'unknown';</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (packageJson.devDependencies || packageJson.dependencies) {</span>
         const deps = <span class="cstat-no" title="statement not covered" >{ ...packageJson.devDependencies, ...packageJson.dependencies };</span>
@@ -1021,13 +1021,13 @@ export class TestValidator {
         else <span class="cstat-no" title="statement not covered" >if (deps.vitest) <span class="cstat-no" title="statement not covered" >testRunner = 'vitest';</span></span>
         else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (deps.ava) <span class="cstat-no" title="statement not covered" >testRunner = 'ava';</span></span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         hasTests,
         testRunner,
         scripts
       };
-      
+&nbsp;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return {</span>
         hasTests: false,
@@ -1036,17 +1036,17 @@ export class TestValidator {
       };
     }
   }
-  
+&nbsp;
   /**
    * Get the appropriate SILENT test command - CRITICAL: Always silent
    */
   private <span class="fstat-no" title="function not covered" >getSilentTestCommand(</span>packageInfo: any): string {
     // CRITICAL: ALWAYS add multiple silent flags to ensure no verbose output
-    
+&nbsp;
     // Check for specific test scripts
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (packageInfo.scripts.test) {</span>
       const testScript = <span class="cstat-no" title="statement not covered" >packageInfo.scripts.test;</span>
-      
+&nbsp;
       // For npm test, add MULTIPLE silent flags
 <span class="cstat-no" title="statement not covered" >      if (testScript.includes('jest')) {</span>
 <span class="cstat-no" title="statement not covered" >        return `npm test --silent -- --silent --passWithNoTests --verbose=false`;</span>
@@ -1058,7 +1058,7 @@ export class TestValidator {
 <span class="cstat-no" title="statement not covered" >        return `npm test --silent`;</span>
       }
     }
-    
+&nbsp;
     // Fallback based on detected test runner - ALWAYS with silent flags
 <span class="cstat-no" title="statement not covered" >    switch (packageInfo.testRunner) {</span>
       case 'jest':
@@ -1071,13 +1071,13 @@ export class TestValidator {
 <span class="cstat-no" title="statement not covered" >        return `npm test --silent`;</span>
     }
   }
-  
+&nbsp;
   /**
    * Run tests with the specified command - ENFORCED SILENT
    */
   private <span class="fstat-no" title="function not covered" >async </span>runTests(projectPath: string, command: string, options: TestOptions): Promise&lt;TestExecutionResult&gt; {
     const startTime = <span class="cstat-no" title="statement not covered" >Date.now();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // CRITICAL: ALWAYS use silent mode with reduced buffer
       const { stdout, stderr } = <span class="cstat-no" title="statement not covered" >await execAsync(command, {</span>
@@ -1095,15 +1095,15 @@ export class TestValidator {
           npm_config_silent: 'true',
         }
       });
-      
+&nbsp;
       const duration = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
-      
+&nbsp;
       // CRITICAL: Always truncate output
       const truncatedOutput = <span class="cstat-no" title="statement not covered" >this.truncateOutput(stdout + stderr);</span>
-      
+&nbsp;
       // Parse test results from truncated output
       const results = <span class="cstat-no" title="statement not covered" >this.parseTestResults(truncatedOutput, command);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return {</span>
         passed: results.failed === 0 &amp;&amp; results.total &gt; 0,
         total: results.total,
@@ -1113,16 +1113,16 @@ export class TestValidator {
         output: truncatedOutput,
         errors: results.errors,
       };
-      
+&nbsp;
     } catch (error: any) {
       const duration = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
-      
+&nbsp;
       // Handle test failures vs execution failures
 <span class="cstat-no" title="statement not covered" >      if (error.code === 1 &amp;&amp; error.stdout) {</span>
         // Tests ran but some failed
         const truncatedOutput = <span class="cstat-no" title="statement not covered" >this.truncateOutput(error.stdout + (error.stderr || ''));</span>
         const results = <span class="cstat-no" title="statement not covered" >this.parseTestResults(truncatedOutput, command);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        return {</span>
           passed: false,
           total: results.total,
@@ -1146,7 +1146,7 @@ export class TestValidator {
       }
     }
   }
-  
+&nbsp;
   /**
    * Parse test results from output (handles truncated output)
    */
@@ -1162,21 +1162,21 @@ export class TestValidator {
       coverage: undefined as any,
       errors: [] as string[],
     };
-    
+&nbsp;
     // Jest output parsing
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (command.includes('jest') || output.includes('Jest')) {</span>
 <span class="cstat-no" title="statement not covered" >      return this.parseJestResults(output);</span>
     }
-    
+&nbsp;
     // Mocha output parsing
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (command.includes('mocha') || output.includes('passing') || output.includes('failing')) {</span>
 <span class="cstat-no" title="statement not covered" >      return this.parseMochaResults(output);</span>
     }
-    
+&nbsp;
     // Generic parsing
 <span class="cstat-no" title="statement not covered" >    return this.parseGenericResults(output);</span>
   }
-  
+&nbsp;
   /**
    * Parse Jest test results (handles truncated output)
    */
@@ -1187,14 +1187,14 @@ export class TestValidator {
     errors: string[];
   } {
     const results = <span class="cstat-no" title="statement not covered" >{ total: 0, failed: 0, coverage: undefined as any, errors: [] as string[] };</span>
-    
+&nbsp;
     // Look for test summary patterns (more robust parsing)
     const testSummaryPatterns = <span class="cstat-no" title="statement not covered" >[</span>
       /(\d+) tests?,\s*(\d+) failed/,
       /Tests:\s*(\d+) failed,\s*(\d+) passed/,
       /Tests:\s*(\d+) passed,\s*(\d+) failed/
     ];
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const pattern of testSummaryPatterns) {</span>
       const match = <span class="cstat-no" title="statement not covered" >output.match(pattern);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match) {</span>
@@ -1211,7 +1211,7 @@ export class TestValidator {
 <span class="cstat-no" title="statement not covered" >        break;</span>
       }
     }
-    
+&nbsp;
     // Alternative Jest format parsing
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (results.total === 0) {</span>
       const passMatch = <span class="cstat-no" title="statement not covered" >output.match(/(\d+) passing/);</span>
@@ -1223,7 +1223,7 @@ export class TestValidator {
 <span class="cstat-no" title="statement not covered" >        results.failed = failed;</span>
       }
     }
-    
+&nbsp;
     // Look for coverage information (simplified)
     const coverageMatch = <span class="cstat-no" title="statement not covered" >output.match(/All files\s*\|\s*([\d.]+)/);</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (coverageMatch) {</span>
@@ -1235,10 +1235,10 @@ export class TestValidator {
         lines: coverage,
       };
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return results;</span>
   }
-  
+&nbsp;
   /**
    * Parse Mocha test results
    */
@@ -1249,20 +1249,20 @@ export class TestValidator {
     errors: string[];
   } {
     const results = <span class="cstat-no" title="statement not covered" >{ total: 0, failed: 0, coverage: undefined as any, errors: [] as string[] };</span>
-    
+&nbsp;
     // Look for Mocha summary
     const passMatch = <span class="cstat-no" title="statement not covered" >output.match(/(\d+) passing/);</span>
     const failMatch = <span class="cstat-no" title="statement not covered" >output.match(/(\d+) failing/);</span>
-    
+&nbsp;
     const passed = <span class="cstat-no" title="statement not covered" >passMatch ? parseInt(passMatch[1]) : 0;</span>
     const failed = <span class="cstat-no" title="statement not covered" >failMatch ? parseInt(failMatch[1]) : 0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    results.total = passed + failed;</span>
 <span class="cstat-no" title="statement not covered" >    results.failed = failed;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return results;</span>
   }
-  
+&nbsp;
   /**
    * Parse generic test results
    */
@@ -1273,12 +1273,12 @@ export class TestValidator {
     errors: string[];
   } {
     const results = <span class="cstat-no" title="statement not covered" >{ total: 0, failed: 0, coverage: undefined as any, errors: [] as string[] };</span>
-    
+&nbsp;
     // Look for common test patterns
     const lines = <span class="cstat-no" title="statement not covered" >output.split('\n');</span>
     let testCount = <span class="cstat-no" title="statement not covered" >0;</span>
     let failCount = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const line of lines) {</span>
 <span class="cstat-no" title="statement not covered" >      if (line.includes('✓') || line.includes('✔') || line.includes('pass')) {</span>
 <span class="cstat-no" title="statement not covered" >        testCount++;</span>
@@ -1286,16 +1286,16 @@ export class TestValidator {
 <span class="cstat-no" title="statement not covered" >        testCount++;</span>
 <span class="cstat-no" title="statement not covered" >        failCount++;</span>
       }
-      
+&nbsp;
       // Don't process too many lines from truncated output
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (testCount &gt; 100) <span class="cstat-no" title="statement not covered" >break;</span></span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (testCount &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      results.total = testCount;</span>
 <span class="cstat-no" title="statement not covered" >      results.failed = failCount;</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return results;</span>
   }
 }
@@ -1306,7 +1306,7 @@ export class TestValidator {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

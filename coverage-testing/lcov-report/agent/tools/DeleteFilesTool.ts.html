@@ -434,12 +434,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -455,7 +453,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1097,7 +1097,7 @@ export class DeleteFilesTool {
 <span class="fstat-no" title="function not covered" >  static </span>getCommonTrashPatterns(): string[] {
 <span class="cstat-no" title="statement not covered" >    return [</span>
       '**/*.tmp',
-      '**/*.bak', 
+      '**/*.bak',
       '**/*~',
       '**/*.orig',
       '**/.DS_Store',
@@ -1114,21 +1114,21 @@ export class DeleteFilesTool {
 <span class="fstat-no" title="function not covered" >  static </span>async findTrashFiles(rootPath: string = <span class="branch-0 cbranch-no" title="branch not covered" >'.')</span>: Promise&lt;string[]&gt; {
     const trashFiles: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const patterns = <span class="cstat-no" title="statement not covered" >DeleteFilesTool.getCommonTrashPatterns();</span>
-    
+&nbsp;
     // This is a simplified implementation
     // In a real implementation, you might use a glob library
     const extensions = <span class="cstat-no" title="statement not covered" >['.tmp', '.bak', '.orig', '.log'];</span>
     const names = <span class="cstat-no" title="statement not covered" >['.DS_Store', 'Thumbs.db', 'desktop.ini'];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Recursively find files (simplified approach)
       const findFiles = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(dir: string): Promise&lt;void&gt; =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const entries = <span class="cstat-no" title="statement not covered" >await fs.readdir(dir, { withFileTypes: true });</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          for (const entry of entries) {</span>
             const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dir, entry.name);</span>
-            
+&nbsp;
             // Skip node_modules and other directories we don't want to clean
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (entry.isDirectory()) {</span>
 <span class="cstat-no" title="statement not covered" >              <span class="missing-if-branch" title="if path not taken" >I</span>if (!['node_modules', '.git', 'dist', 'coverage'].includes(entry.name)) {</span>
@@ -1136,12 +1136,12 @@ export class DeleteFilesTool {
               }
 <span class="cstat-no" title="statement not covered" >              continue;</span>
             }
-            
+&nbsp;
             // Check if file matches trash patterns
             const isTrash = <span class="cstat-no" title="statement not covered" >extensions.some(<span class="fstat-no" title="function not covered" >ext </span>=&gt; <span class="cstat-no" title="statement not covered" >entry.name.endsWith(ext))</span> ||</span>
                            names.includes(entry.name) ||
                            entry.name.endsWith('~');
-                           
+&nbsp;
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (isTrash) {</span>
 <span class="cstat-no" title="statement not covered" >              trashFiles.push(fullPath);</span>
             }
@@ -1150,12 +1150,12 @@ export class DeleteFilesTool {
           // Ignore errors for directories we can't read
         }
       };
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      await findFiles(rootPath);</span>
     } catch (error) {
       // Return empty array if there are issues
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return trashFiles;</span>
   }
 }</pre></td></tr></table></pre>
@@ -1165,7 +1165,7 @@ export class DeleteFilesTool {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

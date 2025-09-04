@@ -65,16 +65,16 @@ export class DatabaseManager {
     try {
       // Check if it's a raw SQL query (starts with SELECT, INSERT, UPDATE, DELETE)
       const sqlQuery = textOrTable.trim().toUpperCase();
-      
-      if (sqlQuery.startsWith('SELECT') || 
-          sqlQuery.startsWith('INSERT') || 
-          sqlQuery.startsWith('UPDATE') || 
+
+      if (sqlQuery.startsWith('SELECT') ||
+          sqlQuery.startsWith('INSERT') ||
+          sqlQuery.startsWith('UPDATE') ||
           sqlQuery.startsWith('DELETE')) {
-        
+
         // For complex SQL queries, we need to convert to Supabase operations
         return await this.convertSqlToSupabase<T>(textOrTable, params, context);
       }
-      
+
       // Handle as table-based query (delegate to Supabase)
       return await this.supabaseManager.query<T>(textOrTable, params, context);
     } catch (error) {
@@ -112,60 +112,60 @@ export class DatabaseManager {
     context?: UserContext
   ): Promise<T[]> {
     const client = (context?.isAdmin) ? supabaseAdmin : supabase;
-    
+
     // This is a simplified converter - handles common query patterns
     const sqlUpper = sql.trim().toUpperCase();
-    
+
     if (sqlUpper.includes('SELECT VERSION()')) {
       // Health check query
       return [{ version: 'Supabase PostgreSQL compatible' }] as T[];
     }
-    
+
     if (sqlUpper.includes('SELECT COUNT(*) FROM USERS')) {
       const { count, error } = await client
         .from('users')
         .select('*', { count: 'exact', head: true });
-      
+
       if (error) throw new Error(`Query error: ${error.message}`);
       return [{ count }] as T[];
     }
-    
+
     if (sqlUpper.includes('FROM USERS WHERE ID = $1')) {
       const userId = params?.[0];
       if (!userId) throw new Error('User ID parameter required');
-      
+
       const { data, error } = await client
         .from('users')
         .select('*')
         .eq('id', userId)
         .single();
-      
+
       if (error) {
         if (error.code === 'PGRST116') return [] as T[]; // Not found
         throw new Error(`Query error: ${error.message}`);
       }
-      
+
       return [data] as T[];
     }
-    
+
     if (sqlUpper.includes('FROM USERS WHERE EMAIL = $1')) {
       const email = params?.[0];
       if (!email) throw new Error('Email parameter required');
-      
+
       const { data, error } = await client
         .from('users')
         .select('*')
         .eq('email', email)
         .single();
-      
+
       if (error) {
         if (error.code === 'PGRST116') return [] as T[]; // Not found
         throw new Error(`Query error: ${error.message}`);
       }
-      
+
       return [data] as T[];
     }
-    
+
     // For other SQL queries, log only in debug mode and return empty
     if (process.env.DEBUG) {
       console.warn(`SQL query conversion not implemented: ${sql.substring(0, 50)}...`);

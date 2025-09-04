@@ -86,7 +86,7 @@ export class ConversationAgent {
   private databaseInitialized: boolean = false;
   private conversationStarted: boolean = false;
 
-  // NEW: Cost tracking for conversations
+  // Cost tracking for conversations
   private totalCost: number = 0;
   private totalTokens: number = 0;
   private totalApiCalls: number = 0;
@@ -111,14 +111,6 @@ export class ConversationAgent {
   constructor(options: ConversationOptions) {
     this.options = options;
     this.sessionId = this.generateSessionId();
-
-    this.debugLog("CONSTRUCTOR", "Initializing ConversationAgent", {
-      workingDirectory: options.workingDirectory,
-      hasUserContext: !!options.userContext,
-      userId: options.userContext?.userId?.substring(0, 8) + "...",
-      isAdmin: options.userContext?.isAdmin,
-      enableWebSearch: options.enableWebSearch,
-    });
 
     // Initialize database integration if user context is available
     if (options.userContext) {
@@ -164,10 +156,14 @@ export class ConversationAgent {
       verbose: this.options.verbose || false,
       debug: this.options.debug || false,
       onProgress: (progress) => {
-        this.debugLog("STREAMING", "Progress update", progress);
+        if (this.options.debug) {
+          console.log(chalk.gray(`[STREAMING] Progress: ${JSON.stringify(progress)}`));
+        }
       },
       onError: (error) => {
-        this.debugLog("ERROR", "Streaming error", { error: error.message });
+        if (this.options.verbose) {
+          console.error(chalk.red(`Streaming error: ${error.message}`));
+        }
       },
     });
 
@@ -178,8 +174,6 @@ export class ConversationAgent {
       debug: options.debug || false,
       userContext: options.userContext,
     });
-
-    this.debugLog("INIT", "ConversationAgent initialization complete");
   }
 
   /**
@@ -188,9 +182,11 @@ export class ConversationAgent {
   private async initializeDatabaseIntegration(): Promise<void> {
     try {
       if (!this.options.userContext) {
-        console.warn(
-          chalk.yellow("⚠️  No user context - database persistence disabled")
-        );
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow("⚠️  No user context - database persistence disabled")
+          );
+        }
         return;
       }
 
@@ -198,7 +194,7 @@ export class ConversationAgent {
       this.sessionDAO = new SessionDAO(dbManager);
       this.databaseInitialized = true;
 
-      if (this.options.debug) {
+      if (this.options.verbose) {
         console.log(
           chalk.green(
             `✅ Database integration initialized for user ${this.options.userContext.userId.substring(0, 8)}...`
@@ -206,10 +202,12 @@ export class ConversationAgent {
         );
       }
     } catch (error: any) {
-      console.warn(
-        chalk.yellow(`⚠️  Database integration failed: ${error.message}`)
-      );
-      console.warn(chalk.yellow(`📁 Falling back to in-memory storage only`));
+      if (this.options.verbose) {
+        console.warn(
+          chalk.yellow(`⚠️  Database integration failed: ${error.message}`)
+        );
+        console.warn(chalk.yellow(`📁 Falling back to in-memory storage only`));
+      }
       this.databaseInitialized = false;
     }
   }
@@ -257,12 +255,14 @@ export class ConversationAgent {
           );
         }
       } catch (error: any) {
-        console.warn(
-          chalk.yellow(
-            `⚠️  Failed to create database conversation session: ${error.message}`
-          )
-        );
-        console.warn(chalk.yellow(`🧠 Continuing with in-memory storage only`));
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow(
+              `⚠️  Failed to create database conversation session: ${error.message}`
+            )
+          );
+          console.warn(chalk.yellow(`🧠 Continuing with in-memory storage only`));
+        }
       }
     }
 
@@ -270,7 +270,7 @@ export class ConversationAgent {
   }
 
   /**
-   * NEW: Record API call cost for conversations
+   * Record API call cost for conversations
    */
   private async recordApiCallCost(costData: {
     model: string;
@@ -313,28 +313,30 @@ export class ConversationAgent {
     );
 
     // Console output for conversation cost tracking
-    console.log(
-      chalk.green(`💰 Conversation API Call: $${costData.totalCost.toFixed(4)}`)
-    );
-    console.log(
-      chalk.gray(
-        `   📊 Tokens: ${costData.inputTokens.toLocaleString()}in + ${costData.outputTokens.toLocaleString()}out + ${costData.thinkingTokens.toLocaleString()}think`
-      )
-    );
-    console.log(
-      chalk.gray(
-        `   💵 Cost: $${costData.inputCost.toFixed(4)} + $${costData.outputCost.toFixed(4)} + $${costData.thinkingCost.toFixed(4)}`
-      )
-    );
-    console.log(
-      chalk.cyan(
-        `   📈 Conversation Total: $${this.totalCost.toFixed(4)} (${this.totalApiCalls} calls)`
-      )
-    );
+    if (this.options.verbose) {
+      console.log(
+        chalk.green(`💰 Conversation API Call: $${costData.totalCost.toFixed(4)}`)
+      );
+      console.log(
+        chalk.gray(
+          `   📊 Tokens: ${costData.inputTokens.toLocaleString()}in + ${costData.outputTokens.toLocaleString()}out + ${costData.thinkingTokens.toLocaleString()}think`
+        )
+      );
+      console.log(
+        chalk.gray(
+          `   💵 Cost: $${costData.inputCost.toFixed(4)} + $${costData.outputCost.toFixed(4)} + $${costData.thinkingCost.toFixed(4)}`
+        )
+      );
+      console.log(
+        chalk.cyan(
+          `   📈 Conversation Total: $${this.totalCost.toFixed(4)} (${this.totalApiCalls} calls)`
+        )
+      );
+    }
   }
 
   /**
-   * NEW: Get conversation cost breakdown
+   * Get conversation cost breakdown
    */
   getConversationCosts(): ConversationCostBreakdown {
     if (this.apiCallHistory.length === 0) {
@@ -393,59 +395,63 @@ export class ConversationAgent {
   }
 
   /**
-   * NEW: Display conversation cost summary
+   * Display conversation cost summary
    */
   displayConversationCostSummary(): void {
     const costBreakdown = this.getConversationCosts();
 
     if (costBreakdown.totalApiCalls === 0) {
-      console.log(chalk.yellow("💰 No API calls made yet"));
+      if (this.options.verbose) {
+        console.log(chalk.yellow("💰 No API calls made yet"));
+      }
       return;
     }
 
-    console.log(chalk.blue("\n💰 Conversation Cost Summary"));
-    console.log(chalk.gray("━".repeat(40)));
-    console.log(
-      chalk.cyan(`💵 Total Cost: $${costBreakdown.totalCost.toFixed(4)}`)
-    );
-    console.log(chalk.cyan(`📞 API Calls: ${costBreakdown.totalApiCalls}`));
-    console.log(
-      chalk.cyan(
-        `🪙 Total Tokens: ${costBreakdown.totalTokens.toLocaleString()}`
-      )
-    );
-    console.log(
-      chalk.cyan(
-        `📊 Average per call: $${costBreakdown.averageCostPerCall.toFixed(4)}`
-      )
-    );
-
-    if (costBreakdown.extendedPricingCalls > 0) {
+    if (this.options.verbose) {
+      console.log(chalk.blue("\n💰 Conversation Cost Summary"));
+      console.log(chalk.gray("━".repeat(40)));
       console.log(
-        chalk.yellow(
-          `⚠️  Extended pricing calls: ${costBreakdown.extendedPricingCalls}/${costBreakdown.totalApiCalls}`
-        )
+        chalk.cyan(`💵 Total Cost: $${costBreakdown.totalCost.toFixed(4)}`)
       );
-    }
-
-    console.log(
-      chalk.cyan(
-        `   Input: ${costBreakdown.inputTokens.toLocaleString()} tokens ($${costBreakdown.inputCost.toFixed(4)})`
-      )
-    );
-    console.log(
-      chalk.cyan(
-        `   Output: ${costBreakdown.outputTokens.toLocaleString()} tokens ($${costBreakdown.outputCost.toFixed(4)})`
-      )
-    );
-    if (costBreakdown.thinkingTokens > 0) {
+      console.log(chalk.cyan(`📞 API Calls: ${costBreakdown.totalApiCalls}`));
       console.log(
         chalk.cyan(
-          `   Thinking: ${costBreakdown.thinkingTokens.toLocaleString()} tokens ($${costBreakdown.thinkingCost.toFixed(4)})`
+          `🪙 Total Tokens: ${costBreakdown.totalTokens.toLocaleString()}`
         )
       );
+      console.log(
+        chalk.cyan(
+          `📊 Average per call: $${costBreakdown.averageCostPerCall.toFixed(4)}`
+        )
+      );
+
+      if (costBreakdown.extendedPricingCalls > 0) {
+        console.log(
+          chalk.yellow(
+            `⚠️  Extended pricing calls: ${costBreakdown.extendedPricingCalls}/${costBreakdown.totalApiCalls}`
+          )
+        );
+      }
+
+      console.log(
+        chalk.cyan(
+          `   Input: ${costBreakdown.inputTokens.toLocaleString()} tokens ($${costBreakdown.inputCost.toFixed(4)})`
+        )
+      );
+      console.log(
+        chalk.cyan(
+          `   Output: ${costBreakdown.outputTokens.toLocaleString()} tokens ($${costBreakdown.outputCost.toFixed(4)})`
+        )
+      );
+      if (costBreakdown.thinkingTokens > 0) {
+        console.log(
+          chalk.cyan(
+            `   Thinking: ${costBreakdown.thinkingTokens.toLocaleString()} tokens ($${costBreakdown.thinkingCost.toFixed(4)})`
+          )
+        );
+      }
+      console.log(chalk.gray("━".repeat(40)));
     }
-    console.log(chalk.gray("━".repeat(40)));
   }
 
   /**
@@ -500,20 +506,14 @@ export class ConversationAgent {
           addMessageRequest,
           this.options.userContext
         );
-
-        if (this.options.debug) {
-          console.log(
-            chalk.green(
-              `💾 Message stored in database (${messageType}) - Cost: $${(options.cost || 0).toFixed(4)}`
+      } catch (error: any) {
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow(
+              `⚠️  Failed to store message in database: ${error.message}`
             )
           );
         }
-      } catch (error: any) {
-        console.warn(
-          chalk.yellow(
-            `⚠️  Failed to store message in database: ${error.message}`
-          )
-        );
       }
     }
 
@@ -544,18 +544,12 @@ export class ConversationAgent {
         },
         this.options.userContext
       );
-
-      if (this.options.debug) {
-        console.log(
-          chalk.green(
-            `💾 Session metrics updated with cost: $${this.totalCost.toFixed(4)}`
-          )
+    } catch (error: any) {
+      if (this.options.verbose) {
+        console.warn(
+          chalk.yellow(`⚠️  Failed to update session metrics: ${error.message}`)
         );
       }
-    } catch (error: any) {
-      console.warn(
-        chalk.yellow(`⚠️  Failed to update session metrics: ${error.message}`)
-      );
     }
   }
 
@@ -574,13 +568,6 @@ export class ConversationAgent {
     try {
       // Ensure conversation is started and database session created
       await this.ensureConversationStarted();
-
-      this.debugLog("CONVERSE", "Processing user message with cost tracking", {
-        messageLength: userMessage.length,
-        conversationLength: this.conversationHistory.length,
-        databaseEnabled: this.databaseInitialized,
-        currentCost: this.totalCost,
-      });
 
       // Store user message in database
       await this.storeMessage("user", userMessage);
@@ -604,11 +591,9 @@ export class ConversationAgent {
 
       return result;
     } catch (error: any) {
-      this.debugLog("ERROR", "Conversation error with cost tracking", {
-        error: error.message,
-        stack: error.stack,
-        totalCost: this.totalCost,
-      });
+      if (this.options.verbose) {
+        console.error(chalk.red(`Conversation error: ${error.message}`));
+      }
 
       return {
         response: `I'm sorry, I encountered an error: ${error.message}. Please try again.`,
@@ -626,7 +611,7 @@ export class ConversationAgent {
   }
 
   /**
-   * Simplified message handling based on a2s2 pattern with comprehensive cost tracking
+   * Simplified message handling with comprehensive cost tracking
    */
   private async handleConversationMessage(
     conversationalContext: string
@@ -658,11 +643,6 @@ export class ConversationAgent {
       while (iterationCount < maxIterations) {
         iterationCount++;
 
-        this.debugLog("ITERATION", `Conversation iteration ${iterationCount}`, {
-          messageCount: currentMessages.length,
-          currentTurnCost: turnCost,
-        });
-
         // Call Claude with current messages and track costs
         const response = await this.callClaudeForConversation(
           currentMessages,
@@ -691,13 +671,17 @@ export class ConversationAgent {
             block.name === "web_search"
           ) {
             hasWebSearch = true;
-            console.log(
-              chalk.blue(
-                `🌐 Web search: ${block.input?.query || "searching..."}`
-              )
-            );
+            if (this.options.verbose) {
+              console.log(
+                chalk.blue(
+                  `🌐 Web search: ${block.input?.query || "searching..."}`
+                )
+              );
+            }
           } else if (block.type === "web_search_tool_result") {
-            console.log(chalk.green(`✅ Web search completed`));
+            if (this.options.verbose) {
+              console.log(chalk.green(`✅ Web search completed`));
+            }
           }
         }
 
@@ -782,11 +766,9 @@ export class ConversationAgent {
         costInfo: costInfo,
       };
     } catch (error: any) {
-      this.debugLog("HANDLE_ERROR", "Failed to handle conversation message", {
-        error: error.message,
-        totalCost: this.totalCost,
-      });
-
+      if (this.options.verbose) {
+        console.error(chalk.red(`Failed to handle conversation message: ${error.message}`));
+      }
       throw error;
     }
   }
@@ -802,11 +784,13 @@ export class ConversationAgent {
 
     for (const toolUseBlock of toolUseBlocks) {
       try {
-        console.log(
-          chalk.blue(
-            `🔍 ${toolUseBlock.name}: ${this.getToolDescription(toolUseBlock)}`
-          )
-        );
+        if (this.options.verbose) {
+          console.log(
+            chalk.blue(
+              `🔍 ${toolUseBlock.name}: ${this.getToolDescription(toolUseBlock)}`
+            )
+          );
+        }
 
         const startTime = Date.now();
         const toolResult = await this.toolManager.executeTool(
@@ -822,7 +806,9 @@ export class ConversationAgent {
         );
         const duration = Date.now() - startTime;
 
-        console.log(chalk.green(`✅ Complete (${duration}ms)`));
+        if (this.options.verbose) {
+          console.log(chalk.green(`✅ Complete (${duration}ms)`));
+        }
 
         // Create properly formatted tool result block
         toolResultBlocks.push({
@@ -836,7 +822,9 @@ export class ConversationAgent {
           result: toolResult,
         });
       } catch (error: any) {
-        console.log(chalk.red(`❌ Failed: ${error.message}`));
+        if (this.options.verbose) {
+          console.log(chalk.red(`❌ Failed: ${error.message}`));
+        }
 
         // Create error tool result block
         toolResultBlocks.push({
@@ -911,9 +899,9 @@ export class ConversationAgent {
             : "Unknown",
       };
     } catch (error) {
-      this.debugLog("PROJECT_ANALYSIS_ERROR", "Failed to analyze project", {
-        error: error instanceof Error ? error.message : String(error),
-      });
+      if (this.options.verbose) {
+        console.warn(chalk.yellow(`Failed to analyze project: ${error instanceof Error ? error.message : String(error)}`));
+      }
 
       return {
         directory: this.options.workingDirectory,
@@ -986,11 +974,13 @@ Please respond conversationally to help the user with their project. Use tools i
       this.conversationHistory = historyFromDb;
       return historyFromDb;
     } catch (error: any) {
-      console.warn(
-        chalk.yellow(
-          `⚠️  Failed to retrieve conversation from database: ${error.message}`
-        )
-      );
+      if (this.options.verbose) {
+        console.warn(
+          chalk.yellow(
+            `⚠️  Failed to retrieve conversation from database: ${error.message}`
+          )
+        );
+      }
       return this.conversationHistory;
     }
   }
@@ -1050,17 +1040,6 @@ Language: ${this.projectContext.language || "Unknown"}
       },
     };
 
-    this.debugLog(
-      "API_CALL",
-      "Making conversation API call with cost tracking",
-      {
-        model: config.model,
-        messageCount: messages.length,
-        toolCount: conversationTools.length,
-        maxTokens: baseParams.max_tokens,
-      }
-    );
-
     let response: any;
 
     if (config.enableStreaming) {
@@ -1094,7 +1073,7 @@ Language: ${this.projectContext.language || "Unknown"}
       response = await this.anthropic.messages.create(nonStreamParams);
     }
 
-    // NEW: Calculate and record cost for this conversation API call
+    // Calculate and record cost for this conversation API call
     if (response.usage) {
       const callDuration = Date.now() - callStartTime;
       const inputTokens = response.usage.input_tokens || 0;
@@ -1121,19 +1100,6 @@ Language: ${this.projectContext.language || "Unknown"}
         duration: callDuration,
         isExtendedPricing: costBreakdown.isExtendedPricing,
       });
-
-      this.debugLog(
-        "CONVERSATION_COST",
-        "Conversation API call cost recorded",
-        {
-          inputTokens,
-          outputTokens,
-          thinkingTokens,
-          totalCost: costBreakdown.totalCost,
-          isExtendedPricing: costBreakdown.isExtendedPricing,
-          conversationTotalCost: this.totalCost,
-        }
-      );
     }
 
     return response;
@@ -1231,7 +1197,7 @@ Provide a clear, actionable vision that an autonomous agent can execute:`;
         },
       });
 
-      // NEW: Track cost of vision synthesis
+      // Track cost of vision synthesis
       if (response.usage) {
         const costBreakdown = this.configManager.calculateRequestCost(
           response.usage.input_tokens || 0,
@@ -1244,20 +1210,21 @@ Provide a clear, actionable vision that an autonomous agent can execute:`;
           inputTokens: response.usage.input_tokens || 0,
           outputTokens: response.usage.output_tokens || 0,
           thinkingTokens: (response.usage as any).thinking_tokens || 0,
-
           inputCost: costBreakdown.inputCost,
           outputCost: costBreakdown.outputCost,
           thinkingCost: costBreakdown.thinkingCost,
           totalCost: costBreakdown.totalCost,
-          duration: 0, // We don't track duration for synthesis
+          duration: 0,
           isExtendedPricing: costBreakdown.isExtendedPricing,
         });
 
-        console.log(
-          chalk.green(
-            `💰 Vision Synthesis Cost: $${costBreakdown.totalCost.toFixed(4)}`
-          )
-        );
+        if (this.options.verbose) {
+          console.log(
+            chalk.green(
+              `💰 Vision Synthesis Cost: $${costBreakdown.totalCost.toFixed(4)}`
+            )
+          );
+        }
       }
 
       // Extract text response
@@ -1281,10 +1248,9 @@ Provide a clear, actionable vision that an autonomous agent can execute:`;
 
       return visionText;
     } catch (error: any) {
-      this.debugLog("SYNTHESIS_ERROR", "Failed to synthesize vision", {
-        error: error.message,
-        totalCost: this.totalCost,
-      });
+      if (this.options.verbose) {
+        console.error(chalk.red(`Failed to synthesize vision: ${error.message}`));
+      }
 
       // Fallback synthesis
       const userMessages = this.conversationHistory
@@ -1388,11 +1354,13 @@ Provide a clear, actionable vision that an autonomous agent can execute:`;
           );
         }
       } catch (error: any) {
-        console.warn(
-          chalk.yellow(
-            `⚠️  Failed to mark conversation as completed: ${error.message}`
-          )
-        );
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow(
+              `⚠️  Failed to mark conversation as completed: ${error.message}`
+            )
+          );
+        }
       }
     }
   }
@@ -1455,17 +1423,5 @@ Engage in helpful conversation about their development needs. Use tools strategi
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 15);
     return `conversation_${timestamp}_${random}`;
-  }
-
-  /**
-   * Debug logging
-   */
-  private debugLog(category: string, message: string, data?: any): void {
-    if (this.options.debug || this.options.verbose) {
-      console.log(chalk.gray(`[CONVERSATION] [${category}] ${message}`));
-      if (data && this.options.debug) {
-        console.log(chalk.gray(JSON.stringify(data, null, 2)));
-      }
-    }
   }
 }

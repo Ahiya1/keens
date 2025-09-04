@@ -64,11 +64,11 @@ export class WebSocketManager {
   private async handleConnection(ws: WebSocket, req: IncomingMessage): Promise<void> {
     const connectionId = uuidv4();
     const url = new URL(req.url!, `ws://localhost:3000`);
-    
+
     // Extract authentication token
-    const token = url.searchParams.get('token') || 
+    const token = url.searchParams.get('token') ||
                  req.headers.authorization?.replace('Bearer ', '');
-    
+
     if (!token) {
       ws.close(1008, 'Authentication token required');
       return;
@@ -100,7 +100,7 @@ export class WebSocketManager {
 
       // Store connection
       this.connections.set(connectionId, connection);
-      
+
       // Track user connections
       if (!this.userConnections.has(mockUser.id)) {
         this.userConnections.set(mockUser.id, new Set());
@@ -143,7 +143,7 @@ export class WebSocketManager {
       });} catch (error) {
       console.error('WebSocket authentication failed:', error);
       ws.close(1008, 'Authentication failed');
-      
+
       // Log failed connection
       await this.auditLogger.logSecurityEvent({
         type: 'invalid_token',
@@ -192,16 +192,16 @@ export class WebSocketManager {
 
     try {
       const message = JSON.parse(data.toString());
-      
+
       switch (message.type) {
         case 'subscribe':
           await this.handleSubscribe(connectionId, message.session_id);
           break;
-          
+
         case 'unsubscribe':
           await this.handleUnsubscribe(connectionId, message.session_id);
           break;
-          
+
         case 'ping':
           this.sendToConnection(connectionId, {
             event_type: 'pong',
@@ -210,7 +210,7 @@ export class WebSocketManager {
             data: { connection_id: connectionId }
           });
           break;
-          
+
         case 'admin_command':
           if (connection.isAdmin) {
             await this.handleAdminCommand(connectionId, message);
@@ -226,9 +226,9 @@ export class WebSocketManager {
             });
           }
           break;
-          
+
         default:}
-      
+
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
       this.sendToConnection(connectionId, {
@@ -317,7 +317,7 @@ export class WebSocketManager {
           }
         });
         break;
-        
+
       case 'broadcast_message':
         if (message.target_session) {
           await this.broadcastToSession(message.target_session, {
@@ -354,7 +354,7 @@ export class WebSocketManager {
 
     // Remove from all tracking maps
     this.connections.delete(connectionId);
-    
+
     const userConnections = this.userConnections.get(connection.userId);
     if (userConnections) {
       userConnections.delete(connectionId);
@@ -472,7 +472,7 @@ export class WebSocketManager {
     this.heartbeatInterval = setInterval(() => {
       const now = new Date();
       const staleThreshold = 30000; // 30 seconds
-      
+
       for (const [connectionId, connection] of this.connections) {
         if (now.getTime() - connection.lastPingAt.getTime() > staleThreshold) {
           // Send ping
@@ -494,14 +494,14 @@ export class WebSocketManager {
   private startCleanup(): void {
     this.cleanupInterval = setInterval(() => {
       const deadConnections: string[] = [];
-      
+
       for (const [connectionId, connection] of this.connections) {
         if (connection.ws.readyState === WebSocket.CLOSED ||
             connection.ws.readyState === WebSocket.CLOSING) {
           deadConnections.push(connectionId);
         }
       }
-      
+
       // Remove dead connections
       deadConnections.forEach(connectionId => {
         this.handleDisconnection(connectionId, 1006, 'Connection cleanup');
@@ -521,7 +521,7 @@ export class WebSocketManager {
   } {
     const adminConnections = Array.from(this.connections.values())
       .filter(c => c.isAdmin).length;
-    
+
     const activeConnections = Array.from(this.connections.values())
       .filter(c => c.ws.readyState === WebSocket.OPEN).length;
 
@@ -555,12 +555,12 @@ export class WebSocketManager {
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval);
     }
-    
+
     // Close all connections
     for (const [connectionId, connection] of this.connections) {
       connection.ws.close(1001, 'Server shutting down');
     }
-    
+
     // Clear all maps
     this.connections.clear();
     this.userConnections.clear();

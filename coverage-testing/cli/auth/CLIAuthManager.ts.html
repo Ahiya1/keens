@@ -1073,14 +1073,14 @@ export class CLIAuthManager {
     // Initialize auth file path in user's home directory
     const keenDir = join(homedir(), '.keen');
     this.authFile = join(keenDir, 'auth.json');
-    
+&nbsp;
     // Initialize database and services
     this.db = new DatabaseManager();
     this.userDAO = new UserDAO(this.db);
-    
+&nbsp;
     // Create audit logger (simplified for CLI)
     const auditLogger = new AuditLogger(this.db);
-    
+&nbsp;
     this.authService = new AuthenticationService(
       this.db,
       this.userDAO,
@@ -1097,7 +1097,7 @@ export class CLIAuthManager {
       // Load existing auth state FIRST before initializing database
       // This ensures we don't lose auth if database init fails
 <span class="cstat-no" title="statement not covered" >      await this.loadAuthState();</span>
-      
+&nbsp;
       // Initialize database connection only if needed
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.db.isConnected) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
@@ -1110,7 +1110,7 @@ export class CLIAuthManager {
           }
         }
       }
-      
+&nbsp;
       // Only validate tokens if we have a database connection
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.currentAuth &amp;&amp; this.db.isConnected) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
@@ -1150,12 +1150,12 @@ export class CLIAuthManager {
       };
 &nbsp;
       const authResult = <span class="cstat-no" title="statement not covered" >await this.authService.login(credentials, clientInfo);</span>
-      
+&nbsp;
       // Handle potential undefined values properly with fallbacks
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!authResult.user || !authResult.tokens) {</span>
 <span class="cstat-no" title="statement not covered" >        throw new Error('Invalid authentication result');</span>
       }
-      
+&nbsp;
       // Create CLI auth state with proper null checking and fallbacks
 <span class="cstat-no" title="statement not covered" >      this.currentAuth = {</span>
         user: {
@@ -1179,7 +1179,7 @@ export class CLIAuthManager {
       // Save auth state to file and ensure it completes
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        await this.saveAuthState();</span>
-        
+&nbsp;
         // Verify the file was actually saved
         const exists = <span class="cstat-no" title="statement not covered" >await fs.access(this.authFile).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!exists) {</span>
@@ -1302,7 +1302,7 @@ export class CLIAuthManager {
         'Authentication required. Please run "keen login" to authenticate.'
       );
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    this.updateActivity();</span>
 <span class="cstat-no" title="statement not covered" >    return userContext;</span>
   }
@@ -1374,18 +1374,18 @@ export class CLIAuthManager {
   private <span class="fstat-no" title="function not covered" >async </span>loadAuthState(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.ensureAuthDirectory();</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log('Loading auth state from file');</span>
       }
-      
+&nbsp;
       const data = <span class="cstat-no" title="statement not covered" >await fs.readFile(this.authFile, 'utf-8');</span>
       const parsed = <span class="cstat-no" title="statement not covered" >JSON.parse(data);</span>
-      
+&nbsp;
       // Validate required fields
 <span class="cstat-no" title="statement not covered" >      if (parsed.user?.id &amp;&amp; parsed.tokens?.accessToken &amp;&amp; parsed.tokens?.refreshToken) {</span>
 <span class="cstat-no" title="statement not covered" >        this.currentAuth = parsed;</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
 <span class="cstat-no" title="statement not covered" >          console.log('Auth state loaded successfully');</span>
         }
@@ -1410,13 +1410,13 @@ export class CLIAuthManager {
   private <span class="fstat-no" title="function not covered" >async </span>saveAuthState(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.ensureAuthDirectory();</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log('Saving auth state to file');</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      await fs.writeFile(</span>
-        this.authFile, 
+        this.authFile,
         JSON.stringify(this.currentAuth, null, 2),
         { mode: 0o600 } // Read/write for owner only
       );
@@ -1463,7 +1463,7 @@ export class CLIAuthManager {
    */
   private <span class="fstat-no" title="function not covered" >async </span>getDeviceId(): Promise&lt;string&gt; {
     const deviceFile = <span class="cstat-no" title="statement not covered" >join(homedir(), '.keen', 'device-id');</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      return await fs.readFile(deviceFile, 'utf-8');</span>
     } catch (error) {
@@ -1504,7 +1504,7 @@ export const cliAuth = new CLIAuthManager();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

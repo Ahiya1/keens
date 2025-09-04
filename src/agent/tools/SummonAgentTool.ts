@@ -6,10 +6,10 @@
  */
 
 import { randomBytes } from 'crypto';
-import { 
-  AgentExecutionContext, 
-  AgentSpawnRequest, 
-  AgentSpawnResult, 
+import {
+  AgentExecutionContext,
+  AgentSpawnRequest,
+  AgentSpawnResult,
   AgentSpecialization,
   GitBranchUtils
 } from '../types.js';
@@ -23,7 +23,7 @@ export class SummonAgentTool {
   getDescription(): string {
     return 'Spawn a specialized sub-agent with focused expertise. Sequential execution - parent waits until child completes fully before continuing.';
   }
-  
+
   getInputSchema() {
     return {
       type: 'object',
@@ -57,7 +57,7 @@ export class SummonAgentTool {
       required: ['vision', 'specialization']
     };
   }
-  
+
   async execute(
     parameters: {
       vision: string;
@@ -69,14 +69,14 @@ export class SummonAgentTool {
     context: AgentExecutionContext
   ): Promise<any> {
     const startTime = Date.now();
-    
+
     try {
       // Validate that we have AgentTreeManager
       const agentTreeManager = context.toolManagerOptions?.agentTreeManager;
       if (!agentTreeManager) {
         throw new Error('AgentTreeManager not available - recursive spawning not supported');
       }
-      
+
       // Validate that parent can spawn a child (sequential execution)
       if (!agentTreeManager.canSpawnChild(context.sessionId)) {
         throw new Error(
@@ -85,14 +85,14 @@ export class SummonAgentTool {
           'Sequential execution requires waiting for current child to complete.'
         );
       }
-      
+
       // Generate child session ID and branch name
       const childSessionId = this.generateChildSessionId(context.sessionId);
       const childBranch = agentTreeManager.generateChildBranch(context.sessionId);
-      
+
       // Get specialization context
       const specializationContext = agentTreeManager.getSpecializationContext(parameters.specialization);
-      
+
       // Build spawn request
       const spawnRequest: AgentSpawnRequest = {
         vision: this.buildChildVision(parameters.vision, parameters.specialization, specializationContext),
@@ -104,7 +104,7 @@ export class SummonAgentTool {
         costBudget: parameters.costBudget || 5.0,
         context: parameters.context,
       };
-      
+
       // Add child to tree (this validates sequential execution)
       const childNode = await agentTreeManager.addChild(
         context.sessionId,
@@ -124,12 +124,12 @@ export class SummonAgentTool {
         dryRun: context.dryRun,
         userContext: context.userContext // Pass user context
       });
-      
+
       // Execute child agent (BLOCKING - sequential execution)
       const childResult = await childAgent.execute();
-      
+
       const duration = Date.now() - startTime;
-      
+
       // Mark child as completed in tree and merge its work
       await agentTreeManager.completeChild(
         childSessionId,
@@ -153,7 +153,7 @@ export class SummonAgentTool {
           error: childResult.error,
         });
       }
-      
+
       const result: AgentSpawnResult = {
         success: childResult.success,
         childSessionId,
@@ -161,7 +161,7 @@ export class SummonAgentTool {
         result: childResult,
         error: childResult.success ? undefined : (childResult.error || 'Child agent execution failed'),
       };
-      
+
       return {
         success: true,
         spawnResult: result,
@@ -179,10 +179,10 @@ export class SummonAgentTool {
           iterations: childResult.enhancedData?.totalIterations || 0,
         }
       };
-      
+
     } catch (error: any) {
       const duration = Date.now() - startTime;
-      
+
       return {
         success: false,
         error: `Failed to spawn ${parameters.specialization} agent: ${error.message}`,
@@ -196,7 +196,7 @@ export class SummonAgentTool {
       };
     }
   }
-  
+
   /**
    * Generate unique child session ID using cryptographically secure random bytes
    * SECURITY: Replaced Math.random() with crypto.randomBytes()
@@ -206,23 +206,23 @@ export class SummonAgentTool {
     const random = randomBytes(4).toString('hex');
     return `${parentSessionId}-child-${timestamp}-${random}`;
   }
-  
+
   /**
    * Build specialized vision for child agent
    */
   private buildChildVision(
-    originalVision: string, 
+    originalVision: string,
     specialization: AgentSpecialization,
     specializationContext: any
   ): string {
     const prefix = `You are a specialized ${specialization} agent with focused expertise in: ${specializationContext.focus}.\n\n`;
-    
+
     const responsibilities = `Your primary responsibilities:\n${specializationContext.responsibilities.map((r: string) => `- ${r}`).join('\n')}\n\n`;
-    
+
     const tools = `Key tools and technologies for your specialization:\n${specializationContext.tools.map((t: string) => `- ${t}`).join('\n')}\n\n`;
-    
+
     const focus = `**FOCUSED TASK:**\n${originalVision}\n\n`;
-    
+
     const guidelines = `**EXECUTION GUIDELINES:**\n` +
       `- Stay focused on ${specialization} concerns only\n` +
       `- Use your specialized knowledge and tools\n` +
@@ -230,8 +230,8 @@ export class SummonAgentTool {
       `- Test your work thoroughly\n` +
       `- Document your changes appropriately\n` +
       `- Report completion when your specialized task is done\n\n`;
-    
-    return prefix + responsibilities + tools + focus + guidelines + 
+
+    return prefix + responsibilities + tools + focus + guidelines +
            `Remember: You are a **${specialization} specialist**. Focus only on your area of expertise.`;
   }
 }

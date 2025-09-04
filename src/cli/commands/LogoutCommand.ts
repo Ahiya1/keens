@@ -23,7 +23,7 @@ export class LogoutCommand {
             } else {
               console.log(chalk.blue('👋 Already logged out'));
             }
-            
+
             // Force cleanup anyway
             await cliAuth.logout();
             return;
@@ -33,9 +33,9 @@ export class LogoutCommand {
           if (currentUser) {
             console.log(chalk.blue(`🔐 Logging out ${currentUser.email}...`));
           }
-          
+
           const result = await cliAuth.logout();
-          
+
           if (result.success) {
             console.log(chalk.green('✅ ' + result.message));
           } else {
@@ -53,7 +53,7 @@ export class LogoutCommand {
         } catch (error: any) {
           if (options.force) {
             console.log(chalk.yellow('⚠️  Error during logout, forcing cleanup...'));
-            
+
             try {
               await cliAuth.logout();
               console.log(chalk.green('✅ Local session cleared'));

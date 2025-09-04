@@ -21,18 +21,18 @@ function shouldBypassRateLimit(req: Request): boolean {
  */
 function generateRateLimitKey(req: Request): string {
   const user = (req as AuthenticatedRequest).user;
-  
+
   if (user) {
     return `user:${user.id}`;
   }
-  
+
   // Fall back to IP-based limiting for unauthenticated requests
   const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
              (req.headers['x-real-ip'] as string) ||
              req.connection.remoteAddress ||
              req.socket.remoteAddress ||
              'unknown';
-             
+
   return `ip:${ip}`;
 }
 
@@ -42,14 +42,14 @@ function generateRateLimitKey(req: Request): string {
 export const rateLimitMiddleware = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 1000, // Individual tier limit
-  
+
   keyGenerator: generateRateLimitKey,
-  
+
   skip: (req: Request) => {
     // Skip rate limiting for admin users
     return shouldBypassRateLimit(req);
   },
-  
+
   message: {
     success: false,
     error: {
@@ -66,7 +66,7 @@ export const rateLimitMiddleware = rateLimit({
       help_url: 'https://docs.keen.dev/api/rate-limits',
     }
   },
-  
+
   headers: true, // Include rate limit headers in response
   standardHeaders: true,
   legacyHeaders: false,
@@ -79,9 +79,9 @@ export const slowDownMiddleware = slowDown({
   windowMs: 60 * 1000, // 1 minute
   delayAfter: 100, // Allow 100 requests per minute without delay
   delayMs: 500, // Add 500ms delay per request after the limit
-  
+
   keyGenerator: generateRateLimitKey,
-  
+
   skip: shouldBypassRateLimit,
 });
 
@@ -91,11 +91,11 @@ export const slowDownMiddleware = slowDown({
 export const agentExecutionRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // Max 10 agent executions per hour for regular users
-  
+
   keyGenerator: generateRateLimitKey,
-  
+
   skip: shouldBypassRateLimit,
-  
+
   message: {
     success: false,
     error: {
@@ -120,7 +120,7 @@ export const agentExecutionRateLimit = rateLimit({
 export const authRateLimitMiddleware = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // Max 20 auth attempts per 15 minutes
-  
+
   keyGenerator: (req: Request) => {
     // Use IP for auth endpoints since user might not be authenticated yet
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
@@ -130,7 +130,7 @@ export const authRateLimitMiddleware = rateLimit({
                'unknown';
     return `auth:${ip}`;
   },
-  
+
   message: {
     success: false,
     error: {
@@ -154,11 +154,11 @@ export const authRateLimitMiddleware = rateLimit({
 export const apiKeyRateLimitMiddleware = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // Max 10 API key operations per hour
-  
+
   keyGenerator: generateRateLimitKey,
-  
+
   skip: shouldBypassRateLimit,
-  
+
   message: {
     success: false,
     error: {
@@ -182,13 +182,13 @@ const activeSessions = new Map<string, Set<string>>();
 export function checkConcurrentSessions(maxSessions: number = 3) {
   return function(req: Request, res: Response, next: NextFunction): void {
     const user = (req as AuthenticatedRequest).user;
-    
+
     // Admin users bypass concurrent session limits
     if (shouldBypassRateLimit(req)) {
       next();
       return;
     }
-    
+
     if (!user) {
       res.status(401).json({
         success: false,
@@ -200,9 +200,9 @@ export function checkConcurrentSessions(maxSessions: number = 3) {
       });
       return;
     }
-    
+
     const currentSessions = activeSessions.get(user.id)?.size || 0;
-    
+
     if (currentSessions >= maxSessions) {
       res.status(409).json({
         success: false,
@@ -220,7 +220,7 @@ export function checkConcurrentSessions(maxSessions: number = 3) {
       });
       return;
     }
-    
+
     next();
   };
 }

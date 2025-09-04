@@ -173,14 +173,14 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
       .from('users')
       .select('count', { count: 'exact', head: true })
       .limit(1);
-    
+
     if (error) {
       if (process.env.DEBUG) {
         console.error('Supabase connection test failed:', error.message);
       }
       return false;
     }
-    
+
     if (process.env.DEBUG) {
       console.log('Supabase connected successfully');
     }

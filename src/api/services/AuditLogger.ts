@@ -321,9 +321,9 @@ export class AuditLogger {
     params.push(limit, offset);
     const logs = await this.db.query<AuditLogEntry>(
       `
-      SELECT * FROM audit_logs 
+      SELECT * FROM audit_logs
       WHERE ${conditions.join(" AND ")}
-      ORDER BY timestamp DESC 
+      ORDER BY timestamp DESC
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
       `,
       params

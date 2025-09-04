@@ -605,7 +605,7 @@
 <span class="cstat-no" title="statement not covered" >    new BreatheCommand(this.program);</span>
 <span class="cstat-no" title="statement not covered" >    new ConverseCommand(this.program);</span>
 <span class="cstat-no" title="statement not covered" >    new ManifestCommand(this.program);</span>
-    
+&nbsp;
     // 🌟 Register evolution command (auth required)
 <span class="cstat-no" title="statement not covered" >    new EvolveCommand(this.program);</span>
 &nbsp;
@@ -650,11 +650,11 @@
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      console.error(chalk.red('❌ Failed to initialize authentication system:'));</span>
 <span class="cstat-no" title="statement not covered" >      console.error(chalk.gray(error.message));</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (error.message.includes('database') || error.message.includes('connection')) {</span>
 <span class="cstat-no" title="statement not covered" >        console.error(chalk.yellow('💡 Try: keen login --setup'));</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
   }
@@ -665,7 +665,7 @@
   private <span class="fstat-no" title="function not covered" >async </span>showContextualHelp(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.initialize();</span>
-      
+&nbsp;
       const isAuthenticated = <span class="cstat-no" title="statement not covered" >cliAuth.isAuthenticated();</span>
       const currentUser = <span class="cstat-no" title="statement not covered" >cliAuth.getCurrentUser();</span>
 &nbsp;
@@ -674,16 +674,16 @@
 <span class="cstat-no" title="statement not covered" >      console.log('  keen login   - Authenticate with keen platform');</span>
 <span class="cstat-no" title="statement not covered" >      console.log('  keen status  - Check authentication status');</span>
 <span class="cstat-no" title="statement not covered" >      console.log('  keen version - Show version information');</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (isAuthenticated &amp;&amp; currentUser) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log('\n' + chalk.green('Authenticated commands:'));</span>
 <span class="cstat-no" title="statement not covered" >        console.log('  keen breathe - Execute autonomous development tasks');</span>
 <span class="cstat-no" title="statement not covered" >        console.log('  keen converse - Start an interactive conversation');</span>
 <span class="cstat-no" title="statement not covered" >        console.log('  keen manifest - Generate project manifest');</span>
-        
+&nbsp;
         // 🌟 Show evolve command for authenticated users
 <span class="cstat-no" title="statement not covered" >        console.log('  keen evolve  - Evolve your project with AI guidance');</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (currentUser.isAdmin) {</span>
 <span class="cstat-no" title="statement not covered" >          console.log('\n' + chalk.magenta('Admin commands available'));</span>
         }
@@ -699,7 +699,7 @@
   }
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>run(args: string[]): Promise&lt;void&gt; {
-    // Handle no arguments case with auth-aware welcome  
+    // Handle no arguments case with auth-aware welcome
     // When no command is provided (just 'keen'), show welcome
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (args.length &lt; 3) {</span>
 <span class="cstat-no" title="statement not covered" >      await this.showWelcomeMessage();</span>
@@ -709,20 +709,20 @@
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Initialize authentication system before running commands
 <span class="cstat-no" title="statement not covered" >      await this.initialize();</span>
-      
+&nbsp;
       // Run the command - pass all arguments
 <span class="cstat-no" title="statement not covered" >      await this.program.parseAsync(args);</span>
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      console.error(chalk.red('❌ CLI Error:'), error.message);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (error.message.includes('Authentication required')) {</span>
 <span class="cstat-no" title="statement not covered" >        console.error(chalk.yellow('📝 Use "keen login" to authenticate first'));</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (process.env.DEBUG) {</span>
 <span class="cstat-no" title="statement not covered" >        console.error(error.stack);</span>
       }
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      await this.cleanup();</span>
 <span class="cstat-no" title="statement not covered" >      process.exit(1);</span>
     }
@@ -737,20 +737,20 @@
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.initialize();</span>
-      
+&nbsp;
       const isAuthenticated = <span class="cstat-no" title="statement not covered" >cliAuth.isAuthenticated();</span>
       const currentUser = <span class="cstat-no" title="statement not covered" >cliAuth.getCurrentUser();</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (isAuthenticated &amp;&amp; currentUser) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log(chalk.green(`✅ Authenticated as: ${currentUser.email}`));</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (currentUser.isAdmin) {</span>
 <span class="cstat-no" title="statement not covered" >          console.log(chalk.magenta('👑 Admin privileges enabled'));</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        console.log('\n' + chalk.blue('Quick start:'));</span>
 <span class="cstat-no" title="statement not covered" >        console.log('  keen breathe "Improve my React app performance"');</span>
-        
+&nbsp;
         // 🌟 Show evolve option for authenticated users
 <span class="cstat-no" title="statement not covered" >        console.log('  keen evolve  "Add authentication to my app"');</span>
       } else {
@@ -790,7 +790,7 @@ export { KeenCLI as <span class="cstat-no" title="statement not covered" >defaul
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.806Z
+                at 2025-09-04T19:33:06.176Z
             </div>
         <script src="../prettify.js"></script>
         <script>

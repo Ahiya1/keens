@@ -57,7 +57,7 @@ export function createAuthMiddleware(
         // JWT token authentication
         const token = authHeader.substring(7);
         const payload = await authService.verifyAccessToken(token);
-        
+
         user = {
           id: payload.sub,
           email: payload.email,
@@ -70,12 +70,12 @@ export function createAuthMiddleware(
           tokenScopes: payload.scopes,
         };
         authMethod = 'jwt';
-        
+
       } else if (authHeader.startsWith('ApiKey ')) {
         // API key authentication
         const apiKey = authHeader.substring(7);
         const validation = await authService.validateAPIKey(apiKey);
-        
+
         user = {
           id: validation.userId,
           is_admin: validation.isAdmin,
@@ -85,10 +85,10 @@ export function createAuthMiddleware(
           tokenScopes: validation.scopes,
         };
         authMethod = 'api_key';
-        
+
         // Add API key specific info to request
         (req as AuthenticatedRequest).apiKeyScopes = validation.scopes;
-        
+
       } else {
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
@@ -120,7 +120,7 @@ export function createAuthMiddleware(
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       if (error instanceof AuthenticationError) {
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
@@ -238,10 +238,10 @@ export function requireScopes(requiredScopes: string[]) {
     }
 
     const hasAllScopes = requiredScopes.every(scope => allScopes.includes(scope));
-    
+
     if (!hasAllScopes) {
       const missingScopes = requiredScopes.filter(scope => !allScopes.includes(scope));
-      
+
       res.status(403).json({
         success: false,
         error: {
@@ -272,16 +272,16 @@ export function optionalAuth(
   auditLogger: AuditLogger,
 ) {
   const authMiddleware = createAuthMiddleware(authService, auditLogger);
-  
+
   return function(req: Request, res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
       // No auth header, continue without authentication
       next();
       return;
     }
-    
+
     // Auth header present, validate it
     authMiddleware(req, res, next);
   };

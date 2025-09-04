@@ -17,7 +17,7 @@ export class SeedRunner {
 
   async runSeeds(): Promise<void> {
     console.log("🌱 Starting database seeding...");
-    
+
     try {
       const connected = await this.db.testConnection();
       if (!connected) {

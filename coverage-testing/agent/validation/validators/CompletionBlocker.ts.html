@@ -738,7 +738,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * CompletionBlocker - Prevents agent completion when code doesn't compile
  * CRITICAL: This enforces the compilation requirement before allowing task completion
- * 
+ *
  * This validator is called by ReportCompleteTool to ensure no agent can complete
  * a task without having compilable code.
  */
@@ -760,11 +760,11 @@ import chalk from 'chalk';
 &nbsp;
 <span class="fstat-no" title="function not covered" >  constructor(o</span>ptions: { debug?: boolean } = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
 <span class="cstat-no" title="statement not covered" >    this.debug = options.debug || false;</span>
-<span class="cstat-no" title="statement not covered" >    this.compilationValidator = new CompilationValidator({ </span>
-      silentMode: true, 
+<span class="cstat-no" title="statement not covered" >    this.compilationValidator = new CompilationValidator({</span>
+      silentMode: true,
       debug: this.debug ,
     });
-<span class="cstat-no" title="statement not covered" >    this.validationEngine = new ValidationEngine({ </span>
+<span class="cstat-no" title="statement not covered" >    this.validationEngine = new ValidationEngine({</span>
       silentMode: true,
       enableAutoFix: false // Don't auto-fix during completion validation,
     });
@@ -814,11 +814,11 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >        result.blockers.push(...compilationResult.errors);</span>
 <span class="cstat-no" title="statement not covered" >        result.canComplete = false;</span>
 <span class="cstat-no" title="statement not covered" >        result.summary = `COMPLETION BLOCKED: Code does not compile (${compilationResult.errors.length} errors)`;</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        this.debugLog('COMPILATION_BLOCKED', 'Completion blocked due to compilation errors', {</span>
           errorCount: compilationResult.errors.length,
         });
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        return result;</span>
       }
 &nbsp;
@@ -844,11 +844,11 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >        result.blockers.push(...criticalIssues);</span>
 <span class="cstat-no" title="statement not covered" >        result.canComplete = false;</span>
 <span class="cstat-no" title="statement not covered" >        result.summary = `COMPLETION BLOCKED: ${criticalIssues.length} critical validation issues`;</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        this.debugLog('CRITICAL_ISSUES_BLOCKED', 'Completion blocked due to critical issues', {</span>
           criticalCount: criticalIssues.length,
         });
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        return result;</span>
       }
 &nbsp;
@@ -860,7 +860,7 @@ import chalk from 'chalk';
 &nbsp;
       // STEP 3: Additional checks based on specialization
       const specializationChecks = <span class="cstat-no" title="statement not covered" >await this.performSpecializationChecks(</span>
-        projectPath, 
+        projectPath,
         options.specialization || 'general'
       );
 &nbsp;
@@ -870,20 +870,20 @@ import chalk from 'chalk';
 &nbsp;
       // STEP 4: Final determination
 <span class="cstat-no" title="statement not covered" >      result.canComplete = result.blockers.length === 0;</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (result.canComplete) {</span>
 <span class="cstat-no" title="statement not covered" >        result.summary = `Completion validation passed - agent can complete task`;</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (result.warnings.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >          result.summary += ` (${result.warnings.length} warnings)`;</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        this.debugLog('COMPLETION_APPROVED', 'Agent completion approved', {</span>
           warningCount: result.warnings.length,
           recommendationCount: result.recommendations.length,
         });
       } else {
 <span class="cstat-no" title="statement not covered" >        result.summary = `COMPLETION BLOCKED: ${result.blockers.length} blocking issues must be resolved`;</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        this.debugLog('COMPLETION_BLOCKED', 'Agent completion blocked', {</span>
           blockerCount: result.blockers.length,
         });
@@ -895,7 +895,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >      this.debugLog('COMPLETION_VALIDATION_ERROR', 'Completion validation failed', {</span>
         error: error.message,
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      result.blockers.push({</span>
         type: 'completion_validation_error',
         severity: 'critical',
@@ -904,10 +904,10 @@ import chalk from 'chalk';
         line: 0,
         autoFixable: false,
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      result.canComplete = false;</span>
 <span class="cstat-no" title="statement not covered" >      result.summary = 'Completion validation threw an exception';</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return result;</span>
     }
   }
@@ -933,19 +933,19 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Ensure UI components render correctly');</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Verify responsive design and accessibility');</span>
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'backend':
-        // Backend-specific checks 
+        // Backend-specific checks
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Verify API endpoints respond correctly');</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Check authentication and error handling');</span>
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'database':
         // Database-specific checks
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Verify database schema is valid');</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Test all database migrations');</span>
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'testing':
         // Testing-specific checks
 <span class="cstat-no" title="statement not covered" >        try {</span>
@@ -963,19 +963,19 @@ import chalk from 'chalk';
           });
         }
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'security':
         // Security-specific checks
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Verify no security vulnerabilities introduced');</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Check authentication and authorization');</span>
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'devops':
         // DevOps-specific checks
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Verify deployment configurations are valid');</span>
 <span class="cstat-no" title="statement not covered" >        recommendations.push('Check CI/CD pipeline compatibility');</span>
 <span class="cstat-no" title="statement not covered" >        break;</span>
-        
+&nbsp;
       case 'general':
       default:
         // General checks
@@ -992,10 +992,10 @@ import chalk from 'chalk';
    */
 <span class="fstat-no" title="function not covered" >  generateBlockerReport(</span>result: CompletionValidationResult): string {
     const lines = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    lines.push('🚫 COMPLETION BLOCKED - CODE COMPILATION FAILED');</span>
 <span class="cstat-no" title="statement not covered" >    lines.push('=' .repeat(60));</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!result.compilationResult.success) {</span>
 <span class="cstat-no" title="statement not covered" >      lines.push('\n📋 COMPILATION ERRORS:');</span>
 <span class="cstat-no" title="statement not covered" >      result.compilationResult.errors.forEach(<span class="fstat-no" title="function not covered" >(e</span>rror, index) =&gt; {</span>
@@ -1003,7 +1003,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >        lines.push(`  ${index + 1}. ${error.message}${location}`);</span>
       });
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (result.blockers.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      lines.push('\n🔴 BLOCKING ISSUES:');</span>
 <span class="cstat-no" title="statement not covered" >      result.blockers.forEach(<span class="fstat-no" title="function not covered" >(b</span>locker, index) =&gt; {</span>
@@ -1011,22 +1011,22 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >        lines.push(`  ${index + 1}. [${blocker.severity.toUpperCase()}] ${blocker.message}${location}`);</span>
       });
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    lines.push('\n🔧 REQUIRED ACTIONS:');</span>
 <span class="cstat-no" title="statement not covered" >    lines.push('  1. Fix all compilation errors listed above');</span>
 <span class="cstat-no" title="statement not covered" >    lines.push('  2. Use validate_project tool to verify fixes');</span>
 <span class="cstat-no" title="statement not covered" >    lines.push('  3. Only report completion when validation passes');</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (result.recommendations.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      lines.push('\n💡 RECOMMENDATIONS:');</span>
 <span class="cstat-no" title="statement not covered" >      result.recommendations.forEach(<span class="fstat-no" title="function not covered" >(r</span>ec, index) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        lines.push(`  ${index + 1}. ${rec}`);</span>
       });
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    lines.push('\n' + '='.repeat(60));</span>
 <span class="cstat-no" title="statement not covered" >    lines.push('❌ TASK CANNOT BE MARKED COMPLETE UNTIL ALL ISSUES ARE RESOLVED');</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return lines.join('\n');</span>
   }
 &nbsp;
@@ -1035,10 +1035,10 @@ import chalk from 'chalk';
    */
 <span class="fstat-no" title="function not covered" >  generateSuccessReport(</span>result: CompletionValidationResult): string {
     const lines = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    lines.push('✅ COMPLETION VALIDATION PASSED');</span>
 <span class="cstat-no" title="statement not covered" >    lines.push('=' .repeat(40));</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    lines.push(`\n✓ Compilation: SUCCESS`);</span>
 <span class="cstat-no" title="statement not covered" >    lines.push(`✓ Validation Steps: ${result.compilationResult.validationSteps.length}`);</span>
 &nbsp;
@@ -1051,9 +1051,9 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >        lines.push(`  ... and ${result.warnings.length - 3} more warnings`);</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    lines.push('\n🎉 TASK CAN BE MARKED AS COMPLETE');</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return lines.join('\n');</span>
   }
 &nbsp;
@@ -1078,7 +1078,7 @@ import chalk from 'chalk';
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

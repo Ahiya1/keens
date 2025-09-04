@@ -41,7 +41,7 @@ export function createCreditsRouter(
     requireScopes(['credits:read']),
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
-      
+
       const balance = await creditGateway.getBalance(
         user.id,
         {
@@ -112,11 +112,11 @@ export function createCreditsRouter(
 
       const user = req.user!;
       const { amount, payment_method_id, description } = req.body;
-      
+
       // TODO: Integrate with payment processor (Stripe)
       // For now, simulate successful payment
       const paymentReference = `payment_${Date.now()}_${randomBytes(8).toString("hex")}`;
-      
+
       try {
         // Add credits to account
         const transaction = await creditGateway.addCredits(
@@ -152,7 +152,7 @@ export function createCreditsRouter(
             transaction_id: transaction.id,
           }
         });
-        
+
         res.status(200).json({
           success: true,
           message: 'Credits purchased successfully',
@@ -178,7 +178,7 @@ export function createCreditsRouter(
             }
           }
         });
-        
+
       } catch (error) {
         // Log failed purchase
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -188,7 +188,7 @@ export function createCreditsRouter(
           error: `Credit purchase failed: ${errorMessage}`,
           isAdmin: user.is_admin || false,
         });
-        
+
         throw error;
       }
     })
@@ -222,7 +222,7 @@ export function createCreditsRouter(
         start_date,
         end_date
       } = req.query;
-      
+
       const options = {
         limit: Number(limit),
         offset: Number(offset),
@@ -290,7 +290,7 @@ export function createCreditsRouter(
     asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user!;
       const { period = 'month', group_by = 'day' } = req.query;
-      
+
       // TODO: Implement detailed user analytics
       // For now, return summary data
       const balance = await creditGateway.getBalance(
@@ -315,19 +315,19 @@ export function createCreditsRouter(
       // Calculate analytics
       const usageTransactions = transactions.transactions.filter(t => t.amount.lt(0));
       const purchaseTransactions = transactions.transactions.filter(t => t.amount.gt(0));
-      
+
       const totalSpent = usageTransactions.reduce((sum, t) => sum.add(t.amount.abs()), new Decimal(0));
-      const avgSessionCost = usageTransactions.length > 0 
-        ? totalSpent.div(usageTransactions.length) 
+      const avgSessionCost = usageTransactions.length > 0
+        ? totalSpent.div(usageTransactions.length)
         : new Decimal(0);
-      
+
       const claudeCosts = usageTransactions
         .filter(t => t.claude_cost_usd)
         .reduce((sum, t) => sum.add(t.claude_cost_usd!), new Decimal(0));
-      
+
       const isAdmin = user.is_admin || false;
       const unlimitedCredits = balance.unlimitedCredits || false;
-      
+
       res.status(200).json({
         success: true,
         period,
@@ -391,7 +391,7 @@ export function createCreditsRouter(
 
       const user = req.user!;
       const { vision, max_iterations = 50, enable_web_search = true, complexity } = req.body;
-      
+
       // Create mock agent request for estimation
       const mockRequest = {
         vision,
@@ -418,7 +418,7 @@ export function createCreditsRouter(
         const unlimitedCredits = balance.unlimitedCredits || false;
         const canAfford = balance.availableBalance.gte(estimatedCreditCost) || unlimitedCredits;
         const isAdmin = user.is_admin || false;
-        
+
         res.status(200).json({
           success: true,
           estimation: {
@@ -455,7 +455,7 @@ export function createCreditsRouter(
             tier: isAdmin ? 'admin' : 'individual',
           }
         });
-        
+
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         await auditLogger.logError({
@@ -464,7 +464,7 @@ export function createCreditsRouter(
           error: `Cost estimation failed: ${errorMessage}`,
           isAdmin: user.is_admin || false,
         });
-        
+
         throw error;
       }
     })
@@ -473,5 +473,5 @@ export function createCreditsRouter(
   return router;
 }
 
-// Export for backwards compatibility  
+// Export for backwards compatibility
 export { createCreditsRouter as creditsRouter };

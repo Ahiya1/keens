@@ -14,14 +14,14 @@ const router = Router();
  */
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const startTime = Date.now();
-  
+
   try {
     // Test database connectivity
     const keenDB = keen.getInstance();
     await keenDB.getDatabaseManager().query('SELECT 1');
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -48,7 +48,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -71,20 +71,20 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
  */
 router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
   const startTime = Date.now();
-  
+
   try {
     const keenDB = keen.getInstance();
     const systemStatus = await keenDB.getSystemStatus();
     const connectionStats = await keenDB.getDatabaseManager().getConnectionStats();
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       version: '2.0.0',
       phase: 'Phase 2 - API Gateway Complete',
-      
+
       // System overview
       system: {
         platform_ready: systemStatus.platform.ready,
@@ -92,7 +92,7 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
         memory_usage: process.memoryUsage(),
         cpu_usage: process.cpuUsage(),
       },
-      
+
       // Database health
       database: {
         connected: systemStatus.database.connected,
@@ -101,7 +101,7 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
         idle_connections: connectionStats.idleConnections,
         waiting_connections: connectionStats.waitingConnections,
       },
-      
+
       // Anthropic integration
       anthropic: {
         configured: systemStatus.anthropic.configured,
@@ -110,7 +110,7 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
         thinking_enabled: systemStatus.anthropic.thinking,
         beta_headers: systemStatus.anthropic.betaHeaders,
       },
-      
+
       // API Gateway features
       api_gateway: {
         authentication: {
@@ -140,7 +140,7 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
           compliance_ready: true,
         },
       },
-      
+
       // Performance metrics
       performance: {
         response_time_ms: responseTime,
@@ -148,7 +148,7 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
         error_rate: 0,
         avg_response_time: responseTime,
       },
-      
+
       // Integration status
       integrations: {
         phase_1_database: 'operational',
@@ -158,10 +158,10 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
         phase_5_dashboard: 'pending',
       },
     });
-    
+
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -183,7 +183,7 @@ router.get('/ready', asyncHandler(async (req: Request, res: Response) => {
   try {
     const keenDB = keen.getInstance();
     const validation = await keenDB.validatePlatform();
-    
+
     if (validation.ready) {
       res.status(200).json({
         ready: true,

@@ -40,7 +40,7 @@ export class ReportPhaseTool {
       sessionId: context.sessionId,
     });
     this.logger.info('phase', parameters.summary);
-    
+
     return {
       success: true,
       phase: parameters.phase,

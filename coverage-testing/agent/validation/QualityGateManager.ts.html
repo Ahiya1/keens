@@ -994,13 +994,13 @@ interface ValidationContext {
 <span class="cstat-no" title="statement not covered" >export class Q</span>ualityGateManager {
   private gates: Map&lt;AgentPhase, QualityGate&gt;;
   private validationEngine: ValidationEngine;
-  
+&nbsp;
 <span class="fstat-no" title="function not covered" >  constructor() {</span>
 <span class="cstat-no" title="statement not covered" >    this.gates = new Map&lt;AgentPhase, QualityGate&gt;();</span>
 <span class="cstat-no" title="statement not covered" >    this.validationEngine = new ValidationEngine({ enableAutoFix: false, silentMode: true });</span>
 <span class="cstat-no" title="statement not covered" >    this.setupQualityGates();</span>
   }
-  
+&nbsp;
   /**
    * Setup quality gates for different phases
    */
@@ -1027,7 +1027,7 @@ interface ValidationContext {
         }
       ]
     });
-    
+&nbsp;
     // PLAN Phase Gate
 <span class="cstat-no" title="statement not covered" >    this.gates.set('PLAN', {</span>
       name: 'Planning Quality Gate',
@@ -1050,7 +1050,7 @@ interface ValidationContext {
         }
       ]
     });
-    
+&nbsp;
     // FOUND Phase Gate
 <span class="cstat-no" title="statement not covered" >    this.gates.set('FOUND', {</span>
       name: 'Foundation Quality Gate',
@@ -1073,7 +1073,7 @@ interface ValidationContext {
         }
       ]
     });
-      
+&nbsp;
     // SUMMON Phase Gate
 <span class="cstat-no" title="statement not covered" >    this.gates.set('SUMMON', {</span>
       name: 'Implementation Quality Gate',
@@ -1106,8 +1106,8 @@ interface ValidationContext {
         }
       ]
     });
-    
-    // COMPLETE Phase Gate  
+&nbsp;
+    // COMPLETE Phase Gate
 <span class="cstat-no" title="statement not covered" >    this.gates.set('COMPLETE', {</span>
       name: 'Completion Quality Gate',
       threshold: 0.9,
@@ -1150,7 +1150,7 @@ interface ValidationContext {
       ]
     });
   }
-  
+&nbsp;
   /**
    * Evaluate a quality gate for a specific phase
    */
@@ -1159,16 +1159,16 @@ interface ValidationContext {
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!gate) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error(`No quality gate defined for phase: ${phase}`);</span>
     }
-    
+&nbsp;
     const evaluations: CriteriaEvaluation[] = <span class="cstat-no" title="statement not covered" >[];</span>
     let totalScore = <span class="cstat-no" title="statement not covered" >0;</span>
     let totalWeight = <span class="cstat-no" title="statement not covered" >0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const criteria of gate.criteria) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const evaluation = <span class="cstat-no" title="statement not covered" >await criteria.validator(context);</span>
         const passed = <span class="cstat-no" title="statement not covered" >evaluation.score &gt;= 0.7;</span> // Individual criteria threshold
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        evaluations.push({</span>
           criteria: criteria.name,
           score: evaluation.score,
@@ -1177,10 +1177,10 @@ interface ValidationContext {
           issues: evaluation.issues || [],
           suggestions: evaluation.suggestions || [],
         });
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        totalScore += evaluation.score * criteria.weight;</span>
 <span class="cstat-no" title="statement not covered" >        totalWeight += criteria.weight;</span>
-        
+&nbsp;
       } catch (error: any) {
         // Criteria evaluation failed
 <span class="cstat-no" title="statement not covered" >        evaluations.push({</span>
@@ -1198,14 +1198,14 @@ interface ValidationContext {
           }],
           suggestions: [`Fix issues with ${criteria.name} evaluation`]
         });
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        totalWeight += criteria.weight;</span>
       }
     }
-    
+&nbsp;
     const overallScore = <span class="cstat-no" title="statement not covered" >totalWeight &gt; 0 ? totalScore / totalWeight : 0;</span>
     const passed = <span class="cstat-no" title="statement not covered" >overallScore &gt;= gate.threshold;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return {</span>
       gate: gate.name,
       passed,
@@ -1215,7 +1215,7 @@ interface ValidationContext {
       recommendations: this.generateRecommendations(evaluations, passed)
     };
   }
-  
+&nbsp;
   // Simplified validation methods to avoid complex implementation for now
   private <span class="fstat-no" title="function not covered" >async </span>validateProjectAnalysis(context: ValidationContext): Promise&lt;{
     score: number;
@@ -1224,7 +1224,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.9, suggestions: ['Project analysis completed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateRequirementsUnderstanding(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1232,7 +1232,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.9, suggestions: ['Requirements analysis completed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateTechStackAnalysis(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1240,7 +1240,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Technology stack identified'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateImplementationPlan(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1248,7 +1248,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Implementation plan created'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateDependencies(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1256,7 +1256,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Dependencies identified'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateTaskBreakdown(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1264,7 +1264,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Task breakdown completed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateBasicStructure(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1272,7 +1272,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Basic structure established'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateCorePatterns(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1280,7 +1280,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Core patterns defined'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateFoundationReadiness(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1288,7 +1288,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Foundation ready for specialization'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateCoreImplementation(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1297,13 +1297,13 @@ interface ValidationContext {
     const filesCreated = <span class="cstat-no" title="statement not covered" >context.filesCreated?.length || 0;</span>
     const filesModified = <span class="cstat-no" title="statement not covered" >context.filesModified?.length || 0;</span>
     const totalFiles = <span class="cstat-no" title="statement not covered" >filesCreated + filesModified;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return {</span>
       score: totalFiles &gt; 0 ? 0.8 : 0.3,
       suggestions: [`Implementation progress: ${totalFiles} files worked on`]
     };
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateBasicTesting(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1315,7 +1315,7 @@ interface ValidationContext {
       suggestions: testsRun &gt; 0 ? [`${testsRun} test suites executed`] : ['Consider adding tests']
     };
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateCodeQuality(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1323,7 +1323,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Code quality should be reviewed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateDocumentationUpdates(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1331,7 +1331,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Documentation should be updated'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateSecurityConsiderations(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1339,7 +1339,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Security considerations reviewed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateAllTests(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1347,7 +1347,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['All tests should pass'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateCodeCoverage(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1355,7 +1355,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Code coverage should be measured'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validatePerformance(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1363,7 +1363,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Performance should be reviewed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateSecurityScan(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1371,7 +1371,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.7, suggestions: ['Security scan should be performed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateDocumentationComplete(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1379,7 +1379,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.6, suggestions: ['Documentation completeness should be reviewed'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateCodeStyle(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1387,7 +1387,7 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 0.8, suggestions: ['Code style should be consistent'] };</span>
   }
-  
+&nbsp;
   private <span class="fstat-no" title="function not covered" >async </span>validateNoCriticalIssues(context: ValidationContext): Promise&lt;{
     score: number;
     issues?: ValidationIssue[];
@@ -1395,27 +1395,27 @@ interface ValidationContext {
   }&gt; {
 <span class="cstat-no" title="statement not covered" >    return { score: 1.0, suggestions: ['No critical issues found'] };</span>
   }
-  
+&nbsp;
   /**
    * Generate recommendations based on evaluation results
    */
   private <span class="fstat-no" title="function not covered" >generateRecommendations(</span>evaluations: CriteriaEvaluation[], passed: boolean): string[] {
     const recommendations: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!passed) {</span>
 <span class="cstat-no" title="statement not covered" >      recommendations.push('Quality gate not met - address failing criteria before proceeding');</span>
     }
-    
+&nbsp;
     // Get specific recommendations from failed criteria
     const failedCriteria = <span class="cstat-no" title="statement not covered" >evaluations.filter(<span class="fstat-no" title="function not covered" >evaluation </span>=&gt; <span class="cstat-no" title="statement not covered" >!evaluation.passed)</span>;</span>
 <span class="cstat-no" title="statement not covered" >    for (const criteria of failedCriteria) {</span>
 <span class="cstat-no" title="statement not covered" >      recommendations.push(`${criteria.criteria}: ${criteria.suggestions?.join(', ') || 'No specific suggestions'}`);</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (passed) {</span>
 <span class="cstat-no" title="statement not covered" >      recommendations.push('Quality gate passed - ready to proceed to next phase');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return recommendations;</span>
   }
 }
@@ -1426,7 +1426,7 @@ interface ValidationContext {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

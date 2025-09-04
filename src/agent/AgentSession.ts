@@ -71,7 +71,7 @@ export class AgentSession {
   private filesDeleted: string[] = [];
   private databaseInitialized: boolean = false;
 
-  // NEW: Cost tracking with Phase 3.3 support
+  // Cost tracking with Phase 3.3 support
   private apiCalls: ApiCallRecord[] = [];
   private totalCost: number = 0;
   private totalApiCalls: number = 0;
@@ -100,9 +100,11 @@ export class AgentSession {
   private async initializeDatabaseIntegration(): Promise<void> {
     try {
       if (!this.userContext) {
-        console.warn(
-          chalk.yellow("⚠️  No user context - database persistence disabled")
-        );
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow("⚠️  No user context - database persistence disabled")
+          );
+        }
         return;
       }
 
@@ -110,7 +112,7 @@ export class AgentSession {
       this.sessionDAO = new SessionDAO(dbManager);
       this.databaseInitialized = true;
 
-      if (this.options.debug) {
+      if (this.options.verbose) {
         console.log(
           chalk.green(
             `✅ Database integration initialized for user ${this.userContext.userId.substring(0, 8)}...`
@@ -118,10 +120,12 @@ export class AgentSession {
         );
       }
     } catch (error: any) {
-      console.warn(
-        chalk.yellow(`⚠️  Database integration failed: ${error.message}`)
-      );
-      console.warn(chalk.yellow(`📁 Falling back to file-based storage only`));
+      if (this.options.verbose) {
+        console.warn(
+          chalk.yellow(`⚠️  Database integration failed: ${error.message}`)
+        );
+        console.warn(chalk.yellow(`📁 Falling back to file-based storage only`));
+      }
       this.databaseInitialized = false;
     }
   }
@@ -178,14 +182,16 @@ export class AgentSession {
           );
         }
       } catch (error: any) {
-        console.warn(
-          chalk.yellow(
-            `⚠️  Failed to create database session: ${error.message}`
-          )
-        );
-        console.warn(
-          chalk.yellow(`📁 Continuing with file-based storage only`)
-        );
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow(
+              `⚠️  Failed to create database session: ${error.message}`
+            )
+          );
+          console.warn(
+            chalk.yellow(`📁 Continuing with file-based storage only`)
+          );
+        }
       }
     }
 
@@ -210,7 +216,7 @@ export class AgentSession {
   }
 
   /**
-   * NEW: Record API call with comprehensive cost tracking
+   * Record API call with comprehensive cost tracking
    */
   async recordApiCall(apiCallData: {
     model: string;
@@ -263,31 +269,33 @@ export class AgentSession {
       apiCallData.totalCost
     );
 
-    // Enhanced console output for cost tracking
-    console.log(
-      chalk.green(`💰 API Call Cost: $${apiCallData.totalCost.toFixed(4)}`)
-    );
-    console.log(
-      chalk.gray(
-        `   📊 Tokens: ${apiCallData.inputTokens.toLocaleString()}in + ${apiCallData.outputTokens.toLocaleString()}out + ${thinkingTokens.toLocaleString()}think = ${totalTokens.toLocaleString()} total`
-      )
-    );
-    console.log(
-      chalk.gray(
-        `   💵 Breakdown: $${apiCallData.inputCost.toFixed(4)} + $${apiCallData.outputCost.toFixed(4)} + $${apiCallData.thinkingCost.toFixed(4)}`
-      )
-    );
-    console.log(chalk.gray(`   ⏱️  Duration: ${apiCallData.duration}ms`));
-    console.log(
-      chalk.gray(
-        `   🏷️  Pricing: ${apiCallData.isExtendedPricing ? "Extended (>200K)" : "Standard"}`
-      )
-    );
-    console.log(
-      chalk.cyan(
-        `   📈 Session Total: $${this.totalCost.toFixed(4)} (${this.totalApiCalls} calls)`
-      )
-    );
+    // Console output for cost tracking
+    if (this.options.verbose) {
+      console.log(
+        chalk.green(`💰 API Call Cost: $${apiCallData.totalCost.toFixed(4)}`)
+      );
+      console.log(
+        chalk.gray(
+          `   📊 Tokens: ${apiCallData.inputTokens.toLocaleString()}in + ${apiCallData.outputTokens.toLocaleString()}out + ${thinkingTokens.toLocaleString()}think = ${totalTokens.toLocaleString()} total`
+        )
+      );
+      console.log(
+        chalk.gray(
+          `   💵 Breakdown: $${apiCallData.inputCost.toFixed(4)} + $${apiCallData.outputCost.toFixed(4)} + $${apiCallData.thinkingCost.toFixed(4)}`
+        )
+      );
+      console.log(chalk.gray(`   ⏱️  Duration: ${apiCallData.duration}ms`));
+      console.log(
+        chalk.gray(
+          `   🏷️  Pricing: ${apiCallData.isExtendedPricing ? "Extended (>200K)" : "Standard"}`
+        )
+      );
+      console.log(
+        chalk.cyan(
+          `   📈 Session Total: $${this.totalCost.toFixed(4)} (${this.totalApiCalls} calls)`
+        )
+      );
+    }
 
     // Update database session with cost data
     await this.updateDatabaseSession({
@@ -322,7 +330,7 @@ export class AgentSession {
   }
 
   /**
-   * NEW: Get comprehensive cost breakdown with Phase 3.3 support
+   * Get comprehensive cost breakdown
    */
   getCostBreakdown(): CostBreakdown {
     if (this.apiCalls.length === 0) {
@@ -391,63 +399,65 @@ export class AgentSession {
   }
 
   /**
-   * NEW: Display cost summary with Phase 3.3 phases
+   * Display cost summary
    */
   displayCostSummary(): void {
     const breakdown = this.getCostBreakdown();
 
-    console.log(chalk.blue("\n💰 Session Cost Summary"));
-    console.log(chalk.gray("━".repeat(50)));
-    console.log(
-      chalk.cyan(`💵 Total Cost: $${breakdown.totalCost.toFixed(4)}`)
-    );
-    console.log(chalk.cyan(`📞 API Calls: ${breakdown.totalCalls}`));
-    console.log(
-      chalk.cyan(`🪙 Total Tokens: ${breakdown.totalTokens.toLocaleString()}`)
-    );
-    console.log(
-      chalk.cyan(
-        `📊 Average per call: $${breakdown.averageCostPerCall.toFixed(4)} (${Math.round(breakdown.averageTokensPerCall).toLocaleString()} tokens)`
-      )
-    );
-
-    if (breakdown.extendedPricingCalls > 0) {
+    if (this.options.verbose) {
+      console.log(chalk.blue("\n💰 Session Cost Summary"));
+      console.log(chalk.gray("━".repeat(50)));
       console.log(
-        chalk.yellow(
-          `⚠️  Extended pricing calls: ${breakdown.extendedPricingCalls}/${breakdown.totalCalls}`
+        chalk.cyan(`💵 Total Cost: $${breakdown.totalCost.toFixed(4)}`)
+      );
+      console.log(chalk.cyan(`📞 API Calls: ${breakdown.totalCalls}`));
+      console.log(
+        chalk.cyan(`🪙 Total Tokens: ${breakdown.totalTokens.toLocaleString()}`)
+      );
+      console.log(
+        chalk.cyan(
+          `📊 Average per call: $${breakdown.averageCostPerCall.toFixed(4)} (${Math.round(breakdown.averageTokensPerCall).toLocaleString()} tokens)`
         )
       );
-    }
 
-    console.log(chalk.cyan("\n📈 Cost by Phase:"));
-    Object.entries(breakdown.costByPhase).forEach(([phase, cost]) => {
-      if (cost > 0) {
-        const percentage = ((cost / breakdown.totalCost) * 100).toFixed(1);
+      if (breakdown.extendedPricingCalls > 0) {
         console.log(
-          chalk.gray(`   ${phase}: $${cost.toFixed(4)} (${percentage}%)`)
+          chalk.yellow(
+            `⚠️  Extended pricing calls: ${breakdown.extendedPricingCalls}/${breakdown.totalCalls}`
+          )
         );
       }
-    });
 
-    console.log(chalk.cyan("\n🧮 Token Breakdown:"));
-    console.log(
-      chalk.gray(
-        `   Input: ${breakdown.inputTokens.toLocaleString()} tokens ($${breakdown.inputCost.toFixed(4)})`
-      )
-    );
-    console.log(
-      chalk.gray(
-        `   Output: ${breakdown.outputTokens.toLocaleString()} tokens ($${breakdown.outputCost.toFixed(4)})`
-      )
-    );
-    if (breakdown.thinkingTokens > 0) {
+      console.log(chalk.cyan("\n📈 Cost by Phase:"));
+      Object.entries(breakdown.costByPhase).forEach(([phase, cost]) => {
+        if (cost > 0) {
+          const percentage = ((cost / breakdown.totalCost) * 100).toFixed(1);
+          console.log(
+            chalk.gray(`   ${phase}: $${cost.toFixed(4)} (${percentage}%)`)
+          );
+        }
+      });
+
+      console.log(chalk.cyan("\n🧮 Token Breakdown:"));
       console.log(
         chalk.gray(
-          `   Thinking: ${breakdown.thinkingTokens.toLocaleString()} tokens ($${breakdown.thinkingCost.toFixed(4)})`
+          `   Input: ${breakdown.inputTokens.toLocaleString()} tokens ($${breakdown.inputCost.toFixed(4)})`
         )
       );
+      console.log(
+        chalk.gray(
+          `   Output: ${breakdown.outputTokens.toLocaleString()} tokens ($${breakdown.outputCost.toFixed(4)})`
+        )
+      );
+      if (breakdown.thinkingTokens > 0) {
+        console.log(
+          chalk.gray(
+            `   Thinking: ${breakdown.thinkingTokens.toLocaleString()} tokens ($${breakdown.thinkingCost.toFixed(4)})`
+          )
+        );
+      }
+      console.log(chalk.gray("━".repeat(50)));
     }
-    console.log(chalk.gray("━".repeat(50)));
   }
 
   /**
@@ -489,7 +499,7 @@ export class AgentSession {
     }
 
     if (this.options.debug) {
-      console.log(chalk.gray(`[DEBUG] ${eventType}: ${JSON.stringify(data)}`));
+      console.log(chalk.gray(`[DEBUG] ${eventType}`));
       if (this.userContext && this.options.debug) {
         console.log(
           chalk.gray(
@@ -542,31 +552,21 @@ export class AgentSession {
           addThinkingRequest,
           this.userContext
         );
-
-        if (this.options.debug) {
-          console.log(chalk.green(`💾 Thinking block stored in database`));
-        }
       } catch (error: any) {
-        console.warn(
-          chalk.yellow(
-            `⚠️  Failed to store thinking block in database: ${error.message}`
-          )
-        );
+        if (this.options.verbose) {
+          console.warn(
+            chalk.yellow(
+              `⚠️  Failed to store thinking block in database: ${error.message}`
+            )
+          );
+        }
       }
     }
 
-    if (this.options.verbose) {
+    if (this.options.verbose && this.options.debug) {
       console.log(
         chalk.magenta(`🧠 Thinking: ${block.content.substring(0, 100)}...`)
       );
-
-      if (this.userContext && this.options.debug) {
-        console.log(
-          chalk.gray(
-            `👤 User: ${this.userContext.userId.substring(0, 8)}...${this.userContext.isAdmin ? " (Admin)" : ""}`
-          )
-        );
-      }
     }
   }
 
@@ -595,7 +595,7 @@ export class AgentSession {
   }
 
   /**
-   * Update current phase with user context logging and database persistence
+   * Update current phase
    */
   async updatePhase(phase: AgentPhase): Promise<void> {
     const previousPhase = this.currentPhase;
@@ -620,14 +620,6 @@ export class AgentSession {
       console.log(
         chalk.blue(`🔄 Phase transition: ${previousPhase} → ${phase}`)
       );
-
-      if (this.userContext) {
-        console.log(
-          chalk.gray(
-            `👤 By user: ${this.userContext.userId.substring(0, 8)}...${this.userContext.isAdmin ? " (Admin)" : ""}`
-          )
-        );
-      }
     }
   }
 
@@ -697,20 +689,14 @@ export class AgentSession {
         enhancedUpdates,
         this.userContext
       );
-
-      if (this.options.debug) {
-        console.log(
-          chalk.green(
-            `💾 Session updated in database (cost: $${this.totalCost.toFixed(4)})`
+    } catch (error: any) {
+      if (this.options.verbose) {
+        console.warn(
+          chalk.yellow(
+            `⚠️  Failed to update session in database: ${error.message}`
           )
         );
       }
-    } catch (error: any) {
-      console.warn(
-        chalk.yellow(
-          `⚠️  Failed to update session in database: ${error.message}`
-        )
-      );
     }
   }
 
@@ -859,7 +845,7 @@ export class AgentSession {
         filesDeleted: this.filesDeleted,
       },
 
-      // NEW: Complete cost tracking data
+      // Complete cost tracking data
       costTracking: {
         totalCost: this.totalCost,
         totalApiCalls: this.totalApiCalls,
@@ -901,28 +887,11 @@ export class AgentSession {
             )
           );
         }
-
-        if (this.userContext) {
-          console.log(
-            chalk.gray(
-              `👤 Saved by user: ${this.userContext.userId.substring(0, 8)}...${this.userContext.isAdmin ? " (Admin)" : ""}`
-            )
-          );
-        }
       }
 
       return filePath;
     } catch (error: any) {
       console.error(chalk.red(`Failed to save session: ${error.message}`));
-
-      if (this.userContext && this.options.debug) {
-        console.error(
-          chalk.gray(
-            `User context: ${this.userContext.userId.substring(0, 8)}...${this.userContext.isAdmin ? " (Admin)" : ""}`
-          )
-        );
-      }
-
       throw error;
     }
   }
@@ -953,7 +922,7 @@ export class AgentSession {
         );
       }
 
-      // NEW: Log cost information from saved session
+      // Log cost information from saved session
       if (sessionData.costTracking) {
         const cost = sessionData.costTracking;
         console.log(

@@ -76,7 +76,7 @@ export class ConverseCommand {
           if (currentUser?.isAdmin) {
             console.log(chalk.green("🚀 Admin mode: Enhanced agent capabilities enabled"));
           }
-          
+
           rl.prompt();
 
           rl.on("line", async (input: string) => {
@@ -144,7 +144,7 @@ export class ConverseCommand {
                 console.log(chalk.red("❌ Error: " + response.error));
               } else {
                 if (response.thinking && options.verbose) {
-                  console.log(chalk.gray("🤔 Thinking: " + 
+                  console.log(chalk.gray("🤔 Thinking: " +
                     response.thinking.substring(0, 500) +
                     (response.thinking.length > 500 ? "..." : "")
                   ));
@@ -154,7 +154,7 @@ export class ConverseCommand {
             } catch (error: any) {
               console.log(chalk.red("❌ Conversation error: " + error.message));
             }
-            
+
             rl.prompt();
           });
 
@@ -290,9 +290,9 @@ export class ConverseCommand {
 
     return `# Development Vision
 
-**Generated:** ${timestamp}  
-**User:** ${userContext?.userId?.substring(0, 8)}...${userContext?.isAdmin ? " (Admin)" : ""}  
-**Source:** keen converse session  
+**Generated:** ${timestamp}
+**User:** ${userContext?.userId?.substring(0, 8)}...${userContext?.isAdmin ? " (Admin)" : ""}
+**Source:** keen converse session
 
 ## Vision Statement
 
@@ -346,7 +346,7 @@ ${conversationSummary}
 
             try {
               console.log(chalk.green("🚀 Starting autonomous execution..."));
-              
+
               // Import and execute KeenAgent with user context
               const { KeenAgent } = await import("../../agent/KeenAgent.js");
 
@@ -365,7 +365,7 @@ ${conversationSummary}
                 // Pass user context from conversation
                 userContext: userContext,
               };
-              
+
               const keenAgent = new KeenAgent(options);
               await keenAgent.execute();
             } catch (error: any) {

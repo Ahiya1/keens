@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { 
+import {
   AuthenticationError,
   ValidationError,
   RateLimitError,
@@ -22,7 +22,7 @@ export function errorHandler(
   next: NextFunction,
 ): void {
   const requestId = req.id || 'unknown';
-  
+
   // Don't log headers in production for security
   const logError = {
     requestId,
@@ -38,9 +38,9 @@ export function errorHandler(
       isAdmin: (req as any).user?.isAdmin || false,
     }
   };
-  
+
   console.error('🚨 API Error:', JSON.stringify(logError, null, 2));
-  
+
   // Handle specific error types
   if (error instanceof AuthenticationError) {
     res.status(401).json({
@@ -55,7 +55,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   if (error instanceof MFARequiredError) {
     res.status(401).json({
       success: false,
@@ -69,7 +69,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   if (error instanceof ValidationError) {
     res.status(400).json({
       success: false,
@@ -84,7 +84,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   if (error instanceof RateLimitError) {
     res.status(429).json({
       success: false,
@@ -103,7 +103,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   if (error instanceof ConcurrencyError) {
     res.status(409).json({
       success: false,
@@ -121,7 +121,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   // Handle insufficient credits error
   if (error.name === 'InsufficientCreditsError') {
     res.status(402).json({
@@ -148,7 +148,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   // Handle database connection errors
   if (error.code === 'ECONNREFUSED' || error.code === '3D000') {
     res.status(503).json({
@@ -163,7 +163,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   // Handle JWT errors
   if (error.name === 'JsonWebTokenError') {
     res.status(401).json({
@@ -178,7 +178,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   if (error.name === 'TokenExpiredError') {
     res.status(401).json({
       success: false,
@@ -195,7 +195,7 @@ export function errorHandler(
     });
     return;
   }
-  
+
   // Handle Anthropic API errors
   if (error.name === 'AnthropicError' || error.message?.includes('anthropic')) {
     res.status(503).json({
@@ -210,11 +210,11 @@ export function errorHandler(
     });
     return;
   }
-  
+
   // Default server error
   const statusCode = error.statusCode || error.status || 500;
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
+
   res.status(statusCode).json({
     success: false,
     error: {
@@ -233,7 +233,7 @@ export function errorHandler(
  */
 export function notFoundHandler(req: Request, res: Response): void {
   const requestId = req.id || 'unknown';
-  
+
   res.status(404).json({
     success: false,
     error: {

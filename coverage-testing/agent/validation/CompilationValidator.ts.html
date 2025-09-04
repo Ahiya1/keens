@@ -1166,7 +1166,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * CompilationValidator - Ensures code compiles before completion
  * CRITICAL: Prevents agents from completing tasks with non-compiling code
- * 
+ *
  * This validator performs comprehensive compilation checks using TypeScript compiler,
  * Node.js syntax validation, and build system verification.
  */
@@ -1203,7 +1203,7 @@ import chalk from 'chalk';
    */
 <span class="fstat-no" title="function not covered" >  async </span>validateCompilation(projectPath: string): Promise&lt;CompilationResult&gt; {
 <span class="cstat-no" title="statement not covered" >    this.debugLog('COMPILATION_START', 'Starting compilation validation', { projectPath });</span>
-    
+&nbsp;
     const result: CompilationResult = <span class="cstat-no" title="statement not covered" >{</span>
       success: false,
       errors: [],
@@ -1219,7 +1219,7 @@ import chalk from 'chalk';
       // Step 1: Check project structure
       const structureCheck = <span class="cstat-no" title="statement not covered" >await this.validateProjectStructure(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      result.validationSteps.push('Project structure check');</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!structureCheck.valid) {</span>
 <span class="cstat-no" title="statement not covered" >        result.errors.push(...structureCheck.errors);</span>
 <span class="cstat-no" title="statement not covered" >        result.summary = 'Project structure validation failed';</span>
@@ -1229,7 +1229,7 @@ import chalk from 'chalk';
       // Step 2: TypeScript compilation (if applicable)
       const tsResult = <span class="cstat-no" title="statement not covered" >await this.validateTypeScriptCompilation(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      result.validationSteps.push('TypeScript compilation check');</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (tsResult.errors.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >        result.errors.push(...tsResult.errors);</span>
       }
@@ -1240,7 +1240,7 @@ import chalk from 'chalk';
       // Step 3: Node.js syntax validation
       const syntaxResult = <span class="cstat-no" title="statement not covered" >await this.validateNodeSyntax(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >      result.validationSteps.push('Node.js syntax validation');</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (syntaxResult.errors.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >        result.errors.push(...syntaxResult.errors);</span>
       }
@@ -1249,7 +1249,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.options.validateBuildScripts) {</span>
         const buildResult = <span class="cstat-no" title="statement not covered" >await this.validateBuildScripts(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >        result.validationSteps.push('Build scripts validation');</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (buildResult.errors.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >          result.errors.push(...buildResult.errors);</span>
         }
@@ -1259,7 +1259,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.options.checkDependencies) {</span>
         const depResult = <span class="cstat-no" title="statement not covered" >await this.validateDependencies(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >        result.validationSteps.push('Dependency validation');</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (depResult.errors.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >          result.errors.push(...depResult.errors);</span>
         }
@@ -1267,7 +1267,7 @@ import chalk from 'chalk';
 &nbsp;
       // Determine success
 <span class="cstat-no" title="statement not covered" >      result.success = result.errors.length === 0;</span>
-<span class="cstat-no" title="statement not covered" >      result.summary = result.success </span>
+<span class="cstat-no" title="statement not covered" >      result.summary = result.success</span>
         ? `Compilation validation passed (${result.validationSteps.length} checks)`
         : `Compilation validation failed with ${result.errors.length} errors`;
 &nbsp;
@@ -1283,7 +1283,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >      this.debugLog('COMPILATION_ERROR', 'Compilation validation failed', {</span>
         error: error.message,
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      result.errors.push({</span>
         type: 'validation_error',
         severity: 'critical',
@@ -1292,7 +1292,7 @@ import chalk from 'chalk';
         line: 0,
         autoFixable: false,
       });
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      result.summary = 'Compilation validation threw an exception';</span>
 <span class="cstat-no" title="statement not covered" >      return this.finalizeResult(result, startTime);</span>
     }
@@ -1325,7 +1325,7 @@ import chalk from 'chalk';
       // Check for package.json (Node.js projects)
       const packageJsonPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
       const hasPackageJson = <span class="cstat-no" title="statement not covered" >await fs.access(packageJsonPath).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
-      
+&nbsp;
       // Check for tsconfig.json (TypeScript projects)
       const tsconfigPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'tsconfig.json');</span>
       const hasTsConfig = <span class="cstat-no" title="statement not covered" >await fs.access(tsconfigPath).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
@@ -1377,7 +1377,7 @@ import chalk from 'chalk';
 &nbsp;
       // Run TypeScript compiler
 <span class="cstat-no" title="statement not covered" >      this.debugLog('TS_COMPILE', 'Running TypeScript compilation check');</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const tscCommand = <span class="cstat-no" title="statement not covered" >'npx tsc --noEmit --skipLibCheck';</span>
         const output = <span class="cstat-no" title="statement not covered" >execSync(tscCommand, {</span>
@@ -1393,7 +1393,7 @@ import chalk from 'chalk';
         // Parse TypeScript compiler output
         const output = <span class="cstat-no" title="statement not covered" >execError.stdout + execError.stderr;</span>
         const tsErrors = <span class="cstat-no" title="statement not covered" >this.parseTSCompilerOutput(output);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        errors.push(...tsErrors.filter(<span class="fstat-no" title="function not covered" >err </span>=&gt; <span class="cstat-no" title="statement not covered" >err.severity === 'critical' || err.severity === 'high')</span>);</span>
 <span class="cstat-no" title="statement not covered" >        warnings.push(...tsErrors.filter(<span class="fstat-no" title="function not covered" >err </span>=&gt; <span class="cstat-no" title="statement not covered" >err.severity === 'medium' || err.severity === 'low')</span>);</span>
 &nbsp;
@@ -1428,7 +1428,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Find all .js and .mjs files
       const jsFiles = <span class="cstat-no" title="statement not covered" >await this.findJSFiles(projectPath);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const file of jsFiles) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           // Use Node.js to check syntax
@@ -1489,14 +1489,14 @@ import chalk from 'chalk';
 &nbsp;
       // Check common build scripts
       const buildScriptsToCheck = <span class="cstat-no" title="statement not covered" >['build', 'compile', 'tsc', 'webpack'];</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const scriptName of buildScriptsToCheck) {</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (scripts[scriptName]) {</span>
 <span class="cstat-no" title="statement not covered" >          try {</span>
             // Dry-run build scripts if possible
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (scriptName === 'build' || scriptName === 'compile') {</span>
 <span class="cstat-no" title="statement not covered" >              this.debugLog('BUILD_CHECK', `Testing build script: ${scriptName}`);</span>
-              
+&nbsp;
               // For now, just validate the script exists and looks valid
               // TODO: Could implement actual dry-run execution
               const script = <span class="cstat-no" title="statement not covered" >scripts[scriptName];</span>
@@ -1549,7 +1549,7 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const packageJsonPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'package.json');</span>
       const nodeModulesPath = <span class="cstat-no" title="statement not covered" >path.join(projectPath, 'node_modules');</span>
-      
+&nbsp;
       const hasPackageJson = <span class="cstat-no" title="statement not covered" >await fs.access(packageJsonPath).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
       const hasNodeModules = <span class="cstat-no" title="statement not covered" >await fs.access(nodeModulesPath).then(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true)</span>.catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >false)</span>;</span>
 &nbsp;
@@ -1575,7 +1575,7 @@ import chalk from 'chalk';
       // Check for critical missing dependencies that would cause compilation to fail
       const criticalDeps = <span class="cstat-no" title="statement not covered" >['typescript', '@types/node'];</span>
       const installedDeps = <span class="cstat-no" title="statement not covered" >hasNodeModules ? await fs.readdir(nodeModulesPath).catch(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[])</span> : [];</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const depName of criticalDeps) {</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (dependencies[depName] &amp;&amp; !installedDeps.includes(depName)) {</span>
 <span class="cstat-no" title="statement not covered" >          errors.push({</span>
@@ -1614,10 +1614,10 @@ import chalk from 'chalk';
 <span class="cstat-no" title="statement not covered" >    for (const line of lines) {</span>
       // Match TypeScript compiler error format: path(line,col): error TS#### message
       const match = <span class="cstat-no" title="statement not covered" >line.match(/^(.+?)\((\d+),(\d+)\):\s*(error|warning)\s+TS(\d+):\s*(.+)$/);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match) {</span>
         const [, file, lineNum, col, type, code, message] = <span class="cstat-no" title="statement not covered" >match;</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        issues.push({</span>
           type: `typescript_${type}`,
           severity: type === 'error' ? 'critical' : 'medium',
@@ -1645,7 +1645,7 @@ import chalk from 'chalk';
       2571: 'Object is of type unknown - add proper type annotations',
       7016: 'Could not find declaration file - install @types package or add type declarations'
     };
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return suggestions[errorCode];</span>
   }
 &nbsp;
@@ -1654,13 +1654,13 @@ import chalk from 'chalk';
    */
   private <span class="fstat-no" title="function not covered" >async </span>findJSFiles(projectPath: string): Promise&lt;string[]&gt; {
     const jsFiles: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
     const findFiles = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(dir: string): Promise&lt;void&gt; =&gt; {</span>
       const entries = <span class="cstat-no" title="statement not covered" >await fs.readdir(dir, { withFileTypes: true });</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const entry of entries) {</span>
         const fullPath = <span class="cstat-no" title="statement not covered" >path.join(dir, entry.name);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (entry.isDirectory() &amp;&amp; !this.shouldSkipDirectory(entry.name)) {</span>
 <span class="cstat-no" title="statement not covered" >          await findFiles(fullPath);</span>
         } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (entry.isFile() &amp;&amp; this.isJSFile(entry.name)) {</span>
@@ -1668,7 +1668,7 @@ import chalk from 'chalk';
         }
       }
     };
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    await findFiles(projectPath);</span>
 <span class="cstat-no" title="statement not covered" >    return jsFiles;</span>
   }
@@ -1720,7 +1720,7 @@ import chalk from 'chalk';
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-04T18:01:42.981Z
+                at 2025-09-04T19:33:06.470Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

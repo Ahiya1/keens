@@ -70,7 +70,7 @@ class SupabaseTransactionImpl implements DatabaseTransaction {
     if (this.committed || this.rolledBack) {
       throw new Error('Transaction already finalized');
     }
-    
+
     console.warn('Supabase rollback: Operations already committed. Implement compensation logic if needed.');
     this.rolledBack = true;
   }
@@ -127,7 +127,7 @@ export class SupabaseManager {
       // Simple implementation for compatibility
       // Use admin client if context has admin privileges
       const client = (context?.isAdmin) ? this.adminClient : this.client;
-      
+
       // For now, return empty array - specific implementations in DAOs
       console.warn(`SupabaseManager.query called with: ${tableOrSql}`);
       return [] as T[];
@@ -174,7 +174,7 @@ export class SupabaseManager {
         .from('users')
         .select('count', { count: 'exact', head: true })
         .limit(1);
-      
+
       if (error) {
         console.error('Supabase connection test failed:', error);
         return false;
@@ -220,7 +220,7 @@ export class SupabaseManager {
     }
   ): RealtimeSubscription {
     const subscriptionId = `${table}_${Date.now()}_${randomBytes(4).toString("hex")}`;
-    
+
     const channel = this.client
       .channel(subscriptionId)
       .on(

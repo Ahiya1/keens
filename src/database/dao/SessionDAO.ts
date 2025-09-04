@@ -311,7 +311,7 @@ export class SessionDAO {
     values.push(sessionId);
 
     const query = `
-      UPDATE agent_sessions 
+      UPDATE agent_sessions
       SET ${setClauses.join(", ")}
       WHERE id = $${paramIndex}
     `;
@@ -335,7 +335,7 @@ export class SessionDAO {
   ): Promise<void> {
     await this.db.query(
       `
-      UPDATE agent_sessions 
+      UPDATE agent_sessions
       SET total_cost = $1,
           total_api_cost = $2,
           tokens_used = $3,
@@ -433,9 +433,9 @@ export class SessionDAO {
     // Get sessions with cost data
     const sessions = await this.db.query<AgentSession>(
       `
-      SELECT * FROM agent_sessions 
-      ${whereClause} 
-      ORDER BY ${orderBy} 
+      SELECT * FROM agent_sessions
+      ${whereClause}
+      ORDER BY ${orderBy}
       LIMIT $${paramIndex++} OFFSET $${paramIndex}
       `,
       [...params, limit, offset],
@@ -514,9 +514,9 @@ export class SessionDAO {
 
     const messages = await this.db.query<SessionMessage>(
       `
-      SELECT * FROM session_messages 
-      ${whereClause} 
-      ORDER BY created_at ASC 
+      SELECT * FROM session_messages
+      ${whereClause}
+      ORDER BY created_at ASC
       LIMIT $${paramIndex++} OFFSET $${paramIndex}
       `,
       [...params, limit, offset],

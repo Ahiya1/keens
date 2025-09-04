@@ -84,3 +84,4 @@ security-report.json
 workspaces/
 sessions/
 uploads/
+coverage*

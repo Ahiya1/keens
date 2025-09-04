@@ -36,18 +36,18 @@ export { EnvLoader } from "./EnvLoader.js";
 
 // Import types for the combined config
 import type { AnthropicConfig } from "./AnthropicConfig.js";
-import { 
+import {
   supabaseConfig,
-  adminConfig, 
+  adminConfig,
   creditConfig,
   realTimeConfig,
   securityConfig,
   performanceConfig,
   monitoringConfig,
   deploymentConfig,
-  type SupabaseConfig, 
-  type AdminConfig, 
-  type CreditConfig 
+  type SupabaseConfig,
+  type AdminConfig,
+  type CreditConfig
 } from "./database.js";
 
 // Enhanced configuration for keen-s-a platform
