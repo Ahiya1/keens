@@ -1,6 +1,7 @@
 /**
  * Database configuration management for keen-s-a
  * Handles Supabase cloud-native configuration with preserved functionality
+ * SECURITY: Removed sensitive logging
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -35,6 +36,15 @@ export interface RealTimeConfig {
   channels: string[];
 }
 
+export interface TestConfig {
+  database: string;
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+  maxConnections: number;
+}
+
 function getEnvVar(key: string, defaultValue?: string): string {
   const value = process.env[key] || defaultValue;
   if (!value) {
@@ -64,6 +74,16 @@ export const supabaseConfig: SupabaseConfig = {
   anonKey: getEnvVar("SUPABASE_ANON_KEY"),
   serviceRoleKey: getEnvVar("SUPABASE_SERVICE_ROLE_KEY"),
   dbUrl: process.env.SUPABASE_DB_URL, // Optional direct connection
+};
+
+// Test configuration for database tests
+export const testConfig: TestConfig = {
+  database: process.env.DB_NAME || "keen_test",
+  host: process.env.DB_HOST || "localhost",
+  port: parseInt(process.env.DB_PORT || "5432"),
+  user: process.env.DB_USER || "keen_test_user",
+  password: process.env.DB_PASSWORD || "test_password",
+  maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || "5"),
 };
 
 // Admin configuration (preserved from keen-s)
@@ -146,6 +166,7 @@ export const supabaseAdmin = createSupabaseClient(true);
 export const supabase = createSupabaseClient(false);
 
 // Database connection test function
+// SECURITY: Removed sensitive logging
 export const testSupabaseConnection = async (): Promise<boolean> => {
   try {
     const { data, error } = await supabaseAdmin
@@ -154,14 +175,20 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
       .limit(1);
     
     if (error) {
-      console.error('Supabase connection test failed:', error);
+      if (process.env.DEBUG) {
+        console.error('Supabase connection test failed:', error.message);
+      }
       return false;
     }
     
-    console.log('Supabase connected successfully');
+    if (process.env.DEBUG) {
+      console.log('Supabase connected successfully');
+    }
     return true;
   } catch (error) {
-    console.error('Supabase connection test error:', error);
+    if (process.env.DEBUG) {
+      console.error('Supabase connection test error');
+    }
     return false;
   }
 };

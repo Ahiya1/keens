@@ -3,6 +3,8 @@
  * Global test configuration and database setup with proper resource cleanup
  */
 
+/// <reference types="jest" />
+
 import { v4 as uuidv4 } from "uuid";
 import { DatabaseManager } from "../src/database/DatabaseManager.js";
 import { MigrationRunner } from "../src/database/migrations/run.js";
