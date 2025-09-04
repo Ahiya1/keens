@@ -16,24 +16,24 @@ export interface PromptContext {
   workingDirectory: string;
   sessionId: string;
   timestamp: string;
-  
+
   // User information
   userContext?: UserContext;
-  
+
   // Agent information
   specialization?: AgentSpecialization;
   phase?: AgentPhase;
   gitBranch?: string;
-  
+
   // Recursive agent context
   parentSessionId?: string;
   maxRecursionDepth?: number;
-  
+
   // Capabilities
   hasWebSearch?: boolean;
   hasRecursiveSpawning?: boolean;
   availableTools?: string[];
-  
+
   // Error recovery context
   errors?: string[];
   previousAttempt?: string;
@@ -54,13 +54,13 @@ export interface PromptConfiguration {
   specialization: AgentSpecialization;
   phase: AgentPhase;
   context: PromptContext;
-  
+
   // Customization options
   includePhaseGuidance?: boolean;
   includeToolInstructions?: boolean;
   includeCompilationChecking?: boolean;
   includeRecursiveSpawning?: boolean;
-  
+
   // Error recovery specific
   errors?: string[];
   previousAttempt?: string;
@@ -72,17 +72,17 @@ export interface SystemPromptComponents {
   task?: string;
   context?: string;
   capabilities?: string;
-  
+
   // Guidelines and instructions
   autonomousOperation?: string;
   phaseLifecycle?: string;
   toolInstructions?: string;
   compilationRequirements?: string;
-  
+
   // Specialization content
   specializationGuidance?: string;
   recursiveSpawning?: string;
-  
+
   // Footer
   sessionInfo?: string;
   footer?: string;
@@ -101,7 +101,7 @@ export interface ValidationResult {
   isValid: boolean;
   errors: string[];
   warnings: string[];
-  score: number; // 0-100
+  score: number; // 0-100,
   missingComponents: string[];
   recommendations: string[];
 }
@@ -124,7 +124,7 @@ export interface PromptMetrics {
 }
 
 // Template categories for organization
-export type TemplateCategory = 
+export type TemplateCategory =
   | 'core'
   | 'specialization'
   | 'capabilities'

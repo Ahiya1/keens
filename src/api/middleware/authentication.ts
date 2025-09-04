@@ -13,7 +13,7 @@ import { AuditLogger } from '../services/AuditLogger.js';
  */
 export function createAuthMiddleware(
   authService: AuthenticationService,
-  auditLogger: AuditLogger
+  auditLogger: AuditLogger,
 ) {
   /**
    * Main authentication middleware
@@ -21,7 +21,7 @@ export function createAuthMiddleware(
   return async function authenticateRequest(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const authHeader = req.headers.authorization;
@@ -30,22 +30,22 @@ export function createAuthMiddleware(
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
           ip: getClientIP(req),
-          details: {
+          details: {,
             reason: 'missing_authorization_header',
             path: req.path,
-            method: req.method
+            method: req.method,
           }
         });
 
         res.status(401).json({
           success: false,
-          error: {
+          error: {,
             type: 'AUTHENTICATION_ERROR',
             code: 'MISSING_AUTHORIZATION',
             message: 'Authorization header is required',
-            help_url: 'https://docs.keen.dev/auth/headers'
+            help_url: 'https://docs.keen.dev/auth/headers',
           },
-          request_id: req.id
+          request_id: req.id,
         });
         return;
       }
@@ -67,7 +67,7 @@ export function createAuthMiddleware(
           admin_privileges: payload.adminPrivileges,
           authMethod: 'jwt' as const,
           tokenIsAdmin: payload.isAdmin,
-          tokenScopes: payload.scopes
+          tokenScopes: payload.scopes,
         };
         authMethod = 'jwt';
         
@@ -82,7 +82,7 @@ export function createAuthMiddleware(
           admin_privileges: validation.adminPrivileges,
           authMethod: 'api_key' as const,
           tokenIsAdmin: validation.isAdmin,
-          tokenScopes: validation.scopes
+          tokenScopes: validation.scopes,
         };
         authMethod = 'api_key';
         
@@ -93,22 +93,22 @@ export function createAuthMiddleware(
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
           ip: getClientIP(req),
-          details: {
+          details: {,
             reason: 'invalid_authorization_format',
             auth_header_prefix: authHeader.substring(0, 10),
-            path: req.path
+            path: req.path,
           }
         });
 
         res.status(401).json({
           success: false,
-          error: {
+          error: {,
             type: 'AUTHENTICATION_ERROR',
             code: 'INVALID_AUTHORIZATION_FORMAT',
             message: 'Authorization header must start with "Bearer " or "ApiKey "',
-            help_url: 'https://docs.keen.dev/auth/formats'
+            help_url: 'https://docs.keen.dev/auth/formats',
           },
-          request_id: req.id
+          request_id: req.id,
         });
         return;
       }
@@ -125,22 +125,22 @@ export function createAuthMiddleware(
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
           ip: getClientIP(req),
-          details: {
+          details: {,
             reason: errorMessage,
             path: req.path,
-            method: req.method
+            method: req.method,
           }
         });
 
         res.status(401).json({
           success: false,
-          error: {
+          error: {,
             type: 'AUTHENTICATION_ERROR',
             code: 'INVALID_TOKEN',
             message: errorMessage,
-            help_url: 'https://docs.keen.dev/auth/troubleshooting'
+            help_url: 'https://docs.keen.dev/auth/troubleshooting',
           },
-          request_id: req.id
+          request_id: req.id,
         });
         return;
       }
@@ -150,17 +150,17 @@ export function createAuthMiddleware(
       await auditLogger.logError({
         requestId: req.id,
         error: errorMessage,
-        isAdmin: false
+        isAdmin: false,
       });
 
       res.status(500).json({
         success: false,
-        error: {
+        error: {,
           type: 'SYSTEM_ERROR',
           code: 'AUTHENTICATION_SYSTEM_ERROR',
-          message: 'Authentication system temporarily unavailable'
+          message: 'Authentication system temporarily unavailable',
         },
-        request_id: req.id
+        request_id: req.id,
       });
       return;
     }
@@ -177,13 +177,13 @@ export function requireAdmin() {
     if (!user || !user.is_admin) {
       res.status(403).json({
         success: false,
-        error: {
+        error: {,
           type: 'AUTHORIZATION_ERROR',
           code: 'INSUFFICIENT_PRIVILEGES',
           message: 'Admin privileges required for this operation',
-          help_url: 'https://docs.keen.dev/auth/admin'
+          help_url: 'https://docs.keen.dev/auth/admin',
         },
-        request_id: req.id
+        request_id: req.id,
       });
       return;
     }
@@ -202,17 +202,17 @@ export function requireAdminPrivilege(privilege: string) {
     if (!user || !user.is_admin || !user.admin_privileges?.[privilege as keyof typeof user.admin_privileges]) {
       res.status(403).json({
         success: false,
-        error: {
+        error: {,
           type: 'AUTHORIZATION_ERROR',
           code: 'INSUFFICIENT_ADMIN_PRIVILEGES',
           message: `Admin privilege '${privilege}' required for this operation`,
-          details: {
+          details: {,
             required_privilege: privilege,
             user_privileges: user?.admin_privileges || {}
           },
-          help_url: 'https://docs.keen.dev/auth/admin-privileges'
+          help_url: 'https://docs.keen.dev/auth/admin-privileges',
         },
-        request_id: req.id
+        request_id: req.id,
       });
       return;
     }
@@ -244,18 +244,18 @@ export function requireScopes(requiredScopes: string[]) {
       
       res.status(403).json({
         success: false,
-        error: {
+        error: {,
           type: 'AUTHORIZATION_ERROR',
           code: 'INSUFFICIENT_SCOPES',
           message: 'Required API scopes are missing',
-          details: {
+          details: {,
             required_scopes: requiredScopes,
             user_scopes: allScopes,
-            missing_scopes: missingScopes
+            missing_scopes: missingScopes,
           },
-          help_url: 'https://docs.keen.dev/auth/scopes'
+          help_url: 'https://docs.keen.dev/auth/scopes',
         },
-        request_id: req.id
+        request_id: req.id,
       });
       return;
     }
@@ -269,7 +269,7 @@ export function requireScopes(requiredScopes: string[]) {
  */
 export function optionalAuth(
   authService: AuthenticationService,
-  auditLogger: AuditLogger
+  auditLogger: AuditLogger,
 ) {
   const authMiddleware = createAuthMiddleware(authService, auditLogger);
   

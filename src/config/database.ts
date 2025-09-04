@@ -147,12 +147,12 @@ export const deploymentConfig = {
 export const createSupabaseClient = (useServiceRole = false): SupabaseClient => {
   const key = useServiceRole ? supabaseConfig.serviceRoleKey : supabaseConfig.anonKey;
   return createClient(supabaseConfig.url, key, {
-    auth: {
+    auth: {,
       autoRefreshToken: true,
       persistSession: true,
     },
-    realtime: {
-      params: {
+    realtime: {,
+      params: {,
         eventsPerSecond: 10,
       },
     },

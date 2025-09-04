@@ -5,25 +5,29 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "keens": "./bin/keen.js"
+    "keen": "./bin/keen.js"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/api/server.js",
     "dev": "tsx watch src/api/server.ts",
     "dev:cli": "npm run build && node bin/keen.js",
-    "test": "jest --coverage --silent",
-    "test:unit": "jest --testPathPattern=tests/unit --silent",
+    "test": "jest --config jest.testing.config.js --coverage --silent",
+    "test:watch": "jest --config jest.testing.config.js --watch --silent",
+    "test:unit": "jest --config jest.testing.config.js --testPathPattern=tests/basic --silent",
+    "test:core": "jest --config jest.testing.config.js --testPathPattern=tests/core --silent",
+    "test:validation": "jest --config jest.testing.config.js --testPathPattern=tests/validation --silent",
     "test:integration": "jest --config jest.integration.config.js --silent",
     "test:security": "jest --testPathPattern=tests/security --config jest.integration.config.js --silent",
     "test:performance": "jest --testPathPattern=tests/performance --config jest.integration.config.js --silent",
     "test:api": "jest --testPathPattern=tests/api --silent",
+    "test:legacy": "jest --coverage --silent",
     "test:cli": "npm run build && node bin/keen.js --help",
     "build:client": "cd client && npm run build",
     "db:migrate": "supabase db reset",
     "deploy:vercel": "cd client && vercel --prod",
     "deploy:railway": "railway up",
-    "validate": "npm run build && npm run test:unit",
+    "validate": "npm run test",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts"
   },
@@ -60,7 +64,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.11",
-    "@types/node": "^20.8.0",
+    "@types/node": "^20.19.13",
     "@types/node-cron": "^3.0.11",
     "@types/supertest": "^2.0.16",
     "@types/uuid": "^9.0.6",
@@ -68,6 +72,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "eslint": "^8.51.0",
+    "glob": "^11.0.3",
     "jest": "^29.7.0",
     "jest-html-reporters": "^3.1.7",
     "prettier": "^3.0.3",
@@ -92,6 +97,8 @@
     "recursive",
     "keen-s-a",
     "evolution",
-    "consciousness"
+    "consciousness",
+    "testing",
+    "quality-assurance"
   ]
 }

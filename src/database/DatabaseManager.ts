@@ -2,6 +2,7 @@
  * DatabaseManager - Compatibility layer for keen-s-a migration
  * Provides PostgreSQL-like interface while using Supabase under the hood
  * Maintains backward compatibility during the conscious evolution
+ * SECURITY: Enhanced logging security - Removed sensitive logging and improved error handling
  */
 
 import { SupabaseManager, UserContext, DatabaseTransaction } from './SupabaseManager.js';
@@ -36,21 +37,25 @@ export class DatabaseManager {
 
   /**
    * Initialize database connection (compatibility)
+   * SECURITY: Enhanced - Removed sensitive logging
    */
   async initialize(): Promise<void> {
     try {
       await this.supabaseManager.initialize();
       this._isConnected = true;
-      console.log('Database connection initialized successfully (Supabase)');
+      if (process.env.DEBUG) {}
     } catch (error) {
       this._isConnected = false;
-      console.error('Database initialization failed:', error);
+      if (process.env.DEBUG) {
+        console.error('Database initialization failed');
+      }
       throw error;
     }
   }
 
   /**
    * Execute a query with user context (compatibility with raw SQL)
+   * SECURITY: Enhanced error handling to prevent information leakage
    */
   async query<T = any>(
     textOrTable: string,
@@ -73,7 +78,9 @@ export class DatabaseManager {
       // Handle as table-based query (delegate to Supabase)
       return await this.supabaseManager.query<T>(textOrTable, params, context);
     } catch (error) {
-      console.error('Database query error:', error);
+      if (process.env.DEBUG) {
+        console.error('Database query error');
+      }
       throw error;
     }
   }
@@ -97,6 +104,7 @@ export class DatabaseManager {
 
   /**
    * Convert SQL queries to Supabase operations (simplified)
+   * SECURITY: Enhanced error handling and reduced logging
    */
   private async convertSqlToSupabase<T>(
     sql: string,
@@ -158,9 +166,10 @@ export class DatabaseManager {
       return [data] as T[];
     }
     
-    // For other SQL queries, log and return empty for now
-    console.warn(`SQL query conversion not implemented: ${sql.substring(0, 100)}...`);
-    console.warn('Parameters:', params);
+    // For other SQL queries, log only in debug mode and return empty
+    if (process.env.DEBUG) {
+      console.warn(`SQL query conversion not implemented: ${sql.substring(0, 50)}...`);
+    }
     return [] as T[];
   }
 
@@ -202,14 +211,15 @@ export class DatabaseManager {
 
   /**
    * Set user context for row-level security (compatibility)
+   * SECURITY: Enhanced - Removed sensitive user logging
    */
   async setUserContext(
     client: any, // In Supabase, this is handled differently
-    context: UserContext
+    context: UserContext,
   ): Promise<void> {
     // In Supabase, RLS is handled through auth.uid() and policies
     // This method is maintained for compatibility but doesn't need implementation
-    console.log(`Setting user context for ${context.userId} (Supabase RLS)`);
+    if (process.env.DEBUG) {}
   }
 
   /**
@@ -247,14 +257,17 @@ export class DatabaseManager {
 
   /**
    * Gracefully close all connections (compatibility)
+   * SECURITY: Enhanced - Reduced logging
    */
   async close(): Promise<void> {
     try {
       await this.supabaseManager.close();
       this._isConnected = false;
-      console.log('Database manager closed (Supabase)');
+      if (process.env.DEBUG) {}
     } catch (error) {
-      console.error('Error closing database manager:', error);
+      if (process.env.DEBUG) {
+        console.error('Error closing database manager');
+      }
     }
   }
 

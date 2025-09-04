@@ -37,7 +37,7 @@ export class PromptBuilder {
 
     // Capabilities based on configuration
     const capabilities = [];
-    
+
     if (config.context.hasWebSearch) {
       capabilities.push(this.templates.getTemplateContent('web_search_capability'));
     }
@@ -131,7 +131,7 @@ export class PromptBuilder {
 
     // Start with system prompt base
     const baseComponents = this.buildSystemPrompt(config);
-    
+
     // Modify header for child agent
     components.header = baseComponents.header?.replace(
       'You are a keen autonomous development agent',
@@ -223,7 +223,7 @@ export class PromptBuilder {
       case 'system':
         return [
           'header',
-          'task', 
+          'task',
           'context',
           'capabilities',
           'compilationRequirements',
@@ -233,17 +233,17 @@ export class PromptBuilder {
           'specializationGuidance',
           'sessionInfo'
         ];
-      
+
       case 'conversation':
         return [
           'header',
           'context',
-          'capabilities', 
+          'capabilities',
           'autonomousOperation',
           'toolInstructions',
           'sessionInfo'
         ];
-      
+
       case 'child_agent':
         return [
           'header',
@@ -252,11 +252,11 @@ export class PromptBuilder {
           'capabilities',
           'compilationRequirements',
           'specializationGuidance',
-          'toolInstructions', 
+          'toolInstructions',
           'autonomousOperation',
           'sessionInfo'
         ];
-      
+
       case 'error_recovery':
         return [
           'header',
@@ -266,7 +266,7 @@ export class PromptBuilder {
           'autonomousOperation',
           'sessionInfo'
         ];
-      
+
       default:
         return [
           'header',

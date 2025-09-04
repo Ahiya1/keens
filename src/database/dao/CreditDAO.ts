@@ -202,6 +202,7 @@ export class CreditDAO {
       const creditAmount = request.claudeCostUSD.mul(
         creditConfig.markupMultiplier
       );
+
       const newBalance = account.current_balance.sub(creditAmount);
 
       if (newBalance.lt(0)) {
@@ -262,6 +263,7 @@ export class CreditDAO {
       userId,
       transaction
     );
+
     const transactionId = uuidv4();
 
     // Resolve session_id to UUID if it's not already
@@ -293,7 +295,7 @@ export class CreditDAO {
           ...metadata,
           admin_bypass: true,
           actual_cost: claudeCostUSD.toString(),
-          would_have_charged: claudeCostUSD
+          would_have_charged: claudeCostUSD,
             .mul(creditConfig.markupMultiplier)
             .toString(),
         },
@@ -308,7 +310,7 @@ export class CreditDAO {
    */
   private async resolveSessionId(
     sessionId: string,
-    transaction: DatabaseTransaction
+    transaction: DatabaseTransaction,
   ): Promise<string | null> {
     // If it's already a UUID, return as is
     if (
@@ -408,7 +410,7 @@ export class CreditDAO {
     );
 
     return {
-      transactions: transactions.map(this.transformCreditTransaction),
+      transactions: transactions.map(this.transformCreditTransaction.bind(this)),
       total: parseInt(count.toString(), 10),
     };
   }
@@ -426,7 +428,7 @@ export class CreditDAO {
     totalAdminBypass: Decimal;
     transactionCount: number;
     avgMarkup: Decimal;
-    topUsers: Array<{
+    topUsers: Array<{,
       userId: string;
       totalSpent: Decimal;
       transactionCount: number;
@@ -477,7 +479,7 @@ export class CreditDAO {
       totalAdminBypass: new Decimal(analytics.total_admin_bypass || 0),
       transactionCount: parseInt(analytics.transaction_count || "0"),
       avgMarkup: new Decimal(analytics.avg_markup || 0),
-      topUsers: topUsers.map((user: any) => ({
+      topUsers: topUsers.map((user: any) => ({,
         userId: user.user_id,
         totalSpent: new Decimal(user.total_spent || 0),
         transactionCount: parseInt(user.transaction_count || "0"),
@@ -493,6 +495,7 @@ export class CreditDAO {
       "SELECT is_admin FROM users WHERE id = $1",
       [userId]
     );
+
     return result[0]?.is_admin || false;
   }
 
@@ -501,7 +504,7 @@ export class CreditDAO {
    */
   private async getCreditAccountInTransaction(
     userId: string,
-    transaction: DatabaseTransaction
+    transaction: DatabaseTransaction,
   ): Promise<CreditAccount | null> {
     const accounts = await transaction.query<CreditAccount>(
       "SELECT * FROM credit_accounts WHERE user_id = $1 FOR UPDATE",
@@ -521,16 +524,16 @@ export class CreditDAO {
       current_balance: new Decimal(account.current_balance),
       lifetime_purchased: new Decimal(account.lifetime_purchased),
       lifetime_spent: new Decimal(account.lifetime_spent),
-      daily_limit: account.daily_limit
+      daily_limit: account.daily_limit,
         ? new Decimal(account.daily_limit)
         : undefined,
-      monthly_limit: account.monthly_limit
+      monthly_limit: account.monthly_limit,
         ? new Decimal(account.monthly_limit)
         : undefined,
-      auto_recharge_threshold: account.auto_recharge_threshold
+      auto_recharge_threshold: account.auto_recharge_threshold,
         ? new Decimal(account.auto_recharge_threshold)
         : undefined,
-      auto_recharge_amount: account.auto_recharge_amount
+      auto_recharge_amount: account.auto_recharge_amount,
         ? new Decimal(account.auto_recharge_amount)
         : undefined,
     };
@@ -544,7 +547,7 @@ export class CreditDAO {
       ...transaction,
       amount: new Decimal(transaction.amount),
       balance_after: new Decimal(transaction.balance_after),
-      claude_cost_usd: transaction.claude_cost_usd
+      claude_cost_usd: transaction.claude_cost_usd,
         ? new Decimal(transaction.claude_cost_usd)
         : undefined,
       markup_multiplier: new Decimal(transaction.markup_multiplier),

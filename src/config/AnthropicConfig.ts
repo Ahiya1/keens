@@ -18,7 +18,7 @@ export interface AnthropicConfig {
   enableWebSearch: boolean;
   enableStreaming: boolean;
   streamingBufferSize: number;
-  streamingTimeout: number; // Fixed to be more reasonable
+  streamingTimeout: number; // Fixed to be more reasonable,
   showProgressIndicators: boolean;
   typewriterEffect: boolean;
   typewriterDelay: number;
@@ -84,7 +84,7 @@ export class AnthropicConfigManager {
     if (!this.config.apiKey && process.env.NODE_ENV !== "test") {
       throw new Error(
         "ANTHROPIC_API_KEY is required. Set it in your environment variables."
-      );
+
     }
 
     if (this.config.maxTokens < 1000 || this.config.maxTokens > 200000) {
@@ -98,27 +98,27 @@ export class AnthropicConfigManager {
     if (this.config.thinkingBudget > this.config.maxTokens) {
       throw new Error(
         "thinkingBudget should be less than or equal to maxTokens"
-      );
+
     }
 
     // Validate keen requirements
     if (!this.config.enableExtendedContext) {
       throw new Error(
         "CRITICAL: keen requires enableExtendedContext=true for 1M context window"
-      );
+
     }
 
     if (!this.config.enableInterleaved) {
       throw new Error(
         "CRITICAL: keen requires enableInterleaved=true for thinking blocks"
-      );
+
     }
 
     // Validate model name contains Claude
     if (!this.config.model.toLowerCase().includes("claude")) {
       throw new Error(
         `Invalid model name '${this.config.model}'. keen requires Claude models.`
-      );
+
     }
 
     // FIXED: Proper timeout validation
@@ -128,7 +128,7 @@ export class AnthropicConfigManager {
     ) {
       throw new Error(
         "streamingTimeout must be between 10 seconds and 10 minutes"
-      );
+
     }
 
     if (
@@ -137,7 +137,7 @@ export class AnthropicConfigManager {
     ) {
       throw new Error(
         "streamingBufferSize must be between 1 and 1000 characters"
-      );
+
     }
 
     // Warning for non-optimal models
@@ -145,7 +145,7 @@ export class AnthropicConfigManager {
       console.warn(
         `Warning: Model '${this.config.model}' is not a Sonnet variant. ` +
           "keen is optimized for Claude Sonnet models."
-      );
+
     }
   }
 
@@ -169,7 +169,7 @@ export class AnthropicConfigManager {
     return {
       model: this.config.model,
       max_tokens: this.config.maxTokens,
-      thinking: {
+      thinking: {,
         type: "enabled" as const,
         budget_tokens: this.config.thinkingBudget,
       },
@@ -218,7 +218,7 @@ export class AnthropicConfigManager {
       typeof process !== "undefined" &&
       process.stdout &&
       process.stdout.isTTY
-    );
+
   }
 
   shouldShowProgress(): boolean {
@@ -228,21 +228,21 @@ export class AnthropicConfigManager {
       typeof process !== "undefined" &&
       process.stdout &&
       process.stdout.isTTY
-    );
+
   }
 
   // Calculate total cost for a request
   calculateRequestCost(
     inputTokens: number,
     outputTokens: number,
-    thinkingTokens: number = 0
+    thinkingTokens: number = 0,
   ): {
     inputCost: number;
     outputCost: number;
     thinkingCost: number;
     totalCost: number;
     isExtendedPricing: boolean;
-    keenCreditCost: number; // 5x markup
+    keenCreditCost: number; // 5x markup,
   } {
     const isExtendedPricing = inputTokens > 200000;
 
@@ -307,7 +307,7 @@ export class AnthropicConfigManager {
       typeof apiKey === "string" &&
       apiKey.startsWith("sk-ant-") &&
       apiKey.length > 20
-    );
+
   }
 
   isProductionReady(): boolean {
@@ -318,7 +318,7 @@ export class AnthropicConfigManager {
       this.config.thinkingBudget >= 1000 &&
       this.config.enableExtendedContext &&
       this.config.enableInterleaved
-    );
+
   }
 }
 

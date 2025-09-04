@@ -45,7 +45,7 @@ export class CompilationValidator {
       warnings: [],
       summary: '',
       executionTime: 0,
-      validationSteps: []
+      validationSteps: [],
     };
 
     const startTime = Date.now();
@@ -109,14 +109,14 @@ export class CompilationValidator {
       this.debugLog('COMPILATION_COMPLETE', 'Compilation validation completed', {
         success: result.success,
         errorCount: result.errors.length,
-        warningCount: result.warnings.length
+        warningCount: result.warnings.length,
       });
 
       return this.finalizeResult(result, startTime);
 
     } catch (error: any) {
       this.debugLog('COMPILATION_ERROR', 'Compilation validation failed', {
-        error: error.message
+        error: error.message,
       });
       
       result.errors.push({
@@ -125,7 +125,7 @@ export class CompilationValidator {
         message: `Compilation validation failed: ${error.message}`,
         file: '',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
       
       result.summary = 'Compilation validation threw an exception';
@@ -152,7 +152,7 @@ export class CompilationValidator {
           message: `Project path does not exist: ${projectPath}`,
           file: projectPath,
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         });
         return { valid: false, errors };
       }
@@ -173,7 +173,7 @@ export class CompilationValidator {
           file: projectPath,
           line: 0,
           autoFixable: false,
-          suggestion: 'Create package.json for Node.js project or tsconfig.json for TypeScript project'
+          suggestion: 'Create package.json for Node.js project or tsconfig.json for TypeScript project',
         });
       }
 
@@ -185,7 +185,7 @@ export class CompilationValidator {
         message: `Failed to validate project structure: ${error.message}`,
         file: projectPath,
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
       return { valid: false, errors };
     }
@@ -219,7 +219,7 @@ export class CompilationValidator {
           cwd: projectPath,
           encoding: 'utf8',
           stdio: this.options.silentMode ? 'pipe' : 'inherit',
-          timeout: 30000 // 30 second timeout
+          timeout: 30000 // 30 second timeout,
         });
 
         this.debugLog('TS_SUCCESS', 'TypeScript compilation successful');
@@ -234,7 +234,7 @@ export class CompilationValidator {
 
         this.debugLog('TS_ERRORS', 'TypeScript compilation errors found', {
           errorCount: errors.length,
-          warningCount: warnings.length
+          warningCount: warnings.length,
         });
       }
 
@@ -245,7 +245,7 @@ export class CompilationValidator {
         message: `TypeScript validation failed: ${error.message}`,
         file: '',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -270,7 +270,7 @@ export class CompilationValidator {
           execSync(`node --check "${file}"`, {
             cwd: projectPath,
             stdio: this.options.silentMode ? 'pipe' : 'inherit',
-            timeout: 10000
+            timeout: 10000,
           });
         } catch (syntaxError: any) {
           errors.push({
@@ -279,14 +279,14 @@ export class CompilationValidator {
             message: `JavaScript syntax error: ${syntaxError.message}`,
             file: path.relative(projectPath, file),
             line: this.extractLineNumber(syntaxError.message) || 0,
-            autoFixable: false
+            autoFixable: false,
           });
         }
       }
 
       this.debugLog('JS_SYNTAX', 'JavaScript syntax validation completed', {
         filesChecked: jsFiles.length,
-        errorsFound: errors.length
+        errorsFound: errors.length,
       });
 
     } catch (error: any) {
@@ -296,7 +296,7 @@ export class CompilationValidator {
         message: `Node.js syntax validation failed: ${error.message}`,
         file: '',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -342,7 +342,7 @@ export class CompilationValidator {
                   message: `Build script '${scriptName}' is empty or invalid`,
                   file: 'package.json',
                   line: 0,
-                  autoFixable: false
+                  autoFixable: false,
                 });
               }
             }
@@ -353,7 +353,7 @@ export class CompilationValidator {
               message: `Build script '${scriptName}' validation failed: ${buildError.message}`,
               file: 'package.json',
               line: 0,
-              autoFixable: false
+              autoFixable: false,
             });
           }
         }
@@ -366,7 +366,7 @@ export class CompilationValidator {
         message: `Build script validation failed: ${error.message}`,
         file: 'package.json',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -403,7 +403,7 @@ export class CompilationValidator {
           file: 'package.json',
           line: 0,
           autoFixable: false,
-          suggestion: 'Run npm install or yarn install to install dependencies'
+          suggestion: 'Run npm install or yarn install to install dependencies',
         });
       }
 
@@ -432,7 +432,7 @@ export class CompilationValidator {
         message: `Dependency validation failed: ${error.message}`,
         file: 'package.json',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
     }
 
@@ -544,11 +544,7 @@ export class CompilationValidator {
    */
   private debugLog(category: string, message: string, data?: any): void {
     if (this.debug) {
-      const timestamp = new Date().toISOString();
-      console.log(chalk.gray(`[${timestamp}] 🔧 [COMPILE_${category}] ${message}`));
-      if (data) {
-        console.log(chalk.gray(JSON.stringify(data, null, 2)));
-      }
+      const timestamp = new Date().toISOString();if (data) {}
     }
   }
 }

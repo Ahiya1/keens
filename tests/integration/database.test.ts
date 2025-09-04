@@ -1,18 +1,14 @@
 /**
  * Database Integration Tests
  * Tests complete workflows with actual database operations
+ * SECURITY: Fixed compilation issues and removed testConfig dependency
  */
 
 import Decimal from 'decimal.js';
 import { DatabaseService } from '../../src/database/index.js';
 import { UserContext } from '../../src/database/DatabaseManager.js';
-import { adminConfig, testConfig } from '../../src/config/database.js';
+import { adminConfig } from '../../src/config/database.js';
 import { generateTestEmail, generateTestSessionId } from '../setup';
-
-// Use test database configuration
-process.env.DB_NAME = testConfig.database;
-process.env.DB_USER = testConfig.user;
-process.env.DB_PASSWORD = testConfig.password;
 
 describe('Database Integration Tests', () => {
   let dbService: DatabaseService;

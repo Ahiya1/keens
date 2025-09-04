@@ -47,36 +47,24 @@ export class ManifestCommand {
       .action(async (description: string | undefined, options: any, command: Command) => {
         try {
           // 🔑 AUTHENTICATION REQUIRED
-          console.log(chalk.blue("🔑 Checking authentication..."));
-          
           let userContext;
           try {
+            // Ensure auth manager is initialized before checking auth
+            await cliAuth.initialize();
             userContext = await cliAuth.requireAuth();
           } catch (authError: any) {
             console.error(chalk.red("❌ " + authError.message));
-            console.log(chalk.yellow("\n💡 Quick start:"));
-            console.log(chalk.cyan("   keen login                  # Login to your account"));
-            console.log(chalk.gray("   keen status                 # Check authentication status"));
             process.exit(1);
           }
 
           const currentUser = cliAuth.getCurrentUser();
-          
-          console.log(
-            chalk.blue("📜 keen manifest - Create Vision Files")
-          );
-          console.log(
-            chalk.gray("Generate vision files in markdown format for autonomous execution")
-          );
-          console.log(chalk.gray(`📁 Working Directory: ${options.directory}`));
-          
+          console.log(chalk.blue("\n📜 Vision File Creator - Autonomous Development"));
           if (currentUser) {
-            console.log(chalk.green(`👤 Authenticated as: ${currentUser.displayName || currentUser.username}`));
+            console.log(chalk.gray(`👤 User: ${currentUser.email || 'Unknown'}`));
             if (currentUser.isAdmin) {
-              console.log(chalk.yellow("   ⚡ Admin privileges active"));
+              console.log(chalk.green("🔧 Admin mode: Enhanced capabilities enabled"));
             }
           }
-          console.log("");
 
           if (description && !options.interactive) {
             // Direct mode - create vision from description
@@ -85,14 +73,11 @@ export class ManifestCommand {
             // Interactive mode with Claude assistance
             await this.createInteractiveVision(options, userContext, description);
           }
-          
         } catch (error: any) {
           console.error(chalk.red("❌ Manifest creation error: " + error.message));
           
           if (error.message.includes('Authentication required')) {
-            console.log(chalk.yellow("\n🔑 Authentication issue detected:"));
-            console.log(chalk.gray("   • Your session may have expired"));
-            console.log(chalk.gray("   • Try logging in again: keen login"));
+            console.error(chalk.yellow("💡 Hint: Run 'keen login' to authenticate first"));
           }
           
           process.exit(1);
@@ -104,7 +89,21 @@ export class ManifestCommand {
 🔑 Authentication Required:
   This command requires authentication. Run 'keen login' first.
 
-\nExamples:\n  keen manifest                                    # Interactive mode with Claude\n  keen manifest "Create a React todo app"          # Direct mode\n  keen manifest --interactive --verbose            # Interactive with verbose output\n  keen manifest "API server" --output api-vision.md  # Custom output file\n\n📋 Output:\n  • Creates markdown vision files suitable for 'keen breathe -f'\n  • Files include timestamp, user context, and execution notes\n  • Automatically suggests next steps with breathe command\n\n📊 User Context:\n  • Vision files are tagged with your user information\n  • Admin users get enhanced vision creation capabilities\n  • All manifests are optimized for autonomous execution`
+📝 Examples:
+  keen manifest                                    # Interactive mode with Claude
+  keen manifest "Create a React todo app"          # Direct mode
+  keen manifest --interactive --verbose            # Interactive with verbose output
+  keen manifest "API server" --output api-vision.md  # Custom output file
+
+📋 Output:
+  • Creates markdown vision files suitable for 'keen breathe -f'
+  • Files include timestamp, user context, and execution notes
+  • Automatically suggests next steps with breathe command
+
+📊 User Context:
+  • Vision files are tagged with your user information
+  • Admin users get enhanced vision creation capabilities
+  • All manifests are optimized for autonomous execution`
       );
   }
 
@@ -114,12 +113,10 @@ export class ManifestCommand {
   private async createDirectVision(
     description: string,
     options: any,
-    userContext: any
+    userContext: any,
   ): Promise<void> {
-    console.log(chalk.blue("📝 Creating vision file directly..."));
-    console.log(chalk.gray(`Description: ${description}`));
-    console.log("");
-
+    console.log(chalk.blue("🎯 Creating vision from description..."));
+    
     // Generate filename
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('.')[0];
     const filename = options.output || `vision-${timestamp}.md`;
@@ -135,11 +132,7 @@ export class ManifestCommand {
 
     // Write the file
     await fs.writeFile(filepath, visionContent, "utf-8");
-
     console.log(chalk.green(`✅ Vision file created: ${filename}`));
-    console.log(chalk.gray(`   📁 Location: ${filepath}`));
-    console.log(chalk.gray(`   📝 Length: ${visionContent.length} characters`));
-    console.log("");
     
     this.showNextSteps(filename);
   }
@@ -152,22 +145,10 @@ export class ManifestCommand {
     userContext: any,
     initialDescription?: string
   ): Promise<void> {
-    console.log(chalk.blue("🤖 Interactive Vision Creation with Claude"));
-    console.log(
-      chalk.gray("Claude will help you create a comprehensive vision file")
-    );
-    console.log("");
-
-    console.log(chalk.yellow("✨ Claude will help you:"));
-    console.log("• 🔍 Analyze your current project structure");
-    console.log("• 💡 Refine and expand your vision");
-    console.log("• 🎨 Structure your requirements clearly");
-    console.log("• 📝 Generate a comprehensive vision file");
-    console.log("");
+    console.log(chalk.blue("🤖 Starting interactive vision creation with Claude..."));
+    console.log(chalk.gray("Type 'help' for commands, 'done' to finalize, or 'exit' to quit"));
 
     // Initialize ConversationAgent
-    console.log(chalk.blue("🤖 Initializing Claude agent..."));
-    
     const conversationOptions: ConversationOptions = {
       workingDirectory: options.directory,
       userContext: userContext,
@@ -175,12 +156,8 @@ export class ManifestCommand {
       debug: options.debug,
       enableWebSearch: true,
     };
-    
-    const agent = new ConversationAgent(conversationOptions);
-    
-    console.log(chalk.green("✅ Claude agent ready"));
-    console.log("");
 
+    const agent = new ConversationAgent(conversationOptions);
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -194,26 +171,20 @@ export class ManifestCommand {
     }
     introMessage += " Can you help me analyze my project and create a comprehensive vision?";
 
-    console.log(chalk.cyan("You: ") + introMessage);
-    
     try {
+      console.log(chalk.cyan("\nClaude: Starting vision creation session..."));
       const response = await agent.converse(introMessage);
-      console.log(chalk.green("\n🤖 Claude: ") + response.response);
       
       if (response.thinking && options.verbose) {
-        console.log(chalk.magenta("\n🧠 Claude's thinking:"));
-        console.log(chalk.gray(response.thinking.substring(0, 500) + (response.thinking.length > 500 ? "..." : "")));
+        console.log(chalk.gray("\n💭 Claude's thinking:"));
+        console.log(chalk.gray(response.thinking));
       }
+      
+      console.log(chalk.white("\n" + response.message));
     } catch (error: any) {
-      console.log(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red("❌ Failed to start conversation: " + error.message));
     }
 
-    console.log("");
-    console.log(chalk.yellow("🎮 Special commands:"));
-    console.log("• Type 'done' when you're ready to create the vision file");
-    console.log("• Type 'help' for more commands");
-    console.log("• Type 'exit' to cancel");
-    console.log("");
     rl.prompt();
 
     rl.on("line", async (input: string) => {
@@ -225,12 +196,13 @@ export class ManifestCommand {
       }
 
       if (userInput.toLowerCase() === "exit" || userInput.toLowerCase() === "quit") {
-        console.log(chalk.yellow("👋 Vision creation cancelled."));
+        console.log(chalk.yellow("👋 Exiting interactive mode..."));
         rl.close();
         return;
       }
 
       if (userInput.toLowerCase() === "done") {
+        console.log(chalk.blue("🎯 Finalizing vision creation..."));
         await this.finalizeInteractiveVision(agent, options, userContext);
         rl.close();
         return;
@@ -244,29 +216,26 @@ export class ManifestCommand {
 
       // Continue conversation with Claude
       try {
-        console.log(chalk.gray("\n🤔 Claude is thinking..."));
-        
         const response = await agent.converse(userInput);
         
         if (response.error) {
-          console.log(chalk.red(`\n❌ Error: ${response.error}`));
+          console.error(chalk.red("❌ Claude error: " + response.error));
         } else {
-          console.log(chalk.green("\n🤖 Claude: ") + response.response);
-          
           if (response.thinking && options.verbose) {
-            console.log(chalk.magenta("\n🧠 Claude's thinking:"));
-            console.log(chalk.gray(response.thinking.substring(0, 500) + (response.thinking.length > 500 ? "..." : "")));
+            console.log(chalk.gray("\n💭 Claude's thinking:"));
+            console.log(chalk.gray(response.thinking));
           }
+          console.log(chalk.white("\nClaude: " + response.message));
         }
       } catch (error: any) {
-        console.log(chalk.red(`\n❌ Conversation error: ${error.message}`));
+        console.error(chalk.red("❌ Conversation error: " + error.message));
       }
 
-      console.log("");
       rl.prompt();
     });
 
     rl.on("close", () => {
+      console.log(chalk.gray("\n👋 Interactive session ended"));
       // Exit gracefully
     });
   }
@@ -277,13 +246,11 @@ export class ManifestCommand {
   private async finalizeInteractiveVision(
     agent: ConversationAgent,
     options: any,
-    userContext: any
+    userContext: any,
   ): Promise<void> {
-    console.log(chalk.blue("\n📝 Finalizing vision file from conversation..."));
-
     const history = agent.getConversationHistory();
     if (history.length === 0) {
-      console.log(chalk.red("❌ No conversation to create vision from."));
+      console.log(chalk.yellow("⚠️  No conversation to synthesize. Try having a discussion first."));
       return;
     }
 
@@ -292,7 +259,7 @@ export class ManifestCommand {
       const vision = await agent.synthesizeVision();
       
       if (!vision || vision.includes("No conversation to synthesize")) {
-        console.log(chalk.red("❌ Unable to synthesize conversation into vision."));
+        console.log(chalk.yellow("⚠️  Could not create vision from conversation. Try adding more details."));
         return;
       }
 
@@ -312,16 +279,11 @@ export class ManifestCommand {
 
       // Write the file
       await fs.writeFile(filepath, visionContent, "utf-8");
-
-      console.log(chalk.green(`✅ Vision file created: ${filename}`));
-      console.log(chalk.gray(`   📁 Location: ${filepath}`));
-      console.log(chalk.gray(`   📝 Length: ${visionContent.length} characters`));
-      console.log(chalk.gray(`   💬 Based on ${history.length} conversation exchanges`));
-      console.log("");
+      console.log(chalk.green(`✅ Interactive vision file created: ${filename}`));
       
       this.showNextSteps(filename);
     } catch (error: any) {
-      console.log(chalk.red(`❌ Failed to create vision file: ${error.message}`));
+      console.error(chalk.red("❌ Failed to finalize vision: " + error.message));
     }
   }
 
@@ -429,7 +391,6 @@ export class ManifestCommand {
       content += `- This vision was created directly from user description\n`;
       content += `- Consider using interactive mode (keen manifest --interactive) for complex requirements\n`;
     }
-    
     content += `- Execute with appropriate options based on project complexity\n`;
     content += `- Monitor execution progress and logs for any issues\n\n`;
     content += `---\n\n`;
@@ -442,36 +403,30 @@ export class ManifestCommand {
    * Show interactive help
    */
   private showInteractiveHelp(): void {
-    console.log(chalk.yellow("\n💡 Interactive Vision Creation:"));
-    console.log("• done      - Finalize and create the vision file");
-    console.log("• help      - Show this help message");
-    console.log("• exit      - Cancel vision creation");
-    console.log("");
-    console.log(chalk.cyan("🔍 What to discuss with Claude:"));
-    console.log("• What you want to build or implement");
-    console.log("• Technical requirements and constraints");
-    console.log("• Integration with existing code");
-    console.log("• Testing and documentation needs");
-    console.log("• Performance or security considerations");
-    console.log("");
-    console.log(chalk.green("🤖 Claude can help by:"));
-    console.log("• Analyzing your current project structure");
-    console.log("• Suggesting best practices and patterns");
-    console.log("• Refining and structuring your requirements");
-    console.log("• Identifying potential challenges or dependencies");
-    console.log("");
+    console.log(chalk.blue("\n📋 Interactive Mode Commands:"));
+    console.log(chalk.white("• Type your requirements and questions naturally"));
+    console.log(chalk.white("• Claude will help analyze and refine your vision"));
+    console.log(chalk.white("• 'done' - Finalize and create the vision file"));
+    console.log(chalk.white("• 'exit' or 'quit' - Exit without saving"));
+    console.log(chalk.white("• 'help' - Show this help message"));
+    console.log(chalk.gray("\n💡 Tips:"));
+    console.log(chalk.gray("• Be specific about your requirements"));
+    console.log(chalk.gray("• Mention technologies, frameworks, or patterns you prefer"));
+    console.log(chalk.gray("• Ask Claude to analyze your existing codebase"));
+    console.log(chalk.gray("• Discuss implementation approach before finalizing\n"));
   }
 
   /**
    * Show next steps after vision creation
    */
   private showNextSteps(filename: string): void {
-    console.log(chalk.cyan("🚀 Next Steps:"));
-    console.log(chalk.white("   keen breathe -f " + filename + "                # Execute vision"));
-    console.log(chalk.gray("   keen breathe -f " + filename + " --dry-run       # Preview execution"));
-    console.log(chalk.gray("   keen breathe -f " + filename + " --verbose       # Execute with verbose output"));
-    console.log("");
-    console.log(chalk.blue("💡 Tip: The vision file is now ready for autonomous execution!"));
-    console.log(chalk.gray("      Review the file contents before execution if needed."));
+    console.log(chalk.blue("\n🚀 Next Steps:"));
+    console.log(chalk.white(`1. Review the vision file: ${filename}`));
+    console.log(chalk.white(`2. Execute the vision: keen breathe -f ${filename}`));
+    console.log(chalk.white(`3. Or preview first: keen breathe -f ${filename} --dry-run`));
+    console.log(chalk.gray("\n💡 Tips:"));
+    console.log(chalk.gray("• Use --verbose for detailed execution logs"));
+    console.log(chalk.gray("• Use --debug for troubleshooting"));
+    console.log(chalk.gray("• Vision files can be edited before execution\n"));
   }
 }

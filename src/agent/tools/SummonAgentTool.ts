@@ -2,8 +2,10 @@
  * Phase 3.3: Summon Agent Tool
  * Spawns a single sub-agent with sequential blocking execution
  * Implements recursive agent spawning with workspace isolation
+ * SECURITY: Fixed weak random number generation
  */
 
+import { randomBytes } from 'crypto';
 import { 
   AgentExecutionContext, 
   AgentSpawnRequest, 
@@ -13,8 +15,11 @@ import {
 } from '../types.js';
 import { KeenAgent } from '../KeenAgent.js';
 import chalk from 'chalk';
+import { getLogger } from '../../utils/Logger.js';
 
 export class SummonAgentTool {
+  private logger = getLogger();
+
   getDescription(): string {
     return 'Spawn a specialized sub-agent with focused expertise. Sequential execution - parent waits until child completes fully before continuing.';
   }
@@ -23,30 +28,30 @@ export class SummonAgentTool {
     return {
       type: 'object',
       properties: {
-        vision: {
+        vision: {,
           type: 'string',
-          description: 'Clear sub-vision/task for the child agent to accomplish'
+          description: 'Clear sub-vision/task for the child agent to accomplish',
         },
-        specialization: {
+        specialization: {,
           type: 'string',
           enum: ['frontend', 'backend', 'database', 'testing', 'security', 'devops', 'general'],
-          description: 'Area of expertise for the child agent'
+          description: 'Area of expertise for the child agent',
         },
-        maxIterations: {
+        maxIterations: {,
           type: 'number',
           description: 'Maximum iterations for child agent (default: 50)',
           minimum: 1,
-          maximum: 200
+          maximum: 200,
         },
-        costBudget: {
+        costBudget: {,
           type: 'number',
           description: 'Maximum cost budget for child agent in credits (default: 5.0)',
           minimum: 0.1,
-          maximum: 50.0
+          maximum: 50.0,
         },
-        context: {
+        context: {,
           type: 'object',
-          description: 'Filtered context to pass to child agent (optional)'
+          description: 'Filtered context to pass to child agent (optional)',
         }
       },
       required: ['vision', 'specialization']
@@ -54,14 +59,14 @@ export class SummonAgentTool {
   }
   
   async execute(
-    parameters: {
+    parameters: {,
       vision: string;
       specialization: AgentSpecialization;
       maxIterations?: number;
       costBudget?: number;
       context?: any;
     },
-    context: AgentExecutionContext
+    context: AgentExecutionContext,
   ): Promise<any> {
     const startTime = Date.now();
     
@@ -81,19 +86,12 @@ export class SummonAgentTool {
         );
       }
       
-      console.log(chalk.blue(`\n🎨 Spawning ${parameters.specialization} agent...`));
-      console.log(chalk.gray(`Vision: ${parameters.vision.substring(0, 100)}${parameters.vision.length > 100 ? '...' : ''}`));
-      
       // Generate child session ID and branch name
       const childSessionId = this.generateChildSessionId(context.sessionId);
       const childBranch = agentTreeManager.generateChildBranch(context.sessionId);
       
       // Get specialization context
       const specializationContext = agentTreeManager.getSpecializationContext(parameters.specialization);
-      
-      console.log(chalk.gray(`Child ID: ${childSessionId}`));
-      console.log(chalk.gray(`Branch: ${childBranch}`));
-      console.log(chalk.gray(`Focus: ${specializationContext.focus}`));
       
       // Build spawn request
       const spawnRequest: AgentSpawnRequest = {
@@ -104,7 +102,7 @@ export class SummonAgentTool {
         gitBranch: childBranch,
         maxIterations: parameters.maxIterations || 50,
         costBudget: parameters.costBudget || 5.0,
-        context: parameters.context
+        context: parameters.context,
       };
       
       // Add child to tree (this validates sequential execution)
@@ -113,9 +111,7 @@ export class SummonAgentTool {
         childSessionId,
         spawnRequest
       );
-      
-      console.log(chalk.green(`✅ Child agent added to tree (depth: ${childNode.depth})`));
-      
+
       // Create child agent with inherited context
       const childAgent = new KeenAgent({
         vision: spawnRequest.vision,
@@ -126,10 +122,8 @@ export class SummonAgentTool {
         stream: context.verbose,
         debug: context.verbose,
         dryRun: context.dryRun,
-        userContext: context.userContext // Pass user context
+        userContext: context.userContext // Pass user context,
       });
-      
-      console.log(chalk.yellow(`⏳ Running child agent (BLOCKING until completion)...`));
       
       // Execute child agent (BLOCKING - sequential execution)
       const childResult = await childAgent.execute();
@@ -142,14 +136,22 @@ export class SummonAgentTool {
         childResult,
         context.workingDirectory
       );
-      
+
       if (childResult.success) {
-        console.log(chalk.green(`🎆 Child agent completed successfully in ${Math.round(duration / 1000)}s`));
-        console.log(chalk.gray(`Files created: ${(childResult.filesCreated || []).length}`));
-        console.log(chalk.gray(`Files modified: ${(childResult.filesModified || []).length}`));
-        console.log(chalk.gray(`Cost: $${childResult.totalCost?.toFixed(4) || '0.0000'}`));
+        // SECURITY: Use proper logger instead of console.log
+        if (context.verbose) {
+          this.logger.info('summon', `Child agent ${childSessionId} completed successfully`, {
+            specialization: parameters.specialization,
+            duration,
+            gitBranch: childBranch,
+          });
+        }
       } else {
-        console.log(chalk.red(`❌ Child agent failed: ${childResult.error || 'Unknown error'}`));
+        this.logger.warn('summon', `Child agent ${childSessionId} failed`, {
+          specialization: parameters.specialization,
+          duration,
+          error: childResult.error,
+        });
       }
       
       const result: AgentSpawnResult = {
@@ -157,7 +159,7 @@ export class SummonAgentTool {
         childSessionId,
         gitBranch: childBranch,
         result: childResult,
-        error: childResult.success ? undefined : (childResult.error || 'Child agent execution failed')
+        error: childResult.success ? undefined : (childResult.error || 'Child agent execution failed'),
       };
       
       return {
@@ -165,7 +167,7 @@ export class SummonAgentTool {
         spawnResult: result,
         executionTime: duration,
         specializationContext,
-        childMetrics: {
+        childMetrics: {,
           sessionId: childSessionId,
           specialization: parameters.specialization,
           gitBranch: childBranch,
@@ -174,35 +176,34 @@ export class SummonAgentTool {
           cost: childResult.totalCost || 0,
           filesCreated: childResult.filesCreated?.length || 0,
           filesModified: childResult.filesModified?.length || 0,
-          iterations: childResult.enhancedData?.totalIterations || 0
+          iterations: childResult.enhancedData?.totalIterations || 0,
         }
       };
       
     } catch (error: any) {
       const duration = Date.now() - startTime;
       
-      console.log(chalk.red(`❌ Failed to spawn child agent: ${error.message}`));
-      
       return {
         success: false,
         error: `Failed to spawn ${parameters.specialization} agent: ${error.message}`,
         duration,
-        spawnRequest: {
+        spawnRequest: {,
           vision: parameters.vision,
           specialization: parameters.specialization,
           maxIterations: parameters.maxIterations,
-          costBudget: parameters.costBudget
+          costBudget: parameters.costBudget,
         }
       };
     }
   }
   
   /**
-   * Generate unique child session ID
+   * Generate unique child session ID using cryptographically secure random bytes
+   * SECURITY: Replaced Math.random() with crypto.randomBytes()
    */
   private generateChildSessionId(parentSessionId: string): string {
     const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8);
+    const random = randomBytes(4).toString('hex');
     return `${parentSessionId}-child-${timestamp}-${random}`;
   }
   
@@ -212,7 +213,7 @@ export class SummonAgentTool {
   private buildChildVision(
     originalVision: string, 
     specialization: AgentSpecialization,
-    specializationContext: any
+    specializationContext: any,
   ): string {
     const prefix = `You are a specialized ${specialization} agent with focused expertise in: ${specializationContext.focus}.\n\n`;
     

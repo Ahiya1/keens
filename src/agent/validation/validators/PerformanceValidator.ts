@@ -72,14 +72,14 @@ export class PerformanceValidator {
     } catch (error: any) {
       return {
         score: 70, // Neutral score when analysis fails
-        bottlenecks: [{
+        bottlenecks: [{,
           type: 'performance_analysis_error',
           severity: 'low',
           description: `Performance analysis failed: ${error.message}`,
-          recommendation: 'Performance analysis tools may need configuration'
+          recommendation: 'Performance analysis tools may need configuration',
         }],
         optimizations: ['Set up performance monitoring and analysis tools'],
-        metrics: []
+        metrics: [],
       };
     }
   }
@@ -123,7 +123,7 @@ export class PerformanceValidator {
           value: buildSizeMB,
           unit: 'MB',
           threshold: 5,
-          status: buildSizeMB > 10 ? 'critical' : buildSizeMB > 5 ? 'warning' : 'good'
+          status: buildSizeMB > 10 ? 'critical' : buildSizeMB > 5 ? 'warning' : 'good',
         });
         
         if (buildSizeMB > 10) {
@@ -131,7 +131,7 @@ export class PerformanceValidator {
             type: 'large_bundle_size',
             severity: 'medium',
             description: `Build output is large (${buildSizeMB.toFixed(1)}MB)`,
-            recommendation: 'Consider code splitting, tree shaking, or removing unused dependencies'
+            recommendation: 'Consider code splitting, tree shaking, or removing unused dependencies',
           });
           optimizations.push('Implement code splitting and lazy loading');
           optimizations.push('Analyze bundle with webpack-bundle-analyzer');
@@ -144,7 +144,7 @@ export class PerformanceValidator {
             type: 'large_files',
             severity: 'low',
             description: `Found ${largeFiles.length} large files in build output`,
-            recommendation: 'Optimize large files or split them'
+            recommendation: 'Optimize large files or split them',
           });
         }
       }
@@ -192,7 +192,7 @@ export class PerformanceValidator {
         value: avgComplexity,
         unit: 'score',
         threshold: 10,
-        status: avgComplexity > 15 ? 'critical' : avgComplexity > 10 ? 'warning' : 'good'
+        status: avgComplexity > 15 ? 'critical' : avgComplexity > 10 ? 'warning' : 'good',
       });
       
       if (avgComplexity > 10) {
@@ -200,7 +200,7 @@ export class PerformanceValidator {
           type: 'high_complexity',
           severity: avgComplexity > 15 ? 'medium' : 'low',
           description: `High code complexity detected (avg: ${avgComplexity.toFixed(1)})`,
-          recommendation: 'Refactor complex functions and reduce cyclomatic complexity'
+          recommendation: 'Refactor complex functions and reduce cyclomatic complexity',
         });
         optimizations.push('Break down complex functions into smaller ones');
         optimizations.push('Use design patterns to reduce complexity');
@@ -211,7 +211,7 @@ export class PerformanceValidator {
           type: 'complex_functions',
           severity: 'low',
           description: `Found ${complexFunctions} highly complex functions`,
-          recommendation: 'Refactor complex functions for better maintainability'
+          recommendation: 'Refactor complex functions for better maintainability',
         });
       }
       
@@ -249,7 +249,7 @@ export class PerformanceValidator {
         value: totalDeps,
         unit: 'count',
         threshold: 50,
-        status: totalDeps > 100 ? 'critical' : totalDeps > 50 ? 'warning' : 'good'
+        status: totalDeps > 100 ? 'critical' : totalDeps > 50 ? 'warning' : 'good',
       });
       
       if (totalDeps > 50) {
@@ -257,7 +257,7 @@ export class PerformanceValidator {
           type: 'many_dependencies',
           severity: totalDeps > 100 ? 'medium' : 'low',
           description: `High number of dependencies (${totalDeps})`,
-          recommendation: 'Audit dependencies and remove unused ones'
+          recommendation: 'Audit dependencies and remove unused ones',
         });
         optimizations.push('Run "npm audit" and "npx depcheck" to find unused dependencies');
       }
@@ -271,7 +271,7 @@ export class PerformanceValidator {
           type: 'heavy_dependencies',
           severity: 'low',
           description: `Heavy dependencies detected: ${foundHeavyDeps.join(', ')}`,
-          recommendation: 'Consider lighter alternatives (e.g., date-fns instead of moment, lodash-es instead of lodash)'
+          recommendation: 'Consider lighter alternatives (e.g., date-fns instead of moment, lodash-es instead of lodash)',
         });
         optimizations.push('Replace heavy dependencies with lighter alternatives');
       }
@@ -314,7 +314,7 @@ export class PerformanceValidator {
           const silentFlag = this.options.silentMode ? ' --silent' : '';
           await execAsync(`cd "${projectPath}" && npm run build${silentFlag}`, {
             timeout: this.options.timeout,
-            maxBuffer: 1024 * 1024
+            maxBuffer: 1024 * 1024,
           });
           
           const buildTime = Date.now() - startTime;
@@ -325,7 +325,7 @@ export class PerformanceValidator {
             value: buildTimeSeconds,
             unit: 'seconds',
             threshold: 60,
-            status: buildTimeSeconds > 120 ? 'critical' : buildTimeSeconds > 60 ? 'warning' : 'good'
+            status: buildTimeSeconds > 120 ? 'critical' : buildTimeSeconds > 60 ? 'warning' : 'good',
           });
           
           if (buildTimeSeconds > 60) {
@@ -333,7 +333,7 @@ export class PerformanceValidator {
               type: 'slow_build',
               severity: buildTimeSeconds > 120 ? 'medium' : 'low',
               description: `Build time is slow (${buildTimeSeconds.toFixed(1)}s)`,
-              recommendation: 'Optimize build process with caching, parallel processing, or incremental builds'
+              recommendation: 'Optimize build process with caching, parallel processing, or incremental builds',
             });
             optimizations.push('Implement build caching');
             optimizations.push('Use parallel processing for build tasks');
@@ -345,7 +345,7 @@ export class PerformanceValidator {
               type: 'build_timeout',
               severity: 'medium',
               description: 'Build process timed out',
-              recommendation: 'Optimize build process or increase timeout'
+              recommendation: 'Optimize build process or increase timeout',
             });
           } else {
             optimizations.push('Fix build errors before performance analysis');
@@ -543,7 +543,7 @@ export class PerformanceValidator {
   private async checkBundleOptimization(
     projectPath: string,
     bottlenecks: PerformanceBottleneck[],
-    optimizations: string[]
+    optimizations: string[],
   ): Promise<void> {
     try {
       // Check webpack config
@@ -590,7 +590,7 @@ export class PerformanceValidator {
    */
   private calculatePerformanceScore(
     bottlenecks: PerformanceBottleneck[],
-    metrics: PerformanceMetric[]
+    metrics: PerformanceMetric[],
   ): number {
     let score = 100;
     

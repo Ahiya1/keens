@@ -75,7 +75,7 @@ export class AuthenticationService {
    */
   async login(
     credentials: LoginCredentials,
-    clientInfo: ClientInfo
+    clientInfo: ClientInfo,
   ): Promise<AuthenticationResult> {
     const { email, password, mfaToken } = credentials;
 
@@ -91,7 +91,7 @@ export class AuthenticationService {
         // Safe audit logging - don't let it break authentication
         this.safeAuditLog(() => 
           this.auditLogger.logFailedLogin(email, clientInfo, 'invalid_credentials')
-        );
+
         throw new AuthenticationError('Invalid email or password');
       }
 
@@ -99,7 +99,7 @@ export class AuthenticationService {
       if (user.account_status !== 'active') {
         this.safeAuditLog(() => 
           this.auditLogger.logFailedLogin(email, clientInfo, 'account_suspended')
-        );
+
         throw new AuthenticationError('Account is suspended or inactive');
       }
 
@@ -112,7 +112,7 @@ export class AuthenticationService {
         if (!await this.verifyMFAToken(user.mfa_secret!, mfaToken)) {
           this.safeAuditLog(() => 
             this.auditLogger.logFailedLogin(email, clientInfo, 'invalid_mfa')
-          );
+
           throw new AuthenticationError('Invalid two-factor authentication token');
         }
       }
@@ -128,25 +128,24 @@ export class AuthenticationService {
       this.safeAuditLog(() => 
         this.auditLogger.logSuccessfulLogin(user.id, clientInfo, {
           isAdmin: user.is_admin,
-          adminPrivileges: user.admin_privileges
+          adminPrivileges: user.admin_privileges,
         })
-      );
 
       // 8. Return sanitized user data
       const sanitizedUser = this.sanitizeUserForResponse(user);
 
       return {
-        user: {
+        user: {,
           ...sanitizedUser,
           authMethod: 'jwt' as const,
-          tokenIsAdmin: user.is_admin
+          tokenIsAdmin: user.is_admin,
         },
-        tokens: {
+        tokens: {,
           access_token: accessToken,
           refresh_token: refreshToken,
           expires_in: user.is_admin ? 3600 : 900 // Admin: 1h, User: 15min
         },
-        adminAccess: user.is_admin
+        adminAccess: user.is_admin,
       };
 
     } catch (error) {
@@ -157,7 +156,7 @@ export class AuthenticationService {
       console.error('Login error:', error);
       this.safeAuditLog(() => 
         this.auditLogger.logFailedLogin(email, clientInfo, 'system_error')
-      );
+
       throw new AuthenticationError('Login failed due to system error');
     }
   }
@@ -175,7 +174,7 @@ export class AuthenticationService {
       adminPrivileges: user.admin_privileges || {},
       scopes: this.getUserScopes(user),
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (user.is_admin ? 3600 : 900)
+      exp: Math.floor(Date.now() / 1000) + (user.is_admin ? 3600 : 900),
     };
 
     return jwt.sign(payload, this.jwtSecret, { algorithm: 'HS256' });
@@ -248,7 +247,6 @@ export class AuthenticationService {
         keyConfig.expiresAt
       ],
       context
-    );
 
     return {
       id: keyId,
@@ -257,7 +255,7 @@ export class AuthenticationService {
       scopes: keyConfig.scopes || [],
       rateLimitPerHour: user.is_admin ? null : (keyConfig.rateLimitPerHour || 1000),
       bypassLimits: user.is_admin,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
   }
 
@@ -275,7 +273,6 @@ export class AuthenticationService {
       WHERE t.token_hash = $1 AND t.token_type = 'api_key' AND t.is_active = true
       `,
       [keyHash]
-    );
 
     const apiKey = result[0];
     if (!apiKey) {
@@ -291,14 +288,13 @@ export class AuthenticationService {
     await this.db.query(
       'UPDATE auth_tokens SET last_used_at = NOW(), usage_count = usage_count + 1 WHERE id = $1',
       [apiKey.id]
-    );
 
     return {
       userId: apiKey.user_id,
       scopes: JSON.parse(apiKey.scopes || '[]'),
       rateLimitRemaining: apiKey.rate_limit_per_hour ? 1000 : 'unlimited',
       isAdmin: apiKey.is_admin,
-      adminPrivileges: apiKey.is_admin ? apiKey.admin_privileges : null
+      adminPrivileges: apiKey.is_admin ? apiKey.admin_privileges : null,
     };
   }
 
@@ -341,7 +337,7 @@ export class AuthenticationService {
           clientInfo.ip,
           true
         ]
-      );
+
     } catch (error) {
       console.warn('Failed to store refresh token in database (using memory only):', error);
       // Continue with in-memory storage even if DB fails
@@ -374,9 +370,7 @@ export class AuthenticationService {
    */
   private async checkLoginRateLimit(email: string, ip: string): Promise<void> {
     // TODO: Implement Redis-based rate limiting
-    // For now, just log the attempt
-    console.log(`Login attempt for ${email} from ${ip}`);
-  }
+    // For now, just log the attempt}
 
   /**
    * Update user login tracking
@@ -385,7 +379,7 @@ export class AuthenticationService {
     await this.db.query(
       'UPDATE users SET last_login_at = NOW(), last_login_ip = $1 WHERE id = $2',
       [ip, userId]
-    );
+
   }
 
   /**
@@ -452,7 +446,7 @@ export class AuthenticationService {
     await this.db.query(
       'UPDATE auth_tokens SET is_active = false WHERE token_hash = $1 AND token_type = $2',
       [tokenHash, 'jwt_refresh']
-    );
+
   }
 
   /**
@@ -474,7 +468,7 @@ export class AuthenticationService {
     
     return {
       access_token: accessToken,
-      expires_in: user.is_admin ? 3600 : 900
+      expires_in: user.is_admin ? 3600 : 900,
     };
   }
 
@@ -495,7 +489,6 @@ export class AuthenticationService {
       `,
       [userId],
       context
-    );
 
     return keys.map(key => ({
       id: key.id,
@@ -503,7 +496,7 @@ export class AuthenticationService {
       scopes: JSON.parse(key.scopes || '[]'),
       rateLimitPerHour: key.rate_limit_per_hour,
       bypassLimits: key.rate_limit_per_hour === null,
-      createdAt: key.created_at
+      createdAt: key.created_at,
     }));
   }
 
@@ -519,7 +512,6 @@ export class AuthenticationService {
       'UPDATE auth_tokens SET is_active = false WHERE id = $1 AND user_id = $2 AND token_type = $3',
       [keyId, userId, 'api_key'],
       context
-    );
 
     return result.length > 0;
   }

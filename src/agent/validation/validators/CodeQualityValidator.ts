@@ -102,20 +102,20 @@ export class CodeQualityValidator {
       
       return {
         issues,
-        suggestions: suggestions.length > 0 ? suggestions : ['Syntax validation completed']
+        suggestions: suggestions.length > 0 ? suggestions : ['Syntax validation completed'],
       };
       
     } catch (error: any) {
       return {
-        issues: [{
+        issues: [{,
           type: 'syntax_validator_error',
           severity: 'high',
           message: `Syntax validation failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
-        suggestions: ['Check project structure and TypeScript configuration']
+        suggestions: ['Check project structure and TypeScript configuration'],
       };
     }
   }
@@ -151,21 +151,21 @@ export class CodeQualityValidator {
       return {
         issues,
         criticalIssues,
-        suggestions: suggestions.length > 0 ? suggestions : ['Consider setting up ESLint and Prettier for better code quality']
+        suggestions: suggestions.length > 0 ? suggestions : ['Consider setting up ESLint and Prettier for better code quality'],
       };
       
     } catch (error: any) {
       return {
-        issues: [{
+        issues: [{,
           type: 'style_validator_error',
           severity: 'medium',
           message: `Style validation failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         criticalIssues: 0,
-        suggestions: ['Install and configure ESLint and Prettier']
+        suggestions: ['Install and configure ESLint and Prettier'],
       };
     }
   }
@@ -295,7 +295,7 @@ export class CodeQualityValidator {
               file: path.relative(projectPath, file),
               line: parseInt(line),
               column: parseInt(column),
-              autoFixable: false
+              autoFixable: false,
             });
             issueCount++;
           }
@@ -322,7 +322,7 @@ export class CodeQualityValidator {
           message: `TypeScript validation failed: ${error.message.substring(0, 200)}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         });
       }
     }
@@ -347,7 +347,7 @@ export class CodeQualityValidator {
           message: 'File too large for syntax validation',
           file: path.basename(filePath),
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }];
       }
       
@@ -368,7 +368,7 @@ export class CodeQualityValidator {
             message: 'Console.log statement found (consider removing in production)',
             file: path.basename(filePath),
             line: lineNumber,
-            autoFixable: true // Can be commented out automatically
+            autoFixable: true // Can be commented out automatically,
           });
         }
         
@@ -380,7 +380,7 @@ export class CodeQualityValidator {
             message: 'Trailing whitespace found',
             file: path.basename(filePath),
             line: lineNumber,
-            autoFixable: true
+            autoFixable: true,
           });
         }
         
@@ -392,7 +392,7 @@ export class CodeQualityValidator {
             message: `Too many issues in file, showing first 20`,
             file: path.basename(filePath),
             line: 0,
-            autoFixable: false
+            autoFixable: false,
           });
           break;
         }
@@ -405,7 +405,7 @@ export class CodeQualityValidator {
         message: `Could not read file: ${path.basename(filePath)}`,
         file: path.basename(filePath),
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
     }
     
@@ -448,7 +448,7 @@ export class CodeQualityValidator {
                 file: path.relative(projectPath, result.filePath || ''),
                 line: message.line || 0,
                 column: message.column || 0,
-                autoFixable: message.fix !== undefined
+                autoFixable: message.fix !== undefined,
               });
               issueCount++;
             }
@@ -509,7 +509,7 @@ export class CodeQualityValidator {
             message: `Line too long (${line.length} characters, max 120)`,
             file: path.basename(filePath),
             line: lineNumber,
-            autoFixable: false
+            autoFixable: false,
           });
         }
         
@@ -523,7 +523,7 @@ export class CodeQualityValidator {
               message: 'Inconsistent indentation (mixing tabs and spaces)',
               file: path.basename(filePath),
               line: lineNumber,
-              autoFixable: true
+              autoFixable: true,
             });
           }
         }

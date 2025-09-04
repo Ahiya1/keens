@@ -21,12 +21,6 @@ jest.mock("../../src/database/dao/SessionDAO.js", () => ({
 jest.mock("../../src/database/dao/AnalyticsDAO.js", () => ({
   AnalyticsDAO: jest.fn(),
 }));
-jest.mock("../../src/database/migrations/run.js", () => ({
-  MigrationRunner: jest.fn(),
-}));
-jest.mock("../../src/database/seeds/run.js", () => ({
-  SeedRunner: jest.fn(),
-}));
 jest.mock("../../src/database/dao/WebSocketDAO.js", () => ({
   WebSocketDAO: jest.fn(),
 }));
@@ -107,28 +101,7 @@ describe("DatabaseService", () => {
 
   describe("initialize", () => {
     it("should handle successful initialization", async () => {
-      // Import the mocked constructors
-      const { MigrationRunner } = await import(
-        "../../src/database/migrations/run.js"
-      );
-      const { SeedRunner } = await import("../../src/database/seeds/run.js");
-
-      const mockMigrationRunner = {
-        runMigrations: jest.fn().mockResolvedValue(undefined),
-      };
-      const mockSeedRunner = {
-        runSeeds: jest.fn().mockResolvedValue(undefined),
-        validateSeeds: jest.fn().mockResolvedValue(true),
-      };
-
-      // Setup constructor mocks
-      (MigrationRunner as jest.Mock).mockImplementation(
-        () => mockMigrationRunner
-      );
-      (SeedRunner as jest.Mock).mockImplementation(() => mockSeedRunner);
-
-      const service = new DatabaseService();
-      await service.initialize();
+      await databaseService.initialize();
 
       expect(console.log).toHaveBeenCalledWith(
         "🚀 Initializing keen database..."
@@ -136,51 +109,25 @@ describe("DatabaseService", () => {
       expect(console.log).toHaveBeenCalledWith(
         "✅ keen database initialized successfully!"
       );
+      expect(mockDbManager.initialize).toHaveBeenCalled();
     });
 
-    it("should handle migration failures", async () => {
-      const { MigrationRunner } = await import(
-        "../../src/database/migrations/run.js"
-      );
+    it("should handle initialization failures", async () => {
+      const initError = new Error("Database initialization failed");
+      mockDbManager.initialize.mockRejectedValue(initError);
 
-      const migrationError = new Error("Migration failed");
-      const mockMigrationRunner = {
-        runMigrations: jest.fn().mockRejectedValue(migrationError),
-      };
-
-      (MigrationRunner as jest.Mock).mockImplementation(
-        () => mockMigrationRunner
-      );
-
-      const service = new DatabaseService();
-
-      await expect(service.initialize()).rejects.toThrow("Migration failed");
+      await expect(databaseService.initialize()).rejects.toThrow("Database initialization failed");
       expect(console.error).toHaveBeenCalledWith(
         "❌ Database initialization failed:",
-        migrationError
+        initError
       );
     });
 
-    it("should handle seed validation failures", async () => {
-      const { MigrationRunner } = await import("../../src/database/migrations/run.js");
-      const { SeedRunner } = await import("../../src/database/seeds/run.js");
-      
-      const mockMigrationRunner = {
-        runMigrations: jest.fn().mockResolvedValue(undefined),
-      };
-      const mockSeedRunner = {
-        runSeeds: jest.fn().mockResolvedValue(undefined),
-        validateSeeds: jest.fn().mockResolvedValue(false), // Validation fails
-      };
+    it("should handle database manager failures", async () => {
+      const managerError = new Error("Database manager failed");
+      mockDbManager.initialize.mockRejectedValue(managerError);
 
-      (MigrationRunner as jest.Mock).mockImplementation(() => mockMigrationRunner);
-      (SeedRunner as jest.Mock).mockImplementation(() => mockSeedRunner);
-
-      const service = new DatabaseService();
-
-      await expect(service.initialize()).rejects.toThrow(
-        "Database initialization validation failed"
-      );
+      await expect(databaseService.initialize()).rejects.toThrow("Database manager failed");
     });
   });
 

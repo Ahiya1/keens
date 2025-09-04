@@ -18,7 +18,7 @@ import { keen } from '../../index.js';
 export function createAuthRouter(
   authService: AuthenticationService,
   auditLogger: AuditLogger,
-  authMiddleware: any
+  authMiddleware: any,
 ) {
   const router = Router();
   const keenDB = keen.getInstance();
@@ -38,14 +38,14 @@ export function createAuthRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid registration data', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
       const { email, username, password, display_name } = req.body;
       const clientInfo = {
         ip: getClientIP(req),
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
       };
 
       // Create user account
@@ -66,27 +66,27 @@ export function createAuthRouter(
       // Log successful registration
       await auditLogger.logSuccessfulLogin(user.id, clientInfo, {
         isAdmin: user.is_admin || false,
-        adminPrivileges: user.admin_privileges
+        adminPrivileges: user.admin_privileges,
       });
 
       res.status(201).json({
         success: true,
         message: 'User account created successfully',
-        user: {
+        user: {,
           id: user.id,
           email: user.email,
           username: user.username,
           display_name: user.display_name,
           role: user.role,
           is_admin: user.is_admin || false,
-          created_at: user.created_at
+          created_at: user.created_at,
         },
-        tokens: {
+        tokens: {,
           access_token: accessToken,
           refresh_token: refreshToken,
-          expires_in: user.is_admin ? 3600 : 900
+          expires_in: user.is_admin ? 3600 : 900,
         },
-        admin_access: user.is_admin || false
+        admin_access: user.is_admin || false,
       });
     })
   );
@@ -105,19 +105,19 @@ export function createAuthRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid login credentials', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
       const credentials: LoginCredentials = {
         email: req.body.email,
         password: req.body.password,
-        mfaToken: req.body.mfa_token
+        mfaToken: req.body.mfa_token,
       };
 
       const clientInfo = {
         ip: getClientIP(req),
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
       };
 
       // Authenticate user
@@ -129,11 +129,11 @@ export function createAuthRouter(
         user: authResult.user,
         tokens: authResult.tokens,
         admin_access: authResult.adminAccess,
-        session_info: {
+        session_info: {,
           ip: clientInfo.ip,
           user_agent: clientInfo.userAgent,
           login_time: new Date().toISOString(),
-          token_expires_at: new Date(Date.now() + authResult.tokens.expires_in * 1000).toISOString()
+          token_expires_at: new Date(Date.now() + authResult.tokens.expires_in * 1000).toISOString(),
         }
       });
     })
@@ -150,7 +150,7 @@ export function createAuthRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid refresh token', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -161,9 +161,9 @@ export function createAuthRouter(
 
       res.status(200).json({
         success: true,
-        tokens: {
+        tokens: {,
           access_token: result.access_token,
-          expires_in: result.expires_in
+          expires_in: result.expires_in,
         }
       });
     })
@@ -182,12 +182,12 @@ export function createAuthRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'logout',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       res.status(200).json({
         success: true,
-        message: 'Logged out successfully'
+        message: 'Logged out successfully',
       });
     })
   );
@@ -210,7 +210,7 @@ export function createAuthRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid API key configuration', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -219,24 +219,24 @@ export function createAuthRouter(
         name: req.body.name,
         scopes: req.body.scopes,
         rateLimitPerHour: req.body.rate_limit_per_hour,
-        expiresAt: req.body.expires_at ? new Date(req.body.expires_at) : undefined
+        expiresAt: req.body.expires_at ? new Date(req.body.expires_at) : undefined,
       };
 
       // Create API key
       const apiKey = await authService.createAPIKey(user.id, keyConfig, {
         userId: user.id,
         isAdmin: user.is_admin || false,
-        adminPrivileges: user.admin_privileges
+        adminPrivileges: user.admin_privileges,
       });
 
       // Log API key creation
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'create_api_key',
-        details: {
+        details: {,
           key_name: keyConfig.name,
           scopes: keyConfig.scopes,
-          rate_limit: keyConfig.rateLimitPerHour
+          rate_limit: keyConfig.rateLimitPerHour,
         }
       });
 
@@ -245,7 +245,7 @@ export function createAuthRouter(
         message: 'API key created successfully',
         api_key: apiKey,
         warning: 'Store this API key securely. It will not be shown again.',
-        usage: {
+        usage: {,
           header: `Authorization: ApiKey ${apiKey.key}`,
           curl_example: `curl -H "Authorization: ApiKey ${apiKey.key}" https://api.keen.dev/api/v1/credits/balance`
         }
@@ -264,17 +264,17 @@ export function createAuthRouter(
       const apiKeys = await authService.listAPIKeys(user.id, {
         userId: user.id,
         isAdmin: user.is_admin || false,
-        adminPrivileges: user.admin_privileges
+        adminPrivileges: user.admin_privileges,
       });
 
       res.status(200).json({
         success: true,
         api_keys: apiKeys,
         total: apiKeys.length,
-        usage_info: {
+        usage_info: {,
           header_format: 'Authorization: ApiKey {your_key}',
           rate_limits: 'Per-key rate limits apply',
-          scopes: 'Keys are limited to specified scopes'
+          scopes: 'Keys are limited to specified scopes',
         }
       });
     })
@@ -292,16 +292,16 @@ export function createAuthRouter(
       const revoked = await authService.revokeAPIKey(user.id, keyId, {
         userId: user.id,
         isAdmin: user.is_admin || false,
-        adminPrivileges: user.admin_privileges
+        adminPrivileges: user.admin_privileges,
       });
 
       if (!revoked) {
         res.status(404).json({
           success: false,
-          error: {
+          error: {,
             type: 'NOT_FOUND',
             code: 'API_KEY_NOT_FOUND',
-            message: 'API key not found or already revoked'
+            message: 'API key not found or already revoked',
           }
         });
         return;
@@ -311,14 +311,14 @@ export function createAuthRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'revoke_api_key',
-        details: {
-          key_id: keyId
+        details: {,
+          key_id: keyId,
         }
       });
 
       res.status(200).json({
         success: true,
-        message: 'API key revoked successfully'
+        message: 'API key revoked successfully',
       });
     })
   );
@@ -333,7 +333,7 @@ export function createAuthRouter(
       
       res.status(200).json({
         success: true,
-        user: {
+        user: {,
           id: user.id,
           email: user.email,
           username: user.username,
@@ -349,7 +349,7 @@ export function createAuthRouter(
           timezone: user.timezone,
           preferences: user.preferences,
           created_at: user.created_at,
-          last_login_at: user.last_login_at
+          last_login_at: user.last_login_at,
         }
       });
     })
@@ -368,7 +368,7 @@ export function createAuthRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Password is required', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -383,18 +383,18 @@ export function createAuthRouter(
           type: 'admin_privilege_escalation',
           userId: user.id,
           ip: getClientIP(req),
-          details: {
+          details: {,
             reason: 'invalid_admin_password',
-            email: user.email
+            email: user.email,
           }
         });
         
         res.status(401).json({
           success: false,
-          error: {
+          error: {,
             type: 'AUTHENTICATION_ERROR',
             code: 'INVALID_ADMIN_PASSWORD',
-            message: 'Invalid admin password'
+            message: 'Invalid admin password',
           }
         });
         return;
@@ -404,18 +404,18 @@ export function createAuthRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'admin_password_verified',
-        details: {
+        details: {,
           ip: getClientIP(req),
-          user_agent: req.get('User-Agent')
+          user_agent: req.get('User-Agent'),
         }
       });
 
       res.status(200).json({
         success: true,
         message: 'Admin credentials verified',
-        admin_session: {
+        admin_session: {,
           verified_at: new Date().toISOString(),
-          expires_in: 3600 // 1 hour
+          expires_in: 3600 // 1 hour,
         }
       });
     })

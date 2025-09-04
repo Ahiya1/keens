@@ -33,7 +33,7 @@ import chalk from "chalk";
 export function createAgentsRouter(
   authService: AuthenticationService,
   auditLogger: AuditLogger,
-  authMiddleware: any
+  authMiddleware: any,
 ) {
   const router = Router();
   const keenDB = keen.getInstance();
@@ -85,11 +85,11 @@ export function createAgentsRouter(
           if (activeSessions >= 3) {
             return res.status(409).json({
               success: false,
-              error: {
+              error: {,
                 type: "CONCURRENCY_ERROR",
                 code: "TOO_MANY_CONCURRENT_SESSIONS",
                 message: "Maximum concurrent sessions exceeded",
-                details: {
+                details: {,
                   current: activeSessions,
                   limit: 3,
                   admin_bypass_available: false,
@@ -104,7 +104,7 @@ export function createAgentsRouter(
         const agentRequest: AgentExecutionRequest = {
           vision,
           workingDirectory: working_directory,
-          options: {
+          options: {,
             maxIterations: options.max_iterations || 50,
             costBudget: options.cost_budget || 100,
             enableWebSearch: options.enable_web_search !== false,
@@ -141,7 +141,7 @@ export function createAgentsRouter(
             gitBranch: "main",
             vision: agentRequest.vision,
             workingDirectory: workspace.path,
-            agentOptions: {
+            agentOptions: {,
               maxIterations: agentRequest.options.maxIterations!,
               enableWebSearch: agentRequest.options.enableWebSearch!,
               enableStreaming: agentRequest.options.enableStreaming!,
@@ -161,9 +161,9 @@ export function createAgentsRouter(
         // 6. Return immediate response with cost tracking info
         const immediateResponse = {
           success: true,
-          message:
+          message:,
             "Agent execution started successfully with cost tracking enabled",
-          session: {
+          session: {,
             id: agentSession.id,
             session_id: workspace.sessionId,
             status: "running" as const,
@@ -174,14 +174,14 @@ export function createAgentsRouter(
             estimated_cost: creditReservation.estimatedCost,
             streaming_url: `wss://ws.keen.dev/sessions/${workspace.sessionId}`,
             created_at: new Date().toISOString(),
-            cost_tracking: {
+            cost_tracking: {,
               enabled: true,
               initial_budget: agentRequest.options.costBudget!,
               estimated_cost: creditReservation.estimatedCost,
               real_time_monitoring: true,
             },
           },
-          credit_info: {
+          credit_info: {,
             reserved: creditReservation.reservedAmount,
             estimated_cost: creditReservation.estimatedCost,
             claude_cost: creditReservation.claudeCost,
@@ -190,16 +190,16 @@ export function createAgentsRouter(
             credit_bypass: creditReservation.unlimited || false,
             remaining_balance: creditReservation.remainingBalance,
           },
-          execution_info: {
+          execution_info: {,
             agent_purity: true,
             business_logic_isolated: true,
             cost_tracking_enabled: true,
             real_time_cost_monitoring: true,
-            sanitized_request: {
+            sanitized_request: {,
               vision_length: agentRequest.vision.length,
               working_directory: workspace.path,
               max_iterations: agentRequest.options.maxIterations!,
-              features_enabled: {
+              features_enabled: {,
                 web_search: agentRequest.options.enableWebSearch!,
                 streaming: agentRequest.options.enableStreaming!,
                 progress_display: agentRequest.options.showProgress!,
@@ -216,11 +216,7 @@ export function createAgentsRouter(
         // 7. Execute agent asynchronously with enhanced cost tracking
         setImmediate(async () => {
           try {
-            console.log(
-              chalk.green(
-                `💰 Starting agent execution with cost tracking for session ${workspace.sessionId}`
-              )
-            );
+            console.log(`\n🚀 Starting Agent session ${workspace.sessionId} for user ${user.id}`);
 
             // Prepare SANITIZED agent request (NO BUSINESS LOGIC!)
             const sanitizedOptions: CLIOptions = {
@@ -236,7 +232,7 @@ export function createAgentsRouter(
               debug: false,
               dryRun: false,
               // Pass user context for cost tracking and database integration
-              userContext: {
+              userContext: {,
                 userId: user.id,
                 isAdmin: user.is_admin,
                 adminPrivileges: user.admin_privileges,
@@ -249,11 +245,7 @@ export function createAgentsRouter(
 
             // Get final cost information from the agent
             const finalCostBreakdown = agent.getSessionCosts();
-            console.log(
-              chalk.green(
-                `💰 Agent execution completed. Final cost: $${finalCostBreakdown.totalCost.toFixed(4)}`
-              )
-            );
+            console.log(`💰 Session ${workspace.sessionId} completed with cost: $${finalCostBreakdown.totalCost}`);
 
             // Update session with results including detailed cost information
             await keenDB.sessions.updateSession(
@@ -261,7 +253,7 @@ export function createAgentsRouter(
               {
                 executionStatus: result.success ? "completed" : "failed",
                 totalCost: finalCostBreakdown.totalCost,
-                completionReport: {
+                completionReport: {,
                   success: result.success,
                   summary: result.summary,
                   filesCreated: result.filesCreated,
@@ -274,14 +266,14 @@ export function createAgentsRouter(
                   costBreakdown: finalCostBreakdown,
                   error: result.error,
                   completed_at: new Date().toISOString(),
-                  cost_analysis: {
+                  cost_analysis: {,
                     total_api_calls: finalCostBreakdown.totalCalls,
-                    average_cost_per_call:
+                    average_cost_per_call:,
                       finalCostBreakdown.averageCostPerCall,
-                    extended_pricing_calls:
+                    extended_pricing_calls:,
                       finalCostBreakdown.extendedPricingCalls,
                     cost_by_phase: finalCostBreakdown.costByPhase,
-                    tokens_breakdown: {
+                    tokens_breakdown: {,
                       input: finalCostBreakdown.inputTokens,
                       output: finalCostBreakdown.outputTokens,
                       thinking: finalCostBreakdown.thinkingTokens,
@@ -314,12 +306,8 @@ export function createAgentsRouter(
                     adminPrivileges: user.admin_privileges,
                   }
                 );
+                console.log(`💳 Credits finalized for session ${workspace.sessionId} (Claude: $${actualClaudeCost.toFixed(4)})`);
 
-                console.log(
-                  chalk.green(
-                    `💰 Credits finalized: $${finalCostBreakdown.totalCost.toFixed(4)} (Claude: $${actualClaudeCost.toFixed(4)})`
-                  )
-                );
               } catch (creditError) {
                 console.error(
                   `❌ Failed to finalize credits for session ${workspace.sessionId}:`,
@@ -330,12 +318,8 @@ export function createAgentsRouter(
 
             // Remove from active sessions
             await decrementActiveSession(user.id, workspace.sessionId);
+            console.log(`✅ Session ${workspace.sessionId} completed successfully`);
 
-            console.log(
-              chalk.green(
-                `✅ Agent session ${workspace.sessionId} completed successfully with total cost: $${finalCostBreakdown.totalCost.toFixed(4)}`
-              )
-            );
           } catch (agentError: any) {
             console.error(
               `❌ Agent session ${workspace.sessionId} failed:`,
@@ -348,7 +332,7 @@ export function createAgentsRouter(
               const agent = new KeenAgent({
                 vision: agentRequest.vision,
                 directory: workspace.path,
-                userContext: {
+                userContext: {,
                   userId: user.id,
                   isAdmin: user.is_admin,
                   adminPrivileges: user.admin_privileges,
@@ -365,7 +349,7 @@ export function createAgentsRouter(
               {
                 executionStatus: "failed",
                 totalCost: partialCost,
-                completionReport: {
+                completionReport: {,
                   success: false,
                   error: agentError.message,
                   failed_at: new Date().toISOString(),
@@ -381,12 +365,7 @@ export function createAgentsRouter(
 
             // Remove from active sessions
             await decrementActiveSession(user.id, workspace.sessionId);
-
-            console.log(
-              chalk.red(
-                `💰 Failed session had partial cost: $${partialCost.toFixed(4)}`
-              )
-            );
+            console.log(`❌ Session ${workspace.sessionId} failed and cleaned up`);
           }
         });
 
@@ -412,17 +391,17 @@ export function createAgentsRouter(
         if (error.name === "InsufficientCreditsError") {
           return res.status(402).json({
             success: false,
-            error: {
+            error: {,
               type: "INSUFFICIENT_CREDITS",
               code: "PAYMENT_REQUIRED",
               message: "Insufficient credits for this operation",
-              details: {
+              details: {,
                 required: error.required,
                 available: error.available,
                 shortfall: error.shortfall,
                 claude_cost: error.claudeCost,
                 markup_multiplier: error.markupMultiplier,
-                credit_info: {
+                credit_info: {,
                   pricing: "5x markup over Claude API costs",
                   no_packages: true,
                   individual_tier: true,
@@ -469,7 +448,7 @@ export function createAgentsRouter(
       if (!session) {
         return res.status(404).json({
           success: false,
-          error: {
+          error: {,
             type: "NOT_FOUND",
             code: "SESSION_NOT_FOUND",
             message: "Agent session not found",
@@ -483,7 +462,7 @@ export function createAgentsRouter(
       if (!user.is_admin && session.user_id !== user.id) {
         return res.status(403).json({
           success: false,
-          error: {
+          error: {,
             type: "AUTHORIZATION_ERROR",
             code: "SESSION_ACCESS_DENIED",
             message: "You do not have access to this session",
@@ -504,18 +483,18 @@ export function createAgentsRouter(
         status: session.execution_status || "running",
         current_phase: "EXPLORE", // TODO: Get from session data
         phase_started_at: session.created_at,
-        progress: {
+        progress: {,
           phase_progress: session.execution_status === "completed" ? 1.0 : 0.35,
-          overall_progress:
+          overall_progress:,
             session.execution_status === "completed" ? 1.0 : 0.15,
-          current_action:
+          current_action:,
             session.execution_status === "completed"
               ? "Completed"
               : "Processing...",
           agents_spawned: 1,
           files_examined: 12,
         },
-        metrics: {
+        metrics: {,
           iteration_count: 8,
           tool_calls_count: 23,
           total_cost: session.total_cost || 0,
@@ -524,39 +503,39 @@ export function createAgentsRouter(
           files_modified: completionReport.filesModified || [],
         },
         // NEW: Detailed cost information
-        cost_tracking: {
+        cost_tracking: {,
           total_cost: session.total_cost || 0,
-          cost_breakdown: {
+          cost_breakdown: {,
             total_api_calls: costAnalysis.total_api_calls || 0,
             average_cost_per_call: costAnalysis.average_cost_per_call || 0,
             extended_pricing_calls: costAnalysis.extended_pricing_calls || 0,
             cost_by_phase: costAnalysis.cost_by_phase || {},
-            tokens_breakdown: costAnalysis.tokens_breakdown || {
+            tokens_breakdown: costAnalysis.tokens_breakdown || {,
               input: 0,
               output: 0,
               thinking: 0,
               total: 0,
             },
           },
-          cost_efficiency: {
-            cost_per_iteration:
+          cost_efficiency: {,
+            cost_per_iteration:,
               session.total_cost && costAnalysis.total_api_calls
                 ? (session.total_cost / costAnalysis.total_api_calls).toFixed(4)
                 : "0.0000",
-            tokens_per_dollar:
+            tokens_per_dollar:,
               session.total_cost && costAnalysis.tokens_breakdown?.total
                 ? Math.round(
                     costAnalysis.tokens_breakdown.total / session.total_cost
                   )
                 : 0,
-            pricing_tier:
+            pricing_tier:,
               costAnalysis.extended_pricing_calls > 0
                 ? "Extended (>200K tokens)"
                 : "Standard",
           },
           real_time_monitoring: true,
         },
-        git_operations: [
+        git_operations: [,
           {
             type: "init",
             branch: "main",
@@ -572,10 +551,10 @@ export function createAgentsRouter(
       return res.status(200).json({
         success: true,
         session: sessionStatus,
-        admin_info: user.is_admin
+        admin_info: user.is_admin,
           ? {
               user_id: session.user_id,
-              cost_tracking: {
+              cost_tracking: {,
                 admin_bypass: user.is_admin,
                 actual_charges: user.is_admin ? 0 : session.total_cost || 0,
                 theoretical_cost: session.total_cost || 0,
@@ -583,300 +562,6 @@ export function createAgentsRouter(
               },
             }
           : undefined,
-      });
-    })
-  );
-
-  /**
-   * NEW: Get detailed cost breakdown for a session
-   */
-  router.get(
-    "/sessions/:sessionId/costs",
-    requireScopes(["sessions:read"]),
-    asyncHandler(async (req: any, res: Response) => {
-      const user = req.user!;
-      const sessionId = req.params.sessionId;
-
-      // Get session from database
-      const session = await getSessionByCustomId(sessionId, {
-        userId: user.id,
-        isAdmin: user.is_admin,
-        adminPrivileges: user.admin_privileges,
-      });
-
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            type: "NOT_FOUND",
-            code: "SESSION_NOT_FOUND",
-            message: "Agent session not found",
-          },
-          request_id: req.id,
-        });
-      }
-
-      // Check ownership (unless admin)
-      if (!user.is_admin && session.user_id !== user.id) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            type: "AUTHORIZATION_ERROR",
-            code: "SESSION_ACCESS_DENIED",
-            message: "You do not have access to this session",
-          },
-          request_id: req.id,
-        });
-      }
-
-      // Extract detailed cost information
-      const completionReport = session.completion_report || {};
-      const costBreakdown = completionReport.costBreakdown || {};
-      const costAnalysis = completionReport.cost_analysis || {};
-
-      return res.status(200).json({
-        success: true,
-        session_id: sessionId,
-        cost_details: {
-          total_cost: session.total_cost || 0,
-          api_calls: costAnalysis.total_api_calls || 0,
-          average_cost_per_call: costAnalysis.average_cost_per_call || 0,
-          tokens: {
-            input: costAnalysis.tokens_breakdown?.input || 0,
-            output: costAnalysis.tokens_breakdown?.output || 0,
-            thinking: costAnalysis.tokens_breakdown?.thinking || 0,
-            total: costAnalysis.tokens_breakdown?.total || 0,
-          },
-          pricing_analysis: {
-            extended_pricing_calls: costAnalysis.extended_pricing_calls || 0,
-            standard_pricing_calls:
-              (costAnalysis.total_api_calls || 0) -
-              (costAnalysis.extended_pricing_calls || 0),
-            pricing_efficiency:
-              costAnalysis.extended_pricing_calls > 0
-                ? "Mixed pricing tiers used"
-                : "Standard pricing only",
-          },
-          cost_by_phase: costAnalysis.cost_by_phase || {},
-          session_efficiency: {
-            cost_per_iteration:
-              session.total_cost && costAnalysis.total_api_calls
-                ? (session.total_cost / costAnalysis.total_api_calls).toFixed(6)
-                : "0.000000",
-            tokens_per_dollar:
-              session.total_cost && costAnalysis.tokens_breakdown?.total
-                ? Math.round(
-                    costAnalysis.tokens_breakdown.total / session.total_cost
-                  )
-                : 0,
-          },
-        },
-        credit_system_info: {
-          markup_multiplier: "5x Claude API costs",
-          admin_bypass: user.is_admin,
-          actual_charge: user.is_admin ? 0 : session.total_cost || 0,
-        },
-        timestamp: new Date().toISOString(),
-      });
-    })
-  );
-
-  /**
-   * Cancel session with cost information
-   */
-  router.post(
-    "/sessions/:sessionId/cancel",
-    requireScopes(["agents:execute"]),
-    [body("reason").optional().isLength({ max: 500 }).trim()],
-    asyncHandler(async (req: any, res: Response) => {
-      const user = req.user!;
-      const sessionId = req.params.sessionId;
-      const reason = req.body.reason || "User requested cancellation";
-
-      // Get session to verify ownership
-      const session = await getSessionByCustomId(sessionId, {
-        userId: user.id,
-        isAdmin: user.is_admin,
-        adminPrivileges: user.admin_privileges,
-      });
-
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            type: "NOT_FOUND",
-            code: "SESSION_NOT_FOUND",
-            message: "Agent session not found",
-          },
-          request_id: req.id,
-        });
-      }
-
-      // Check ownership (unless admin)
-      if (!user.is_admin && session.user_id !== user.id) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            type: "AUTHORIZATION_ERROR",
-            code: "SESSION_ACCESS_DENIED",
-            message: "You do not have access to this session",
-          },
-          request_id: req.id,
-        });
-      }
-
-      // Get current cost before cancellation
-      const currentCost = session.total_cost || 0;
-
-      // Update session with cancellation and preserve cost information
-      await keenDB.sessions.updateSession(
-        session.id,
-        {
-          executionStatus: "cancelled",
-          totalCost: currentCost,
-          completionReport: {
-            cancellation_reason: reason,
-            cancelled_by: user.id,
-            cancelled_at: new Date().toISOString(),
-            partial_cost: currentCost,
-            cost_at_cancellation: currentCost,
-          },
-        },
-        {
-          userId: user.id,
-          isAdmin: user.is_admin,
-          adminPrivileges: user.admin_privileges,
-        }
-      );
-
-      // Remove from concurrent session tracking
-      await decrementActiveSession(user.id, sessionId);
-
-      // Log cancellation with cost information
-      await auditLogger.logAdminAction({
-        adminUserId: user.id,
-        action: "cancel_session",
-        details: {
-          session_id: sessionId,
-          reason,
-          cost_at_cancellation: currentCost,
-        },
-      });
-
-      console.log(
-        chalk.yellow(
-          `🛑 Session ${sessionId} cancelled by user. Cost at cancellation: $${currentCost.toFixed(4)}`
-        )
-      );
-
-      return res.status(200).json({
-        success: true,
-        message: "Agent session cancelled successfully",
-        session: {
-          id: session.id,
-          session_id: sessionId,
-          status: "cancelled",
-          cancelled_at: new Date().toISOString(),
-          cancellation_reason: reason,
-          cost_at_cancellation: currentCost,
-        },
-        cost_info: {
-          total_cost: currentCost,
-          refund_eligible: currentCost > 0,
-          note: "Partial costs may have been incurred before cancellation",
-        },
-      });
-    })
-  );
-
-  /**
-   * List user sessions with cost information
-   */
-  router.get(
-    "/sessions",
-    requireScopes(["sessions:read"]),
-    [
-      query("status")
-        .optional()
-        .isIn(["running", "completed", "failed", "cancelled"]),
-      query("limit").optional().isInt({ min: 1, max: 100 }),
-      query("offset").optional().isInt({ min: 0 }),
-    ],
-    asyncHandler(async (req: any, res: Response) => {
-      const user = req.user!;
-      const { status, limit = 20, offset = 0 } = req.query;
-
-      // Query actual sessions from database with cost information
-      let query = "SELECT * FROM agent_sessions WHERE user_id = $1";
-      const params: any[] = [user.id];
-
-      if (status) {
-        query += " AND execution_status = $2";
-        params.push(status);
-      }
-
-      query +=
-        " ORDER BY created_at DESC LIMIT $" +
-        (params.length + 1) +
-        " OFFSET $" +
-        (params.length + 2);
-      params.push(Number(limit), Number(offset));
-
-      const sessions = await keenDB.getDatabaseManager().query(query, params, {
-        userId: user.id,
-        isAdmin: user.is_admin,
-        adminPrivileges: user.admin_privileges,
-      });
-
-      // Transform sessions for API response with cost information
-      const sessionsList = sessions.map((session: any) => ({
-        id: session.session_id,
-        session_id: session.session_id,
-        status: session.execution_status || "running",
-        current_phase: "EXPLORE", // TODO: Get from session data
-        vision:
-          session.vision.substring(0, 100) +
-          (session.vision.length > 100 ? "..." : ""),
-        total_cost: session.total_cost || 0,
-        cost_summary: {
-          total_cost: session.total_cost || 0,
-          status: session.execution_status || "running",
-          cost_efficiency:
-            session.total_cost > 0 ? "Cost tracked" : "No cost yet",
-        },
-        created_at: session.created_at,
-        last_activity_at: session.updated_at || session.created_at,
-      }));
-
-      // Calculate summary statistics
-      const totalCost = sessionsList.reduce(
-        (sum: number, session: any) => sum + session.total_cost,
-        0
-      );
-      const completedSessions = sessionsList.filter(
-        (session: any) => session.status === "completed"
-      ).length;
-      const averageCost =
-        completedSessions > 0 ? totalCost / completedSessions : 0;
-
-      return res.status(200).json({
-        success: true,
-        sessions: sessionsList,
-        pagination: {
-          total: sessionsList.length, // TODO: Get actual count
-          limit: Number(limit),
-          offset: Number(offset),
-          has_more: sessionsList.length === Number(limit),
-        },
-        cost_summary: {
-          total_cost_all_sessions: totalCost,
-          completed_sessions: completedSessions,
-          average_cost_per_session: averageCost.toFixed(4),
-          cost_tracking_enabled: true,
-        },
-        filters: {
-          status: status || "all",
-        },
       });
     })
   );
@@ -891,7 +576,7 @@ export function createAgentsRouter(
  */
 async function createUserWorkspace(
   userId: string,
-  config: {
+  config: {,
     sessionType: "agent_execution" | "user_workspace";
     visionHash: string;
     isAdminSession: boolean;
@@ -902,7 +587,6 @@ async function createUserWorkspace(
 
   try {
     await fs.mkdir(workspacePath, { recursive: true });
-    console.log(`✅ Created workspace: ${workspacePath}`);
   } catch (error) {
     console.warn(`Failed to create workspace directory: ${error}`);
   }
@@ -918,7 +602,7 @@ async function createUserWorkspace(
  */
 async function getSessionByCustomId(
   sessionId: string,
-  context: {
+  context: {,
     userId: string;
     isAdmin: boolean;
     adminPrivileges?: any;
@@ -959,7 +643,7 @@ async function getActiveSessionsCount(userId: string): Promise<number> {
 
 async function incrementActiveSession(
   userId: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<void> {
   if (!activeSessions.has(userId)) {
     activeSessions.set(userId, new Set());
@@ -969,7 +653,7 @@ async function incrementActiveSession(
 
 async function decrementActiveSession(
   userId: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<void> {
   const sessions = activeSessions.get(userId);
   if (sessions) {

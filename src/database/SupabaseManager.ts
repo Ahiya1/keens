@@ -4,6 +4,7 @@
  */
 
 import { SupabaseClient, User, RealtimeChannel } from '@supabase/supabase-js';
+import { randomBytes } from "crypto";
 import { createSupabaseClient, supabaseAdmin, supabase } from '../config/database.js';
 
 export interface UserContext {
@@ -107,7 +108,6 @@ export class SupabaseManager {
     try {
       await this.testConnection();
       this._isConnected = true;
-      console.log('Supabase connection initialized successfully');
     } catch (error) {
       this._isConnected = false;
       console.error('Supabase initialization failed:', error);
@@ -179,8 +179,6 @@ export class SupabaseManager {
         console.error('Supabase connection test failed:', error);
         return false;
       }
-      
-      console.log('Supabase connected successfully');
       return true;
     } catch (error) {
       console.error('Supabase connection test error:', error);
@@ -221,7 +219,7 @@ export class SupabaseManager {
       userId?: string;
     }
   ): RealtimeSubscription {
-    const subscriptionId = `${table}_${Date.now()}_${Math.random()}`;
+    const subscriptionId = `${table}_${Date.now()}_${randomBytes(4).toString("hex")}`;
     
     const channel = this.client
       .channel(subscriptionId)
@@ -239,7 +237,7 @@ export class SupabaseManager {
 
     const subscription = {
       channel,
-      unsubscribe: () => {
+      unsubscribe: () => {,
         channel.unsubscribe();
         this.realtimeSubscriptions.delete(subscriptionId);
       },
@@ -287,7 +285,6 @@ export class SupabaseManager {
     try {
       await this.unsubscribeFromAllRealtime();
       this._isConnected = false;
-      console.log('Supabase manager closed');
     } catch (error) {
       console.error('Error closing Supabase manager:', error);
     }

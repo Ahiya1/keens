@@ -3,13 +3,17 @@
  * Write multiple files atomically with rollback protection
  * FIXED: Added backward compatibility for incorrect parameter format
  * FIXED: Changed backup default to false to eliminate backup file creation
+ * SECURITY: Replaced console.error with proper Logger to prevent sensitive data exposure
  */
 
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
+import { getLogger } from '../../utils/Logger.js';
 
 export class WriteFilesTool {
+  private logger = getLogger();
+
   getDescription(): string {
     return "Write multiple files atomically with rollback protection";
   }
@@ -18,9 +22,9 @@ export class WriteFilesTool {
     return {
       type: "object",
       properties: {
-        files: {
+        files: {,
           type: "array",
-          items: {
+          items: {,
             type: "object",
             properties: {
               path: { type: "string", description: "File path" },
@@ -30,12 +34,12 @@ export class WriteFilesTool {
           },
           description: "Array of files to write",
         },
-        createDirectories: {
+        createDirectories: {,
           type: "boolean",
-          description:
+          description:,
             "Create parent directories if they don't exist (default: true)",
         },
-        backup: {
+        backup: {,
           type: "boolean",
           description: "Create backup of existing files (default: false)",
         },
@@ -49,7 +53,6 @@ export class WriteFilesTool {
 
     // COMPATIBILITY FIX: Handle incorrect format by converting it
     if (!files && parameters.path && parameters.content !== undefined) {
-      console.log("⚠️  Converting legacy write_files format to array format");
       files = [
         {
           path: parameters.path,
@@ -138,7 +141,7 @@ export class WriteFilesTool {
           } catch (error: any) {
             if (error.code === "ENOENT") {
               if (dryRun) {
-                console.log(`[DRY RUN] Would create directory: ${dir}`);
+                this.logger.debug('write_files', `Would create directory: ${dir}`);
               } else {
                 await fs.mkdir(dir, { recursive: true });
                 createdDirectories.push(dir);
@@ -157,9 +160,7 @@ export class WriteFilesTool {
             const backupPath = `${file.absolutePath}.backup.${Date.now()}.${crypto.randomBytes(4).toString("hex")}`;
 
             if (dryRun) {
-              console.log(
-                `[DRY RUN] Would backup: ${file.absolutePath} -> ${backupPath}`
-              );
+              this.logger.debug('write_files', `Would backup file: ${file.absolutePath}`);
             } else {
               await fs.copyFile(file.absolutePath, backupPath);
               backupPaths.push({
@@ -174,9 +175,7 @@ export class WriteFilesTool {
       // Phase 4: Write all files
       for (const file of preparedFiles) {
         if (dryRun) {
-          console.log(
-            `[DRY RUN] Would write file: ${file.absolutePath} (${file.content.length} bytes)`
-          );
+          this.logger.debug('write_files', `Would write file: ${file.absolutePath}`);
         } else {
           await fs.writeFile(file.absolutePath, file.content, "utf-8");
           writtenFiles.push(file.absolutePath);
@@ -185,11 +184,11 @@ export class WriteFilesTool {
 
       return {
         success: true,
-        message: dryRun
+        message: dryRun,
           ? `Dry run: Would write ${files.length} files`
           : `Successfully wrote ${files.length} files`,
         filesWritten: writtenFiles.length,
-        writtenPaths: writtenFiles.map((p) =>
+        writtenPaths: writtenFiles.map((p) =>,
           path.relative(workingDirectory, p)
         ),
         backupsCreated: backupPaths.length,
@@ -212,11 +211,12 @@ export class WriteFilesTool {
 
   /**
    * Rollback changes on error
+   * SECURITY: Replaced console.error with proper Logger to prevent sensitive data exposure
    */
   private async rollback(
     writtenFiles: string[],
     backupPaths: { original: string; backup: string }[],
-    createdDirectories: string[]
+    createdDirectories: string[],
   ): Promise<void> {
     try {
       // Restore from backups
@@ -225,10 +225,10 @@ export class WriteFilesTool {
           await fs.copyFile(backup, original);
           await fs.unlink(backup); // Clean up backup
         } catch (error) {
-          console.error(
-            `Failed to restore backup ${backup} -> ${original}:`,
-            error
-          );
+          // SECURITY: Use Logger instead of console.error
+          this.logger.error('write_files', `Failed to restore backup ${backup} -> ${original}`, {
+            error: error instanceof Error ? error.message : error,
+          });
         }
       }
 
@@ -239,10 +239,10 @@ export class WriteFilesTool {
           try {
             await fs.unlink(filePath);
           } catch (error) {
-            console.error(
-              `Failed to remove file during rollback ${filePath}:`,
-              error
-            );
+            // SECURITY: Use Logger instead of console.error
+            this.logger.error('write_files', `Failed to remove file during rollback ${filePath}`, {
+              error: error instanceof Error ? error.message : error,
+            });
           }
         }
       }
@@ -256,7 +256,10 @@ export class WriteFilesTool {
         }
       }
     } catch (error) {
-      console.error("Rollback failed:", error);
+      // SECURITY: Use Logger instead of console.error
+      this.logger.error('write_files', 'Rollback failed', {
+        error: error instanceof Error ? error.message : error,
+      });
     }
   }
 }

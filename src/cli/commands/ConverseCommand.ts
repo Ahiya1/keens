@@ -33,82 +33,30 @@ export class ConverseCommand {
       .action(async (options: any, command: Command) => {
         try {
           // 🔑 AUTHENTICATION REQUIRED
-          console.log(chalk.blue("🔑 Checking authentication..."));
-
           let userContext;
           try {
+            // Ensure auth manager is initialized before checking auth
+            await cliAuth.initialize();
             userContext = await cliAuth.requireAuth();
           } catch (authError: any) {
             console.error(chalk.red("❌ " + authError.message));
-            console.log(chalk.yellow("\n💡 Quick start:"));
-            console.log(
-              chalk.cyan(
-                "   keen login                  # Login to your account"
-              )
-            );
-            console.log(
-              chalk.gray(
-                "   keen status                 # Check authentication status"
-              )
-            );
             process.exit(1);
           }
 
           const currentUser = cliAuth.getCurrentUser();
-
-          console.log(
-            chalk.blue(
-              "💬 keen converse - Interactive Conversation with Claude"
-            )
-          );
-          console.log(
-            chalk.gray("Real Claude agent with read-only tool access")
-          );
-          console.log(chalk.gray(`📁 Working Directory: ${options.directory}`));
-
           if (currentUser) {
-            console.log(
-              chalk.green(
-                `👤 Authenticated as: ${currentUser.displayName || currentUser.username}`
-              )
-            );
+            console.log(chalk.blue(`👤 Authenticated as: ${currentUser.email}`));
             if (currentUser.isAdmin) {
-              console.log(chalk.yellow("   ⚡ Admin privileges active"));
+              console.log(chalk.green("🔑 Admin privileges active"));
             }
           }
-          console.log("");
 
-          console.log(chalk.yellow("✨ What Claude can do:"));
-          console.log("• 🔍 Analyze your project structure and files");
-          console.log("• 📖 Read and understand your codebase");
-          console.log("• 🌐 Search the web for technical information");
-          console.log("• 💡 Provide development guidance and suggestions");
-          console.log(
-            "• 🧠 Use full reasoning with thinking blocks (--verbose)"
-          );
-          console.log("");
-
-          console.log(chalk.red("🚫 What Claude cannot do:"));
-          console.log("• ❌ Write or modify files (conversation mode only)");
-          console.log("• ❌ Execute destructive commands");
-          console.log("• ❌ Make git commits or changes");
-          console.log("");
-
-          console.log(chalk.cyan("🎮 Commands:"));
-          console.log(
-            '• Type "manifest" to create a vision file from this conversation'
-          );
-          console.log(
-            '• Type "breathe" to synthesize conversation and execute autonomously'
-          );
-          console.log('• Type "clear" to clear conversation history');
-          console.log('• Type "help" to see available commands');
-          console.log('• Type "exit" or "quit" to end conversation');
+          console.log(chalk.cyan("💬 Starting interactive conversation with Claude agent..."));
+          console.log(chalk.gray("Working directory: " + options.directory));
+          console.log(chalk.gray("Type 'help' for commands, 'exit' to quit."));
           console.log("");
 
           // Initialize ConversationAgent
-          console.log(chalk.blue("🤖 Initializing Claude agent..."));
-
           const conversationOptions: ConversationOptions = {
             workingDirectory: options.directory,
             userContext: userContext,
@@ -119,30 +67,16 @@ export class ConverseCommand {
 
           const agent = new ConversationAgent(conversationOptions);
 
-          console.log(chalk.green("✅ Claude agent ready for conversation"));
-          console.log("");
-
           const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
             prompt: chalk.cyan("You: "),
           });
 
-          console.log(
-            chalk.green(
-              "🤖 Claude: Hello! I'm here to help you explore and understand your project. I can analyze your codebase, explain concepts, and help you plan your development work. What would you like to discuss?"
-            )
-          );
-
           if (currentUser?.isAdmin) {
-            console.log(
-              chalk.yellow(
-                "⚡ Admin note: You have unlimited access to all features and resources."
-              )
-            );
+            console.log(chalk.green("🚀 Admin mode: Enhanced agent capabilities enabled"));
           }
-
-          console.log("");
+          
           rl.prompt();
 
           rl.on("line", async (input: string) => {
@@ -158,9 +92,7 @@ export class ConverseCommand {
               userInput.toLowerCase() === "exit" ||
               userInput.toLowerCase() === "quit"
             ) {
-              console.log(
-                chalk.yellow("👋 Goodbye! Your conversation has been saved.")
-              );
+              console.log(chalk.yellow("Goodbye! 👋"));
               rl.close();
               return;
             }
@@ -173,7 +105,7 @@ export class ConverseCommand {
 
             if (userInput.toLowerCase() === "clear") {
               agent.clearHistory();
-              console.log(chalk.yellow("🧹 Conversation history cleared."));
+              console.log(chalk.yellow("📝 Conversation history cleared"));
               rl.prompt();
               return;
             }
@@ -206,45 +138,35 @@ export class ConverseCommand {
 
             // Process actual conversation with Claude
             try {
-              console.log(chalk.gray("\n🤔 Claude is thinking..."));
-
               const response = await agent.converse(userInput);
 
               if (response.error) {
-                console.log(chalk.red(`\n❌ Error: ${response.error}`));
+                console.log(chalk.red("❌ Error: " + response.error));
               } else {
-                console.log(chalk.green("\n🤖 Claude: ") + response.response);
-
                 if (response.thinking && options.verbose) {
-                  console.log(chalk.magenta("\n🧠 Claude's thinking:"));
-                  console.log(
-                    chalk.gray(
-                      response.thinking.substring(0, 500) +
-                        (response.thinking.length > 500 ? "..." : "")
-                    )
-                  );
+                  console.log(chalk.gray("🤔 Thinking: " + 
+                    response.thinking.substring(0, 500) +
+                    (response.thinking.length > 500 ? "..." : "")
+                  ));
                 }
+                console.log(chalk.white("Claude: " + response.message));
               }
             } catch (error: any) {
-              console.log(
-                chalk.red(`\n❌ Conversation error: ${error.message}`)
-              );
+              console.log(chalk.red("❌ Conversation error: " + error.message));
             }
-
-            console.log("");
+            
             rl.prompt();
           });
 
           rl.on("close", () => {
+            console.log(chalk.yellow("\nConversation ended. Goodbye! 👋"));
             process.exit(0);
           });
         } catch (error: any) {
           console.error(chalk.red("❌ Conversation error: " + error.message));
 
           if (error.message.includes("Authentication required")) {
-            console.log(chalk.yellow("\n🔑 Authentication issue detected:"));
-            console.log(chalk.gray("   • Your session may have expired"));
-            console.log(chalk.gray("   • Try logging in again: keen login"));
+            console.log(chalk.yellow("💡 Hint: Run 'keen login' first to authenticate"));
           }
 
           process.exit(1);
@@ -256,53 +178,47 @@ export class ConverseCommand {
 🔑 Authentication Required:
   This command requires authentication. Run 'keen login' first.
 
-\nConversation Commands:\n  help      Show available commands\n  status    Show current user and session info\n  manifest  Create a vision file from conversation\n  breathe   Synthesize conversation and execute autonomously\n  clear     Clear conversation history\n  exit      End conversation and return to terminal\n\nExamples:\n  keen converse\n  keen converse --directory ./my-project --verbose\n  keen converse --debug --no-web-search\n\n📊 User Context:\n  • All conversations use real Claude with tool access\n  • Claude can analyze files and project structure\n  • Admin users get enhanced analysis capabilities\n  • Conversation history is maintained during session`
+📋 Conversation Commands:
+  help      Show available commands
+  status    Show current user and session info
+  manifest  Create a vision file from conversation
+  breathe   Synthesize conversation and execute autonomously
+  clear     Clear conversation history
+  exit      End conversation and return to terminal
+
+💡 Examples:
+  keen converse
+  keen converse --directory ./my-project --verbose
+  keen converse --debug --no-web-search
+
+📊 User Context:
+  • All conversations use real Claude with tool access
+  • Claude can analyze files and project structure
+  • Admin users get enhanced analysis capabilities
+  • Conversation history is maintained during session`
       );
   }
 
   private showHelp(): void {
-    console.log(chalk.yellow("\n💡 Conversation Commands:"));
-    console.log("• help      - Show this help message");
-    console.log("• status    - Show current user and session status");
-    console.log("• manifest  - Create a vision file from this conversation");
-    console.log(
-      "• breathe   - Synthesize conversation into autonomous execution"
-    );
-    console.log("• clear     - Clear conversation history");
-    console.log("• exit      - End conversation and save");
-    console.log("");
-    console.log(chalk.cyan("🔍 What Claude can help with:"));
-    console.log("• Analyze your project files and structure");
-    console.log("• Understand your codebase and dependencies");
-    console.log("• Search for technical information online");
-    console.log("• Discuss development plans and requirements");
-    console.log("• Help you formulate clear vision statements");
-    console.log("");
-    console.log(chalk.red("🚫 What Claude cannot do in conversation mode:"));
-    console.log("• Write or modify files");
-    console.log("• Execute destructive commands");
-    console.log("• Make git commits or changes");
-    console.log(
-      '• Make actual changes (use "breathe" for autonomous execution)'
-    );
+    console.log(chalk.cyan("\n📋 Available Commands:"));
+    console.log(chalk.white("  help      - Show this help message"));
+    console.log(chalk.white("  status    - Show current user and session info"));
+    console.log(chalk.white("  manifest  - Create a vision file from conversation"));
+    console.log(chalk.white("  breathe   - Synthesize and execute vision autonomously"));
+    console.log(chalk.white("  clear     - Clear conversation history"));
+    console.log(chalk.white("  exit/quit - End conversation\n"));
   }
 
   private showStatus(currentUser: any): void {
-    console.log(chalk.cyan("\n📋 Current Session Status:"));
+    console.log(chalk.cyan("\n📊 Current Status:"));
     if (currentUser) {
-      console.log(
-        chalk.white(
-          `   👤 User: ${currentUser.displayName || currentUser.username}`
-        )
-      );
-      console.log(chalk.white(`   📧 Email: ${currentUser.email}`));
-      console.log(chalk.white(`   🔐 Role: ${currentUser.role}`));
-
+      console.log(chalk.white(`  User: ${currentUser.email}`));
       if (currentUser.isAdmin) {
-        console.log(chalk.yellow(`   ⚡ Admin: Yes (unlimited resources)`));
+        console.log(chalk.green("  Role: Admin (Enhanced capabilities)"));
       } else {
-        console.log(chalk.white(`   ⚡ Admin: No`));
+        console.log(chalk.white("  Role: User"));
       }
+      console.log(chalk.white(`  User ID: ${currentUser.userId?.substring(0, 8)}...`));
     }
     console.log("");
   }
@@ -313,21 +229,12 @@ export class ConverseCommand {
   private async handleManifestFromConversation(
     agent: ConversationAgent,
     directory: string,
-    userContext: any
+    userContext: any,
   ): Promise<void> {
     try {
-      console.log(chalk.blue("\n📝 Creating vision file from conversation..."));
-
       const history = agent.getConversationHistory();
       if (history.length === 0) {
-        console.log(
-          chalk.red("❌ No conversation history to create a manifest from.")
-        );
-        console.log(
-          chalk.yellow(
-            '💡 Have a conversation about your project first, then type "manifest".'
-          )
-        );
+        console.log(chalk.yellow("📝 No conversation history to create manifest from"));
         return;
       }
 
@@ -335,9 +242,7 @@ export class ConverseCommand {
       const vision = await agent.synthesizeVision();
 
       if (!vision || vision.includes("No conversation to synthesize")) {
-        console.log(
-          chalk.red("❌ Unable to synthesize conversation into vision.")
-        );
+        console.log(chalk.yellow("📝 Unable to synthesize vision from conversation"));
         return;
       }
 
@@ -361,24 +266,10 @@ export class ConverseCommand {
       const filepath = path.resolve(directory, filename);
 
       await fs.writeFile(filepath, manifestContent, "utf-8");
-
-      console.log(chalk.green(`✅ Vision file created: ${filename}`));
-      console.log(chalk.gray(`   📁 Location: ${filepath}`));
-      console.log(
-        chalk.gray(`   📝 Length: ${manifestContent.length} characters`)
-      );
-      console.log("");
-      console.log(chalk.cyan("🚀 Next steps:"));
-      console.log(
-        chalk.white(`   keen breathe -f ${filename}   # Execute this vision`)
-      );
-      console.log(
-        chalk.gray(
-          `   keen breathe -f ${filename} --dry-run   # Preview execution`
-        )
-      );
+      console.log(chalk.green(`📄 Vision manifest created: ${filename}`));
+      console.log(chalk.gray(`   Execute with: keen breathe -f ${filename}`));
     } catch (error: any) {
-      console.log(chalk.red(`❌ Failed to create manifest: ${error.message}`));
+      console.log(chalk.red("❌ Failed to create manifest: " + error.message));
     }
   }
 
@@ -388,7 +279,7 @@ export class ConverseCommand {
   private createManifestContent(
     vision: string,
     history: any[],
-    userContext: any
+    userContext: any,
   ): string {
     const timestamp = new Date().toISOString();
     const conversationSummary = history
@@ -427,29 +318,18 @@ ${conversationSummary}
   private async handleBreatheTransition(
     agent: ConversationAgent,
     directory: string,
-    userContext: any
-  ): Promise<Promise<void>> {
-    console.log(
-      chalk.blue("\n🌊 Synthesizing conversation into autonomous vision...")
-    );
+    userContext: any,
+  ): Promise<void> {
+    console.log(chalk.cyan("🔄 Preparing to transition from conversation to autonomous execution..."));
 
     const history = agent.getConversationHistory();
     if (history.length === 0) {
-      console.log(chalk.red("❌ No conversation history to synthesize."));
-      console.log(
-        chalk.yellow(
-          '💡 Chat about your project first, then type "breathe" to execute.'
-        )
-      );
-      return Promise.resolve();
+      console.log(chalk.yellow("📝 No conversation history to execute"));
+      return;
     }
 
     // Synthesize the conversation into a vision
     const synthesizedVision = await agent.synthesizeVision();
-
-    console.log(chalk.cyan("\n📋 Synthesized Vision:"));
-    console.log(chalk.white(synthesizedVision));
-    console.log("");
 
     // FIXED: Use a proper Promise-based approach instead of conflicting readline interfaces
     return new Promise<void>((resolve) => {
@@ -465,6 +345,8 @@ ${conversationSummary}
             rl.close();
 
             try {
+              console.log(chalk.green("🚀 Starting autonomous execution..."));
+              
               // Import and execute KeenAgent with user context
               const { KeenAgent } = await import("../../agent/KeenAgent.js");
 
@@ -483,21 +365,14 @@ ${conversationSummary}
                 // Pass user context from conversation
                 userContext: userContext,
               };
-
-              console.log(
-                chalk.blue("\n🚀 Transitioning to autonomous execution...")
-              );
+              
               const keenAgent = new KeenAgent(options);
               await keenAgent.execute();
             } catch (error: any) {
               console.error(chalk.red(`❌ Execution failed: ${error.message}`));
             }
           } else {
-            console.log(
-              chalk.yellow(
-                "👋 Execution cancelled. Continue your conversation or type 'exit'."
-              )
-            );
+            console.log(chalk.yellow("Execution cancelled. Returning to conversation."));
             rl.close();
           }
           resolve();

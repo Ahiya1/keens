@@ -1,9 +1,11 @@
 /**
  * keen API Gateway - Credit Management Service
  * Credit validation, reservation, and management with admin bypass
+ * SECURITY: Fixed weak random number generation and reduced sensitive logging
  */
 
 import Decimal from 'decimal.js';
+import { randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { CreditDAO, CreditAccount, CreditTransaction } from '../../database/dao/CreditDAO.js';
 import { UserDAO } from '../../database/dao/UserDAO.js';
@@ -27,11 +29,11 @@ export interface CostEstimation {
   estimatedClaudeCostUSD: Decimal;
   estimatedDuration: string;
   complexity: 'low' | 'medium' | 'high' | 'very_high';
-  factors: {
+  factors: {,
     visionLength: number;
     maxIterations: number;
     webSearchEnabled: boolean;
-    expectedTokens: {
+    expectedTokens: {,
       input: number;
       output: number;
       thinking: number;
@@ -50,6 +52,7 @@ export class CreditGatewayService {
 
   /**
    * Validate and reserve credits for agent execution
+   * SECURITY: Fixed weak random number generation
    */
   async validateAndReserveCredits(
     userId: string,
@@ -62,12 +65,12 @@ export class CreditGatewayService {
       
       if (adminCheck.isAdmin) {
         return {
-          reservationId: `admin_bypass_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
+          reservationId: `admin_bypass_${Date.now()}_${randomBytes(8).toString('hex')}`, // SECURITY: Fixed weak random
           reservedAmount: 0,
           estimatedCost: 0,
           remainingBalance: 999999.999999,
           isAdmin: true,
-          unlimited: true
+          unlimited: true,
         };
       }
 
@@ -98,14 +101,13 @@ export class CreditGatewayService {
           description: 'Agent execution reservation',
           claudeCost: claudeCost,
           sessionId: agentRequest.workingDirectory ? this.generateSessionId() : undefined,
-          metadata: {
-            visionPreview: agentRequest.vision.substring(0, 100),
+          metadata: {,
+            visionLength: agentRequest.vision.length,
             estimatedDuration: costEstimate.estimatedDuration,
-            complexity: costEstimate.complexity
+            complexity: costEstimate.complexity,
           }
         },
         context
-      );
 
       return {
         reservationId,
@@ -113,7 +115,7 @@ export class CreditGatewayService {
         estimatedCost: creditCost.toNumber(),
         claudeCost: claudeCost.toNumber(),
         markupMultiplier: this.MARKUP_MULTIPLIER,
-        remainingBalance: balance.availableBalance.sub(creditCost).toNumber()
+        remainingBalance: balance.availableBalance.sub(creditCost).toNumber(),
       };
 
     } catch (error) {
@@ -121,7 +123,7 @@ export class CreditGatewayService {
         throw error;
       }
       
-      console.error('Credit validation error:', error);
+      // SECURITY: Don't log detailed error information
       throw new Error('Credit validation failed due to system error');
     }
   }
@@ -147,7 +149,7 @@ export class CreditGatewayService {
           sessionId,
           'Admin execution completed',
           context
-        );
+
       }
 
       const actualCreditCost = actualClaudeCost.mul(this.MARKUP_MULTIPLIER);
@@ -158,16 +160,16 @@ export class CreditGatewayService {
         claudeCostUSD: actualClaudeCost,
         sessionId,
         description: 'Agent execution completed',
-        metadata: {
+        metadata: {,
           reservationId,
           actualClaudeCost: actualClaudeCost.toString(),
           actualCreditCost: actualCreditCost.toString(),
-          markupMultiplier: this.MARKUP_MULTIPLIER
+          markupMultiplier: this.MARKUP_MULTIPLIER,
         }
       }, context);
       
     } catch (error) {
-      console.error('Credit finalization error:', error);
+      // SECURITY: Don't log detailed error information
       throw new Error('Credit finalization failed');
     }
   }
@@ -210,7 +212,7 @@ export class CreditGatewayService {
       dailyLimit: account.daily_limit,
       dailyUsed,
       autoRechargeEnabled: account.auto_recharge_enabled,
-      unlimitedCredits: account.unlimited_credits
+      unlimitedCredits: account.unlimited_credits,
     };
   }
 
@@ -229,10 +231,10 @@ export class CreditGatewayService {
       amount,
       description,
       paymentReference,
-      metadata: {
+      metadata: {,
         paymentReference,
         addedAt: new Date().toISOString(),
-        source: 'api_gateway'
+        source: 'api_gateway',
       }
     }, context);
   }
@@ -242,7 +244,7 @@ export class CreditGatewayService {
    */
   async getTransactionHistory(
     userId: string,
-    options: {
+    options: {,
       limit?: number;
       offset?: number;
       type?: 'purchase' | 'usage' | 'refund' | 'adjustment' | 'admin_bypass';
@@ -253,7 +255,7 @@ export class CreditGatewayService {
   ): Promise<{
     transactions: CreditTransaction[];
     total: number;
-    summary: {
+    summary: {,
       totalSpent: Decimal;
       totalPurchased: Decimal;
       adminBypasses: number;
@@ -287,7 +289,7 @@ export class CreditGatewayService {
     return {
       transactions: result.transactions,
       total: result.total,
-      summary: {
+      summary: {,
         totalSpent,
         totalPurchased,
         adminBypasses,
@@ -300,7 +302,7 @@ export class CreditGatewayService {
    * Estimate agent execution cost based on request parameters
    */
   private async estimateAgentExecutionCost(
-    request: AgentExecutionRequest
+    request: AgentExecutionRequest,
   ): Promise<CostEstimation> {
     // Analyze vision complexity
     const complexity = this.analyzeVisionComplexity(request.vision);
@@ -352,8 +354,7 @@ export class CreditGatewayService {
       totalInputTokens,
       totalOutputTokens,
       totalThinkingTokens
-    );
-    
+
     // Estimate duration
     const estimatedMinutes = Math.max(5, Math.floor(maxIterations * 0.5 + (complexity === 'very_high' ? 10 : 5)));
     const estimatedDuration = estimatedMinutes < 60 
@@ -364,14 +365,14 @@ export class CreditGatewayService {
       estimatedClaudeCostUSD: claudeCost,
       estimatedDuration,
       complexity,
-      factors: {
+      factors: {,
         visionLength: request.vision.length,
         maxIterations,
         webSearchEnabled,
-        expectedTokens: {
+        expectedTokens: {,
           input: totalInputTokens,
           output: totalOutputTokens,
-          thinking: totalThinkingTokens
+          thinking: totalThinkingTokens,
         }
       }
     };
@@ -409,7 +410,7 @@ export class CreditGatewayService {
   private calculateClaudeCost(
     inputTokens: number,
     outputTokens: number,
-    thinkingTokens: number = 0
+    thinkingTokens: number = 0,
   ): Decimal {
     const isExtendedContext = inputTokens > 200000;
     
@@ -441,26 +442,26 @@ export class CreditGatewayService {
       const result = await this.db.query(
         'SELECT is_admin, admin_privileges FROM users WHERE id = $1',
         [userId]
-      );
-      
+
       const user = result[0];
       return {
         isAdmin: user?.is_admin || false,
         privileges: user?.admin_privileges || {}
       };
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      // SECURITY: Don't log detailed error information
       return { isAdmin: false };
     }
   }
 
   /**
    * Reserve credits (placeholder implementation)
+   * SECURITY: Fixed weak random number generation
    */
   private async reserveCredits(
     userId: string,
     amount: Decimal,
-    details: {
+    details: {,
       description: string;
       claudeCost: Decimal;
       sessionId?: string;
@@ -469,11 +470,12 @@ export class CreditGatewayService {
     context?: UserContext
   ): Promise<string> {
     // TODO: Implement actual reservation system
-    // For now, return a reservation ID
-    const reservationId = `res_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    // For now, return a reservation ID with secure random generation
+    const reservationId = `res_${Date.now()}_${randomBytes(8).toString('hex')}`; // SECURITY: Fixed weak random
     
     // Store reservation in database (TODO: create reservations table)
-    console.log(`Reserved ${amount} credits for user ${userId}, reservation: ${reservationId}`);
+    // SECURITY: Don't log sensitive user information
+    if (process.env.DEBUG) {}
     
     return reservationId;
   }
@@ -511,11 +513,10 @@ export class CreditGatewayService {
         `,
         [userId, today, tomorrow],
         context
-      );
-      
+
       return new Decimal(result[0]?.daily_spent || 0);
     } catch (error) {
-      console.error('Error calculating daily usage:', error);
+      // SECURITY: Don't log detailed error information
       return new Decimal(0);
     }
   }
@@ -535,20 +536,21 @@ export class CreditGatewayService {
       claudeCostUSD: claudeCost,
       sessionId,
       description: `[ADMIN BYPASS] ${description}`,
-      metadata: {
+      metadata: {,
         admin_bypass: true,
         actual_cost: claudeCost.toString(),
         would_have_charged: claudeCost.mul(this.MARKUP_MULTIPLIER).toString(),
-        markup_multiplier: this.MARKUP_MULTIPLIER
+        markup_multiplier: this.MARKUP_MULTIPLIER,
       }
     }, context);
   }
 
   /**
    * Generate session ID
+   * SECURITY: Fixed weak random number generation
    */
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    return `session_${Date.now()}_${randomBytes(8).toString('hex')}`; // SECURITY: Fixed weak random
   }
 
   /**
@@ -559,19 +561,19 @@ export class CreditGatewayService {
     timeRange: 'day' | 'week' | 'month' = 'day',
     context?: UserContext
   ): Promise<{
-    revenue: {
+    revenue: {,
       totalRevenue: Decimal;
       totalClaudeCosts: Decimal;
       markupRevenue: Decimal;
       adminBypasses: Decimal;
     };
-    usage: {
+    usage: {,
       totalTransactions: number;
       activeUsers: number;
       avgTransactionSize: Decimal;
       adminTransactions: number;
     };
-    system: {
+    system: {,
       markupMultiplier: number;
       noPackages: boolean;
       creditSystemStatus: 'operational' | 'degraded' | 'offline';
@@ -589,44 +591,44 @@ export class CreditGatewayService {
       
       // Transform to expected structure
       return {
-        revenue: {
+        revenue: {,
           totalRevenue: basicAnalytics.totalRevenue || new Decimal(0),
           totalClaudeCosts: basicAnalytics.totalClaudeCosts || new Decimal(0),
           markupRevenue: (basicAnalytics.totalRevenue || new Decimal(0)).sub(basicAnalytics.totalClaudeCosts || new Decimal(0)),
-          adminBypasses: basicAnalytics.totalAdminBypass || new Decimal(0)
+          adminBypasses: basicAnalytics.totalAdminBypass || new Decimal(0),
         },
-        usage: {
+        usage: {,
           totalTransactions: basicAnalytics.transactionCount || 0,
           activeUsers: basicAnalytics.topUsers ? basicAnalytics.topUsers.length : 0,
           avgTransactionSize: basicAnalytics.avgMarkup || new Decimal(0),
-          adminTransactions: 0 // TODO: calculate admin transactions
+          adminTransactions: 0 // TODO: calculate admin transactions,
         },
-        system: {
+        system: {,
           markupMultiplier: this.MARKUP_MULTIPLIER,
           noPackages: true,
-          creditSystemStatus: 'operational'
+          creditSystemStatus: 'operational',
         }
       };
     } catch (error) {
-      console.error('Error getting analytics:', error);
+      // SECURITY: Don't log detailed error information
       // Return default structure if there's an error
       return {
-        revenue: {
+        revenue: {,
           totalRevenue: new Decimal(0),
           totalClaudeCosts: new Decimal(0),
           markupRevenue: new Decimal(0),
-          adminBypasses: new Decimal(0)
+          adminBypasses: new Decimal(0),
         },
-        usage: {
+        usage: {,
           totalTransactions: 0,
           activeUsers: 0,
           avgTransactionSize: new Decimal(0),
-          adminTransactions: 0
+          adminTransactions: 0,
         },
-        system: {
+        system: {,
           markupMultiplier: this.MARKUP_MULTIPLIER,
           noPackages: true,
-          creditSystemStatus: 'operational'
+          creditSystemStatus: 'operational',
         }
       };
     }

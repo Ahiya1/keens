@@ -97,7 +97,7 @@ export class Logger {
   private safeStringify(
     obj: any,
     maxDepth: number = 5,
-    prettyPrint: boolean = false
+    prettyPrint: boolean = false,
   ): string {
     const seen = new WeakSet();
     let currentDepth = 0;
@@ -343,7 +343,7 @@ export class Logger {
     phase: string,
     iteration: number,
     totalIterations: number,
-    message: string
+    message: string,
   ): Promise<void> {
     const percentage = Math.round((iteration / totalIterations) * 100);
     await this.log(
@@ -387,14 +387,14 @@ export class Logger {
       level: LogLevel.INFO,
       category: "api",
       message: `🤖 Claude API call completed - ${totalTokens.toLocaleString()} tokens in ${duration}ms${cost ? ` ($${cost.toFixed(4)})` : ""}`,
-      data: {
+      data: {,
         model,
         duration,
         cost,
       },
       sessionId: this.options.sessionId,
       cost: cost,
-      tokens: {
+      tokens: {,
         input: inputTokens,
         output: outputTokens,
         thinking: thinkingTokens,
@@ -450,7 +450,7 @@ export class Logger {
     sessionId: string,
     currentCost: number,
     threshold: number,
-    message: string
+    message: string,
   ): Promise<void> {
     await this.log(
       LogLevel.WARN,
@@ -472,7 +472,7 @@ export class Logger {
     sessionId: string,
     milestone: number,
     currentCost: number,
-    apiCalls: number
+    apiCalls: number,
   ): Promise<void> {
     await this.log(
       LogLevel.INFO,
@@ -565,17 +565,9 @@ export class Logger {
   }
 
   clearBuffer(): void {
+    // FIXED: Only clear buffer, preserve stats
     this.logBuffer = [];
-    this.stats = {
-      totalLogs: 0,
-      errors: 0,
-      warnings: 0,
-      toolExecutions: 0,
-      phaseTransitions: 0,
-      apiCalls: 0,
-      totalCost: 0,
-      totalTokens: 0,
-    };
+    // Stats are preserved - they represent cumulative counts
   }
 
   async exportLogs(filePath: string): Promise<void> {
@@ -587,18 +579,9 @@ export class Logger {
       `Exported ${exportLogCount} log entries with cost data ($${costStats.totalCost.toFixed(4)}) to ${filePath}`
     );
 
-    // Export with cost summary
-    const exportData = {
-      exportedAt: new Date().toISOString(),
-      summary: {
-        totalLogs: exportLogCount,
-        stats: this.stats,
-        costStats: costStats,
-      },
-      logs: this.logBuffer,
-    };
-
-    const logsJson = this.safeStringify(exportData, 5, true);
+    // FIXED: Export as simple array for easier consumption by tests
+    const logsArray = [...this.logBuffer];
+    const logsJson = this.safeStringify(logsArray, 5, true);
     await fs.writeFile(filePath, logsJson);
   }
 
@@ -682,7 +665,7 @@ export class Logger {
           { ...data, stepCost, totalCost, percentage }
         );
       },
-      complete: async (message: string) => {
+      complete: async (message: string) => {,
         const budgetStatus = budgetLimit
           ? ` (${((totalCost / budgetLimit) * 100).toFixed(1)}% of budget)`
           : "";

@@ -25,25 +25,25 @@ import { cliAuth } from "../auth/CLIAuthManager.js";
  */
 function expandShortCommand(vision: string): string {
   const shortCommands: Record<string, string> = {
-    create:
+    create:,
       "Create a new project with modern development setup including TypeScript, testing framework, linting, and proper project structure",
     init: "Initialize a new development project with essential files and configuration",
-    setup:
+    setup:,
       "Set up a development environment with all necessary tools and dependencies",
-    scaffold:
+    scaffold:,
       "Generate project scaffolding with best practices and modern tooling",
     bootstrap: "Bootstrap a new application with complete development setup",
     new: "Create a new project from scratch with modern development standards",
-    enhance:
+    enhance:,
       "Enhance existing project with improved functionality, logging, and testing capabilities",
-    debug:
+    debug:,
       "Debug and fix issues in the existing codebase with comprehensive logging",
     test: "Add comprehensive testing suite with Jest and proper test coverage",
-    monitor:
+    monitor:,
       "Add monitoring, logging, and observability features to the project",
-    readme:
+    readme:,
       "Update and enhance the README file with comprehensive documentation",
-    docs: "Improve project documentation including README, API docs, and code comments",
+    docs: "Improve project documentation including README, API docs, and code comments"
   };
 
   const normalizedVision = vision.trim().toLowerCase();
@@ -98,24 +98,19 @@ export class BreatheCommand {
 
           try {
             // 🔑 AUTHENTICATION REQUIRED
-            console.log(chalk.blue("🔑 Checking authentication..."));
-            
             try {
+              // Ensure auth manager is initialized before checking auth
+              await cliAuth.initialize();
               userContext = await cliAuth.requireAuth();
             } catch (authError: any) {
               console.error(chalk.red("❌ " + authError.message));
-              console.log(chalk.yellow("\n💡 Quick start:"));
-              console.log(chalk.cyan("   keen login                  # Login to your account"));
-              console.log(chalk.gray("   keen status                 # Check authentication status"));
-              console.log(chalk.gray("   keen --help                 # Show all commands"));
               process.exit(1);
             }
 
             const currentUser = cliAuth.getCurrentUser();
             if (currentUser) {
-              console.log(chalk.green(`✅ Authenticated as ${currentUser.displayName || currentUser.username}`));
               if (currentUser.isAdmin) {
-                console.log(chalk.yellow("   ⚡ Admin privileges active"));
+                console.log(chalk.blue("🔧 Admin user detected - unlimited resources"));
               }
             }
 
@@ -134,12 +129,13 @@ export class BreatheCommand {
                   console.error(chalk.red("❌ Vision file is empty"));
                   process.exit(1);
                 }
+
                 finalVision = visionContent.trim();
                 visionFile = resolvedFile;
               } catch (error: any) {
                 if (error.code === "ENOENT") {
                   console.error(
-                    chalk.red(`❌ Vision file not found: ${resolvedFile}`)
+                    chalk.red(`❌ Vision file not found: ${options.file}`)
                   );
                 } else {
                   console.error(
@@ -158,7 +154,7 @@ export class BreatheCommand {
                 (options.verbose || command.parent?.opts().verbose)
               ) {
                 console.log(
-                  chalk.yellow(`🔄 Expanded '${vision}' to: ${finalVision}`)
+                  chalk.blue(`🔄 Expanded shorthand: "${vision}" → "${finalVision}"`)  
                 );
               }
             } else {
@@ -167,13 +163,6 @@ export class BreatheCommand {
                   "❌ Error: Vision is required (either as argument or via -f flag)"
                 )
               );
-              console.log(chalk.yellow("\n💡 Usage:"));
-              console.log('  keen breathe "<your vision>"');
-              console.log("  keen breathe -f <vision-file>");
-              console.log("\nExamples:");
-              console.log('  keen breathe "Create a React todo app"');
-              console.log("  keen breathe -f vision.md");
-              console.log("  keen breathe readme");
               process.exit(1);
             }
 
@@ -198,7 +187,7 @@ export class BreatheCommand {
               debug: debugMode,
               stream: options.stream !== false,
               // 🎆 NEW: Pass user context to agent
-              userContext: userContext
+              userContext: userContext,
             };
 
             // Validate inputs
@@ -206,51 +195,32 @@ export class BreatheCommand {
               finalVision,
               options.file ? "vision file" : "command argument"
             );
+
             validateDirectory(cliOptions.directory!);
 
             // Display startup information
-            console.log(
-              chalk.green("🤖 keen breathe - Autonomous Development Platform")
-            );
-            console.log(
-              chalk.gray(`📁 Working Directory: ${cliOptions.directory}`)
-            );
-            console.log(
-              chalk.gray(`👤 User: ${currentUser?.displayName || currentUser?.username} (${currentUser?.email})`)
-            );
+            console.log(chalk.blue("\n🌬️ Keen Agent - Autonomous Development"));
+            console.log(chalk.gray(`📍 Working directory: ${cliOptions.directory}`));
 
             if (visionFile) {
-              console.log(
-                chalk.gray(`📄 Vision File: ${path.basename(visionFile)}`)
-              );
-              console.log(
-                chalk.gray(`📝 Vision Length: ${finalVision.length} characters`)
-              );
+              console.log(chalk.gray(`📄 Vision file: ${visionFile}`));
             } else {
               console.log(
                 chalk.gray(
-                  `🎯 Vision: ${finalVision.length > 100 ? finalVision.substring(0, 100) + "..." : finalVision}`
+                  `💭 Vision: ${finalVision.length > 100 ? finalVision.substring(0, 100) + "..." : finalVision}`
                 )
               );
             }
 
-            console.log(chalk.gray(`⚙️  Phase: ${cliOptions.phase}`));
-            console.log(
-              chalk.gray(`🔢 Max Iterations: ${cliOptions.maxIterations}`)
-            );
-            console.log(
-              chalk.gray(`💰 Cost Budget: $${cliOptions.costBudget}`)
-            );
-
             if (currentUser?.isAdmin) {
-              console.log(chalk.yellow("⚡ Admin mode: Unlimited resources"));
+              console.log(chalk.green("🔧 Admin mode: Unlimited resources"));
             }
 
             if (debugMode) {
-              console.log(chalk.yellow("🔍 Debug mode enabled"));
+              console.log(chalk.yellow("🐛 Debug mode: Enabled"));
             }
             if (verboseMode) {
-              console.log(chalk.yellow("📢 Verbose mode enabled"));
+              console.log(chalk.yellow("📢 Verbose mode: Enabled"));
             }
 
             // Start progress indicator for initialization
@@ -263,104 +233,68 @@ export class BreatheCommand {
 
             // Stop initialization progress
             stopProgressIndicator(progressStop);
-
-            console.log(chalk.green("✅ Agent initialized successfully"));
-            console.log(chalk.gray(`🎆 Session ID: ${agent.getSessionId()}`));
             
             if (userContext) {
-              console.log(chalk.gray(`🔑 User Context: ${userContext.userId.substring(0, 8)}...`));
+              console.log(chalk.green(`✅ Authenticated as: ${userContext.email || 'User'}`));
             }
-            
-            console.log("");
 
             // Execute the agent
-            console.log(chalk.blue("🚀 Starting autonomous execution..."));
-
             const result = await agent.execute();
 
             // Display results
             const duration = Date.now() - startTime;
-
-            console.log(chalk.blue("\n" + "=".repeat(60)));
-            console.log(chalk.blue("🏁 EXECUTION COMPLETE"));
-            console.log(chalk.blue("=".repeat(60)));
-
+            
             if (result.success) {
-              console.log(
-                chalk.green("\n🎉 Agent execution completed successfully!")
-              );
+              console.log(chalk.green("\n✅ Agent execution completed successfully!"));
             } else {
-              console.log(
-                chalk.yellow("\n⚠️  Agent execution completed (check results)")
-              );
+              console.log(chalk.red("\n❌ Agent execution completed with issues."));
             }
 
             console.log(
-              chalk.gray(`⏱️  Total Duration: ${Math.round(duration / 1000)}s`)
+              chalk.gray(`⏱️ Execution time: ${(duration / 1000).toFixed(2)}s`)
             );
-            
+
             if (currentUser) {
-              console.log(
-                chalk.gray(`👤 Executed by: ${currentUser.displayName || currentUser.username}`)
-              );
+              console.log(chalk.gray(`👤 User: ${currentUser.email || 'Unknown'}`));
             }
 
             if (result.filesCreated && result.filesCreated.length > 0) {
-              console.log(
-                chalk.yellow(
-                  `\n📄 Files Created: ${result.filesCreated.length}`
-                )
-              );
+              console.log(chalk.green("📁 Files created:"));
               result.filesCreated.forEach((file) =>
-                console.log(chalk.gray(`   ✨ ${file}`))
+                console.log(chalk.green(`  + ${file}`))
               );
             }
 
             if (result.filesModified && result.filesModified.length > 0) {
-              console.log(
-                chalk.yellow(
-                  `\n📝 Files Modified: ${result.filesModified.length}`
-                )
-              );
+              console.log(chalk.yellow("📝 Files modified:"));
               result.filesModified.forEach((file) =>
-                console.log(chalk.gray(`   🔧 ${file}`))
+                console.log(chalk.yellow(`  ~ ${file}`))
               );
             }
 
             if (result.summary) {
-              console.log(chalk.cyan("\n📋 Summary:"));
-              console.log(chalk.white(result.summary));
+              console.log(chalk.blue(`\n📋 Summary: ${result.summary}`));
             }
 
             if (result.nextSteps && result.nextSteps.length > 0) {
-              console.log(chalk.magenta("\n🔄 Suggested Next Steps:"));
+              console.log(chalk.cyan("\n🎯 Next steps:"));
               result.nextSteps.forEach((step, index) =>
-                console.log(chalk.gray(`   ${index + 1}. ${step}`))
+                console.log(chalk.cyan(`  ${index + 1}. ${step}`))
               );
             }
 
             if (result.error) {
-              console.log(chalk.red("\n❌ Final Error:"));
-              console.log(chalk.red(result.error));
+              console.error(chalk.red(`\n❌ Error: ${result.error}`));
             }
-
-            console.log(chalk.blue("\n🏁 Execution completed"));
-            console.log(chalk.gray(`📊 Session logged to database under user: ${currentUser?.username}`));
-            
           } catch (error: any) {
             console.error(chalk.red("\n❌ Agent execution failed:"));
             console.error(chalk.red(error.message));
 
             // Enhanced error handling with authentication context
             if (error.message.includes('Authentication required')) {
-              console.log(chalk.yellow("\n🔑 Authentication issue detected:"));
-              console.log(chalk.gray("   • Your session may have expired"));
-              console.log(chalk.gray("   • Try logging in again: keen login"));
+              console.error(chalk.yellow("💡 Hint: Run 'keen login' to authenticate first"));
             } else if (error.message.includes('database') || error.message.includes('connection')) {
-              console.log(chalk.yellow("\n🔧 Database issue detected:"));
-              console.log(chalk.gray("   • Database connection may be unavailable"));
-              console.log(chalk.gray("   • Check your system configuration"));
-              console.log(chalk.gray("   • Contact support if issue persists"));
+              console.error(chalk.yellow("💡 Hint: Check your network connection and try again"));
             }
 
             if (cliOptions?.debug) {

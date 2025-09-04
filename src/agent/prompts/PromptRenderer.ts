@@ -16,15 +16,15 @@ export class PromptRenderer {
    * Render system prompt from components
    */
   renderSystemPrompt(
-    components: SystemPromptComponents, 
-    context: PromptContext
+    components: SystemPromptComponents,
+    context: PromptContext,
   ): string {
     const renderedComponents: SystemPromptComponents = {};
 
     // Render each component with variable substitution
     for (const [key, content] of Object.entries(components)) {
       if (content) {
-        renderedComponents[key as keyof SystemPromptComponents] = 
+        renderedComponents[key as keyof SystemPromptComponents] =
           this.substituteVariables(content, context);
       }
     }
@@ -38,13 +38,13 @@ export class PromptRenderer {
    */
   renderConversationPrompt(
     components: SystemPromptComponents,
-    context: PromptContext
+    context: PromptContext,
   ): string {
     const renderedComponents: SystemPromptComponents = {};
 
     for (const [key, content] of Object.entries(components)) {
       if (content) {
-        renderedComponents[key as keyof SystemPromptComponents] = 
+        renderedComponents[key as keyof SystemPromptComponents] =
           this.substituteVariables(content, context);
       }
     }
@@ -57,13 +57,13 @@ export class PromptRenderer {
    */
   renderChildAgentPrompt(
     components: SystemPromptComponents,
-    context: PromptContext
+    context: PromptContext,
   ): string {
     const renderedComponents: SystemPromptComponents = {};
 
     for (const [key, content] of Object.entries(components)) {
       if (content) {
-        renderedComponents[key as keyof SystemPromptComponents] = 
+        renderedComponents[key as keyof SystemPromptComponents] =
           this.substituteVariables(content, context);
       }
     }
@@ -76,7 +76,7 @@ export class PromptRenderer {
    */
   renderErrorRecoveryPrompt(
     components: SystemPromptComponents,
-    context: PromptContext & {
+    context: PromptContext & {,
       errors: string[];
       previousAttempt?: string;
     }
@@ -87,17 +87,17 @@ export class PromptRenderer {
       if (content) {
         // Special handling for error-specific content
         let renderedContent = content;
-        
+
         if (content.includes('{{errorList}}')) {
           const errorList = context.errors.map((error, index) => `${index + 1}. ${error}`).join('\n');
           renderedContent = renderedContent.replace('{{errorList}}', errorList);
         }
-        
+
         if (content.includes('{{previousAttempt}}') && context.previousAttempt) {
           renderedContent = renderedContent.replace('{{previousAttempt}}', context.previousAttempt);
         }
-        
-        renderedComponents[key as keyof SystemPromptComponents] = 
+
+        renderedComponents[key as keyof SystemPromptComponents] =
           this.substituteVariables(renderedContent, context);
       }
     }
@@ -124,7 +124,7 @@ export class PromptRenderer {
     if (context.userContext) {
       result = result.replace(/{{userId}}/g, context.userContext.userId || '');
       result = result.replace(/{{isAdmin}}/g, context.userContext.isAdmin ? 'Yes' : 'No');
-      result = result.replace(/{{privileges}}/g, 
+      result = result.replace(/{{privileges}}/g,
         context.userContext.isAdmin ? 'Unlimited resources, priority execution' : 'Standard user limits'
       );
     }
@@ -137,7 +137,7 @@ export class PromptRenderer {
       result = result.replace(/{{parentInfo}}/g, ' (root)');
     }
 
-    result = result.replace(/{{canSpawnChild}}/g, 
+    result = result.replace(/{{canSpawnChild}}/g,
       context.hasRecursiveSpawning ? 'Yes' : 'No (wait for current child to complete)'
     );
 
@@ -172,7 +172,7 @@ export class PromptRenderer {
       summon_agent: 'Spawn a specialized sub-agent with focused expertise. Sequential execution - parent waits until child completes fully before continuing.',
       coordinate_agents: 'Coordinate agent tree execution, enforce sequential order, and manage dependencies between parent and child agents.',
       get_agent_status: 'Report the status of the sequential agent tree, including hierarchy, execution metrics, and current state of all agents.',
-      web_search: 'Search the web for current information, documentation, best practices, and troubleshooting guidance (handled by Anthropic API)'
+      web_search: 'Search the web for current information, documentation, best practices, and troubleshooting guidance (handled by Anthropic API)',
     };
 
     return descriptions[toolName] || 'Tool description not available';
@@ -215,7 +215,7 @@ export class PromptRenderer {
         return [
           'header',
           'task',
-          'context', 
+          'context',
           'capabilities',
           'compilationRequirements',
           'toolInstructions',
@@ -224,7 +224,7 @@ export class PromptRenderer {
           'specializationGuidance',
           'sessionInfo'
         ];
-      
+
       case 'conversation':
         return [
           'header',
@@ -234,7 +234,7 @@ export class PromptRenderer {
           'toolInstructions',
           'sessionInfo'
         ];
-      
+
       case 'child_agent':
         return [
           'header',
@@ -247,7 +247,7 @@ export class PromptRenderer {
           'autonomousOperation',
           'sessionInfo'
         ];
-      
+
       case 'error_recovery':
         return [
           'header',
@@ -257,7 +257,7 @@ export class PromptRenderer {
           'autonomousOperation',
           'sessionInfo'
         ];
-      
+
       default:
         return [
           'header',
@@ -291,13 +291,13 @@ export class PromptRenderer {
     const lines = prompt.split('\n');
     const words = prompt.split(/\s+/).filter(word => word.length > 0);
     const sections = prompt.split(/\n\n/).filter(section => section.trim().length > 0);
-    
+
     return {
       totalLength: prompt.length,
       lineCount: lines.length,
       wordCount: words.length,
       sectionCount: sections.length,
-      estimatedTokens: Math.ceil(prompt.length / 4) // Rough token estimate
+      estimatedTokens: Math.ceil(prompt.length / 4) // Rough token estimate,
     };
   }
 }

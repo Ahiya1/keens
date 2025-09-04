@@ -19,7 +19,7 @@ import { keen } from '../../index.js';
 export function createAdminRouter(
   authService: AuthenticationService,
   auditLogger: AuditLogger,
-  authMiddleware: any
+  authMiddleware: any,
 ) {
   const router = Router();
   const keenDB = keen.getInstance();
@@ -47,7 +47,7 @@ export function createAdminRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid analytics request', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -70,10 +70,10 @@ export function createAdminRouter(
           {
             userId: user.id,
             isAdmin: user.is_admin || false, // Fix boolean/undefined issue
-            adminPrivileges: user.admin_privileges
+            adminPrivileges: user.admin_privileges,
           }
         );
-        
+
         // Get system status
         const systemStatus = await keenDB.getSystemStatus();
         const connectionStats = await keenDB.getDatabaseManager().getConnectionStats();
@@ -84,7 +84,7 @@ export function createAdminRouter(
           const allUsers = await keenDB.users.listUsers(1000, 0, {
             userId: user.id,
             isAdmin: true,
-            adminPrivileges: user.admin_privileges
+            adminPrivileges: user.admin_privileges,
           });
           
           userStats = {
@@ -93,13 +93,13 @@ export function createAdminRouter(
             admin_users: allUsers.users.filter(u => u.is_admin).length,
             verified_users: allUsers.users.filter(u => u.email_verified).length,
             mfa_enabled: allUsers.users.filter(u => u.mfa_enabled).length,
-            recent_signups: allUsers.users.filter(u => {
+            recent_signups: allUsers.users.filter(u => {,
               const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
               return new Date(u.created_at) > weekAgo;
             }).length
           };
         }
-        
+
         // Mock session analytics (TODO: implement in Phase 3)
         const sessionAnalytics = {
           total_sessions: 147,
@@ -108,36 +108,36 @@ export function createAdminRouter(
           cancelled: 5,
           success_rate: 91.2,
           avg_duration_minutes: 12.4,
-          most_common_phases: [
+          most_common_phases: [,
             { phase: 'EXPLORE', count: 147 },
             { phase: 'PLAN', count: 134 },
             { phase: 'SUMMON', count: 89 },
             { phase: 'COMPLETE', count: 134 }
           ]
         };
-        
+
         // Mock agent analytics
         const agentAnalytics = {
           total_agents_spawned: 423,
           max_recursion_depth: 4,
           avg_agents_per_session: 2.9,
-          most_used_tools: [
+          most_used_tools: [,
             { name: 'write_files', count: 1247, success_rate: 98.7 },
             { name: 'read_files', count: 1156, success_rate: 100.0 },
             { name: 'run_command', count: 892, success_rate: 94.2 },
             { name: 'web_search', count: 543, success_rate: 96.1 }
           ]
         };
-        
+
         // Log admin analytics access
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'view_analytics',
-          details: {
+          details: {,
             range,
             include_users: includeUsers,
             include_costs: includeCosts,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           }
         });
         
@@ -148,21 +148,21 @@ export function createAdminRouter(
           admin_user: user.email,
           
           // System overview
-          system: {
+          system: {,
             platform_ready: systemStatus.platform.ready,
             version: systemStatus.platform.version,
             uptime_seconds: process.uptime(),
-            database: {
+            database: {,
               connected: systemStatus.database.connected,
               active_connections: systemStatus.database.activeConnections,
               total_connections: connectionStats.totalConnections,
-              pool_status: 'healthy'
+              pool_status: 'healthy',
             },
-            anthropic: {
+            anthropic: {,
               configured: systemStatus.anthropic.configured,
               model: systemStatus.anthropic.model,
               extended_context: systemStatus.anthropic.extendedContext,
-              thinking_enabled: systemStatus.anthropic.thinking
+              thinking_enabled: systemStatus.anthropic.thinking,
             }
           },
           
@@ -176,41 +176,41 @@ export function createAdminRouter(
           agents: agentAnalytics,
           
           // Credit system analytics
-          credits: includeCosts ? {
-            revenue: creditAnalytics.revenue || {
+          credits: includeCosts ? {,
+            revenue: creditAnalytics.revenue || {,
               total_revenue: 12547.50,
               total_claude_costs: 2509.50,
               markup_revenue: 10038.00,
-              admin_bypasses: 1247.80
+              admin_bypasses: 1247.80,
             },
-            usage: creditAnalytics.usage || {
+            usage: creditAnalytics.usage || {,
               total_transactions: 3421,
               active_users: 156,
               avg_transaction_size: 3.67,
-              admin_transactions: 89
+              admin_transactions: 89,
             },
-            system: {
+            system: {,
               markup_multiplier: 5.0,
               no_packages: true,
               individual_tier_only: true,
-              admin_bypass_enabled: true
+              admin_bypass_enabled: true,
             }
           } : undefined,
           
           // Performance metrics
-          performance: {
+          performance: {,
             api_requests_per_hour: 1247, // TODO: implement real metrics
             avg_response_time_ms: 342,
             error_rate_percent: 1.2,
-            websocket_connections: 23
+            websocket_connections: 23,
           },
           
           // Security overview
-          security: {
+          security: {,
             failed_login_attempts: 12,
             rate_limited_requests: 45,
             admin_actions: 67,
-            high_risk_events: 3
+            high_risk_events: 3,
           }
         });
         
@@ -220,7 +220,7 @@ export function createAdminRouter(
           requestId: req.id,
           userId: user.id,
           error: `Admin analytics failed: ${errorMessage}`,
-          isAdmin: true
+          isAdmin: true,
         });
         
         throw error;
@@ -246,7 +246,7 @@ export function createAdminRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid audit log request', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -268,9 +268,9 @@ export function createAdminRouter(
         userId: user_id as string,
         riskLevel: risk_level as string,
         limit: Number(limit),
-        offset: Number(offset)
+        offset: Number(offset),
       };
-      
+
       try {
         const auditLogs = await auditLogger.getAuditLogs(user.id, filters);
         
@@ -278,27 +278,27 @@ export function createAdminRouter(
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'view_audit_logs',
-          details: {
+          details: {,
             filters,
-            results_count: auditLogs.logs.length
+            results_count: auditLogs.logs.length,
           }
         });
         
         return res.status(200).json({
           success: true,
           audit_logs: auditLogs.logs,
-          pagination: {
+          pagination: {,
             total: auditLogs.total,
             limit: Number(limit),
             offset: Number(offset),
-            has_more: Number(offset) + Number(limit) < auditLogs.total
+            has_more: Number(offset) + Number(limit) < auditLogs.total,
           },
           filters,
-          metadata: {
+          metadata: {,
             accessed_by: user.email,
             accessed_at: new Date().toISOString(),
             retention_policy: '2 years',
-            export_available: true
+            export_available: true,
           }
         });
         
@@ -308,7 +308,7 @@ export function createAdminRouter(
           requestId: req.id,
           userId: user.id,
           error: `Audit log access failed: ${errorMessage}`,
-          isAdmin: true
+          isAdmin: true,
         });
         
         throw error;
@@ -344,18 +344,20 @@ export function createAdminRouter(
         {
           userId: user.id,
           isAdmin: true,
-          adminPrivileges: user.admin_privileges
+          adminPrivileges: user.admin_privileges,
         }
       );
-      
+
       // Filter users based on query parameters
       let filteredUsers = users.users;
       if (status) {
         filteredUsers = filteredUsers.filter(u => u.account_status === status);
       }
+
       if (role) {
         filteredUsers = filteredUsers.filter(u => u.role === role);
       }
+
       if (search) {
         const searchLower = (search as string).toLowerCase();
         filteredUsers = filteredUsers.filter(u => 
@@ -364,20 +366,20 @@ export function createAdminRouter(
           (u.display_name && u.display_name.toLowerCase().includes(searchLower))
         );
       }
-      
+
       // Log user list access
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'list_users',
-        details: {
+        details: {,
           filters: { status, role, search },
-          results_count: filteredUsers.length
+          results_count: filteredUsers.length,
         }
       });
       
       return res.status(200).json({
         success: true,
-        users: filteredUsers.map(u => ({
+        users: filteredUsers.map(u => ({,
           id: u.id,
           email: u.email,
           username: u.username,
@@ -389,21 +391,21 @@ export function createAdminRouter(
           mfa_enabled: u.mfa_enabled,
           created_at: u.created_at,
           last_login_at: u.last_login_at,
-          last_login_ip: u.last_login_ip
+          last_login_ip: u.last_login_ip,
         })),
-        pagination: {
+        pagination: {,
           total: users.total,
           filtered: filteredUsers.length,
           limit: Number(limit),
           offset: Number(offset),
-          has_more: Number(offset) + Number(limit) < filteredUsers.length
+          has_more: Number(offset) + Number(limit) < filteredUsers.length,
         },
         filters: { status, role, search },
-        summary: {
+        summary: {,
           total_users: users.total,
           active_users: users.users.filter(u => u.account_status === 'active').length,
           admin_users: users.users.filter(u => u.is_admin).length,
-          verified_users: users.users.filter(u => u.email_verified).length
+          verified_users: users.users.filter(u => u.email_verified).length,
         }
       });
     })
@@ -423,31 +425,31 @@ export function createAdminRouter(
         {
           userId: adminUser.id,
           isAdmin: true,
-          adminPrivileges: adminUser.admin_privileges
+          adminPrivileges: adminUser.admin_privileges,
         }
       );
-      
+
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: {
+          error: {,
             type: 'NOT_FOUND',
             code: 'USER_NOT_FOUND',
-            message: 'User not found'
+            message: 'User not found',
           }
         });
       }
-      
+
       // Get user's credit account
       const creditAccount = await keenDB.credits.getCreditAccount(
         userId,
         {
           userId: adminUser.id,
           isAdmin: true,
-          adminPrivileges: adminUser.admin_privileges
+          adminPrivileges: adminUser.admin_privileges,
         }
       );
-      
+
       // Get recent transactions
       const transactions = await creditGateway.getTransactionHistory(
         userId,
@@ -455,33 +457,33 @@ export function createAdminRouter(
         {
           userId: adminUser.id,
           isAdmin: true,
-          adminPrivileges: adminUser.admin_privileges
+          adminPrivileges: adminUser.admin_privileges,
         }
       );
-      
+
       // Log user detail access
       await auditLogger.logAdminAction({
         adminUserId: adminUser.id,
         action: 'view_user_details',
         targetUserId: userId,
-        details: {
+        details: {,
           viewed_user_email: user.email,
-          admin_access: true
+          admin_access: true,
         }
       });
       
       return res.status(200).json({
         success: true,
-        user: {
+        user: {,
           // Full user details (admin can see everything)
           ...user,
-          credit_account: creditAccount ? {
+          credit_account: creditAccount ? {,
             current_balance: creditAccount.current_balance.toNumber(),
             lifetime_purchased: creditAccount.lifetime_purchased.toNumber(),
             lifetime_spent: creditAccount.lifetime_spent.toNumber(),
             unlimited_credits: creditAccount.unlimited_credits,
             auto_recharge_enabled: creditAccount.auto_recharge_enabled,
-            account_status: creditAccount.account_status
+            account_status: creditAccount.account_status,
           } : null,
           recent_transactions: transactions.transactions.slice(0, 5).map(t => ({
             id: t.id,
@@ -489,19 +491,19 @@ export function createAdminRouter(
             amount: t.amount.toNumber(),
             description: t.description,
             is_admin_bypass: t.is_admin_bypass,
-            created_at: t.created_at
+            created_at: t.created_at,
           })),
-          usage_summary: {
+          usage_summary: {,
             total_sessions: 0, // TODO: implement
             total_spent: transactions.summary.totalSpent.toNumber(),
-            avg_session_cost: 0 // TODO: implement
+            avg_session_cost: 0 // TODO: implement,
           }
         },
-        admin_notes: {
+        admin_notes: {,
           viewed_by: adminUser.email,
           viewed_at: new Date().toISOString(),
           full_access: true,
-          sensitive_data_included: true
+          sensitive_data_included: true,
         }
       });
     })
@@ -520,30 +522,30 @@ export function createAdminRouter(
         
         // Test all major components
         const healthChecks = {
-          database: {
+          database: {,
             status: systemStatus.database.connected ? 'healthy' : 'unhealthy',
             active_connections: systemStatus.database.activeConnections,
             total_connections: connectionStats.totalConnections,
-            response_time_ms: 0 // TODO: measure actual response time
+            response_time_ms: 0 // TODO: measure actual response time,
           },
-          anthropic: {
+          anthropic: {,
             status: systemStatus.anthropic.configured ? 'healthy' : 'unhealthy',
             model: systemStatus.anthropic.model,
             extended_context: systemStatus.anthropic.extendedContext,
-            thinking_enabled: systemStatus.anthropic.thinking
+            thinking_enabled: systemStatus.anthropic.thinking,
           },
-          api_gateway: {
+          api_gateway: {,
             status: 'healthy',
             uptime_seconds: process.uptime(),
             memory_usage: process.memoryUsage(),
-            active_requests: 0 // TODO: track active requests
+            active_requests: 0 // TODO: track active requests,
           },
-          websocket: {
+          websocket: {,
             status: 'healthy',
-            active_connections: 0 // TODO: track WebSocket connections
+            active_connections: 0 // TODO: track WebSocket connections,
           }
         };
-        
+
         const overallStatus = Object.values(healthChecks).every(check => check.status === 'healthy')
           ? 'healthy'
           : 'degraded';
@@ -552,9 +554,9 @@ export function createAdminRouter(
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'system_health_check',
-          details: {
+          details: {,
             overall_status: overallStatus,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           }
         });
         
@@ -564,10 +566,10 @@ export function createAdminRouter(
           timestamp: new Date().toISOString(),
           checked_by: user.email,
           components: healthChecks,
-          platform: {
+          platform: {,
             ready: systemStatus.platform.ready,
             version: systemStatus.platform.version,
-            phase: 'Phase 2 - API Gateway'
+            phase: 'Phase 2 - API Gateway',
           }
         });
         
@@ -577,7 +579,7 @@ export function createAdminRouter(
           requestId: req.id,
           userId: user.id,
           error: `System health check failed: ${errorMessage}`,
-          isAdmin: true
+          isAdmin: true,
         });
         
         throw error;

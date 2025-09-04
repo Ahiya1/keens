@@ -1,7 +1,7 @@
 /**
  * PromptManager - Core orchestrator for the modular prompt system
  * Replaces hardcoded prompt building with flexible, maintainable architecture
- * 
+ *
  * Features:
  * - Modular prompt components
  * - Template-based system
@@ -50,13 +50,13 @@ export class PromptManager {
     this.debugLog('BUILD_SYSTEM', 'Building system prompt', {
       type: config.type,
       specialization: config.specialization,
-      phase: config.phase
+      phase: config.phase,
     });
 
     try {
       // Build prompt components
       const components = this.builder.buildSystemPrompt(config);
-      
+
       // Validate completeness
       const validation = this.validator.validatePrompt(components, config);
       if (!validation.isValid) {
@@ -69,13 +69,13 @@ export class PromptManager {
       this.debugLog('BUILD_SUCCESS', 'System prompt built successfully', {
         length: prompt.length,
         componentsUsed: Object.keys(components).filter(key => components[key as keyof SystemPromptComponents]).length,
-        validationScore: validation.score
+        validationScore: validation.score,
       });
 
       return prompt;
     } catch (error) {
       this.debugLog('BUILD_ERROR', 'Failed to build system prompt', {
-        error: error instanceof Error ? error.message : error
+        error: error instanceof Error ? error.message : error,
       });
       throw error;
     }
@@ -86,13 +86,13 @@ export class PromptManager {
    */
   buildConversationPrompt(config: PromptConfiguration): string {
     this.debugLog('BUILD_CONV', 'Building conversation prompt', {
-      hasUserContext: !!config.context.userContext
+      hasUserContext: !!config.context.userContext,
     });
 
     try {
       const components = this.builder.buildConversationPrompt(config);
       const validation = this.validator.validatePrompt(components, config);
-      
+
       if (!validation.isValid) {
         throw new Error(`Conversation prompt validation failed: ${validation.errors.join(', ')}`);
       }
@@ -101,13 +101,13 @@ export class PromptManager {
 
       this.debugLog('CONV_SUCCESS', 'Conversation prompt built successfully', {
         length: prompt.length,
-        validationScore: validation.score
+        validationScore: validation.score,
       });
 
       return prompt;
     } catch (error) {
       this.debugLog('CONV_ERROR', 'Failed to build conversation prompt', {
-        error: error instanceof Error ? error.message : error
+        error: error instanceof Error ? error.message : error,
       });
       throw error;
     }
@@ -119,13 +119,13 @@ export class PromptManager {
   buildChildAgentPrompt(config: PromptConfiguration): string {
     this.debugLog('BUILD_CHILD', 'Building child agent prompt', {
       specialization: config.specialization,
-      parentSessionId: config.context.parentSessionId
+      parentSessionId: config.context.parentSessionId,
     });
 
     try {
       const components = this.builder.buildChildAgentPrompt(config);
       const validation = this.validator.validatePrompt(components, config);
-      
+
       if (!validation.isValid) {
         throw new Error(`Child agent prompt validation failed: ${validation.errors.join(', ')}`);
       }
@@ -135,13 +135,13 @@ export class PromptManager {
       this.debugLog('CHILD_SUCCESS', 'Child agent prompt built successfully', {
         length: prompt.length,
         specialization: config.specialization,
-        validationScore: validation.score
+        validationScore: validation.score,
       });
 
       return prompt;
     } catch (error) {
       this.debugLog('CHILD_ERROR', 'Failed to build child agent prompt', {
-        error: error instanceof Error ? error.message : error
+        error: error instanceof Error ? error.message : error,
       });
       throw error;
     }
@@ -156,13 +156,13 @@ export class PromptManager {
   }): string {
     this.debugLog('BUILD_ERROR_RECOVERY', 'Building error recovery prompt', {
       errorCount: config.errors.length,
-      hasPreviousAttempt: !!config.previousAttempt
+      hasPreviousAttempt: !!config.previousAttempt,
     });
 
     try {
       const components = this.builder.buildErrorRecoveryPrompt(config);
       const validation = this.validator.validatePrompt(components, config);
-      
+
       if (!validation.isValid) {
         throw new Error(`Error recovery prompt validation failed: ${validation.errors.join(', ')}`);
       }
@@ -170,18 +170,18 @@ export class PromptManager {
       const prompt = this.renderer.renderErrorRecoveryPrompt(components, {
         ...config.context,
         errors: config.errors,
-        previousAttempt: config.previousAttempt
+        previousAttempt: config.previousAttempt,
       });
 
       this.debugLog('ERROR_RECOVERY_SUCCESS', 'Error recovery prompt built successfully', {
         length: prompt.length,
-        validationScore: validation.score
+        validationScore: validation.score,
       });
 
       return prompt;
     } catch (error) {
       this.debugLog('ERROR_RECOVERY_ERROR', 'Failed to build error recovery prompt', {
-        error: error instanceof Error ? error.message : error
+        error: error instanceof Error ? error.message : error,
       });
       throw error;
     }
@@ -247,10 +247,7 @@ export class PromptManager {
   private debugLog(category: string, message: string, data?: any): void {
     if (this.debug) {
       const timestamp = new Date().toISOString();
-      console.log(chalk.gray(`[${timestamp}] 📝 [PROMPT_${category}] ${message}`));
-      if (data) {
-        console.log(chalk.gray(JSON.stringify(data, null, 2)));
-      }
+      // Use console.log with chalk for better production practicesif (data) {}
     }
   }
 }

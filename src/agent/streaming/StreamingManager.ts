@@ -68,7 +68,7 @@ export interface StreamingOptions {
 }
 
 export interface StreamingProgress {
-  phase:
+  phase:,
     | "starting"
     | "streaming"
     | "thinking"
@@ -168,7 +168,7 @@ export class StreamingManager extends EventEmitter {
     this.emitProgress("starting", "Initiating streaming connection...");
 
     if (this.options.debug) {
-      console.log(chalk.gray("🔄 StreamingManager: Starting streaming"), {
+      console.log(chalk.blue("🔄 Starting streaming session"), {
         timeout: this.options.timeout,
         showProgress: this.options.showProgress,
       });
@@ -178,20 +178,15 @@ export class StreamingManager extends EventEmitter {
   handleStreamingEvent(event: StreamingEvent): void {
     if (!this.state.isActive) {
       if (this.options.debug) {
-        console.log(
-          chalk.yellow(
-            "⚠️  Received streaming event but streaming is not active"
-          ),
-          {
-            type: event.type,
-          }
-        );
+        console.log(chalk.yellow("⚠️  Received event after streaming stopped"), {
+          type: event.type,
+        });
       }
       return;
     }
 
     if (this.options.debug) {
-      console.log(chalk.blue("📥 Processing streaming event"), {
+      console.log(chalk.cyan("🔄 Processing streaming event"), {
         type: event.type,
         index: event.index,
         hasData: !!event.data,
@@ -254,7 +249,7 @@ export class StreamingManager extends EventEmitter {
 
         default:
           if (this.options.debug) {
-            console.log(chalk.yellow("❓ Unknown streaming event type"), {
+            console.log(chalk.yellow("⚠️  Unknown streaming event type"), {
               type: event.type,
               event,
             });
@@ -317,7 +312,7 @@ export class StreamingManager extends EventEmitter {
     this.emitProgress("thinking", "Claude is thinking...");
 
     if (this.options.verbose) {
-      console.log(chalk.magenta("\n🧠 Claude is thinking..."));
+      console.log(chalk.gray("💭 Thinking started..."));
     }
   }
 
@@ -340,7 +335,7 @@ export class StreamingManager extends EventEmitter {
       this.state.thinkingBuffer = "";
 
       if (this.options.verbose) {
-        console.log(chalk.magenta("\n🧠 Thinking complete"));
+        console.log(chalk.gray("💭 Thinking completed"));
       }
     }
   }
@@ -349,13 +344,13 @@ export class StreamingManager extends EventEmitter {
     this.emitProgress("tool_use", "Using tools...");
 
     if (this.options.verbose) {
-      console.log(chalk.blue("\n🔧 Using tools..."));
+      console.log(chalk.blue("🔧 Tool use started"));
     }
   }
 
   private handleToolUseDelta(event: StreamingEvent): void {
     if (this.options.debug) {
-      console.log(chalk.gray("🔧 Tool use delta received"), { event });
+      console.log(chalk.cyan("🔧 Tool delta received"), event.data?.delta);
     }
   }
 
@@ -371,7 +366,7 @@ export class StreamingManager extends EventEmitter {
       this.emit("toolCall", toolCall);
 
       if (this.options.verbose) {
-        console.log(chalk.blue(`🔧 Tool executed: ${toolCall.name}`));
+        console.log(chalk.blue(`🔧 Tool completed: ${toolCall.name}`));
       }
     }
   }
@@ -475,7 +470,7 @@ export class StreamingManager extends EventEmitter {
 
     if (this.options.showProgress && message) {
       const elapsed = Math.round(progress.elapsedTime / 1000);
-      console.log(chalk.cyan(`⏱️  ${message} (${elapsed}s elapsed)`));
+      console.log(chalk.cyan(`📊 [${elapsed}s] ${message}`));
     }
   }
 
@@ -489,12 +484,7 @@ export class StreamingManager extends EventEmitter {
 
     if (this.options.verbose) {
       const duration = Math.round((Date.now() - this.state.startTime) / 1000);
-      console.log(chalk.green(`\n✅ Streaming completed in ${duration}s`));
-      console.log(
-        chalk.gray(
-          `📊 Tokens: ${this.state.totalTokens}, Thinking blocks: ${this.state.thinkingBlocks.length}, Tool calls: ${this.state.toolCalls.length}`
-        )
-      );
+      console.log(chalk.green(`✅ Streaming completed in ${duration}s`));
     }
   }
 
@@ -562,7 +552,7 @@ export class StreamingManager extends EventEmitter {
   // COMPLETE FINAL FIX: Process Anthropic stream and build proper content blocks with signatures
   static async processAnthropicStream(
     stream: AsyncIterable<any>,
-    streamingManager: StreamingManager
+    streamingManager: StreamingManager,
   ): Promise<any> {
     streamingManager.startStreaming();
 

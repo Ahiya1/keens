@@ -16,6 +16,12 @@ export {
   RealtimeSubscription
 } from './SupabaseManager.js';
 
+// Main database service
+export { 
+  DatabaseService,
+  databaseService
+} from './DatabaseService.js';
+
 // Configuration (enhanced for cloud-native)
 export {
   supabaseConfig,

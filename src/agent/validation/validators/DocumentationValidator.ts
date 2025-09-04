@@ -69,7 +69,7 @@ export class DocumentationValidator {
         message: `Documentation validation failed: ${error.message}`,
         file: '',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
       suggestions.push('Manual documentation review recommended');
     }
@@ -172,7 +172,7 @@ export class DocumentationValidator {
           file: 'README.md',
           line: 0,
           autoFixable: false,
-          suggestion: 'Add installation instructions, usage examples, and project description'
+          suggestion: 'Add installation instructions, usage examples, and project description',
         });
         score += 30;
       } else if (content.length < 500) {
@@ -221,7 +221,7 @@ export class DocumentationValidator {
           file: 'README.md',
           line: 0,
           autoFixable: false,
-          suggestion: 'Add code examples to show how to use the project'
+          suggestion: 'Add code examples to show how to use the project',
         });
       }
       
@@ -239,7 +239,7 @@ export class DocumentationValidator {
         file: 'README.md',
         line: 0,
         autoFixable: false,
-        suggestion: 'Create a README.md file with project information'
+        suggestion: 'Create a README.md file with project information',
       });
       return 0;
     }
@@ -287,7 +287,7 @@ export class DocumentationValidator {
           file: '',
           line: 0,
           autoFixable: false,
-          suggestion: 'Add JSDoc comments to more functions'
+          suggestion: 'Add JSDoc comments to more functions',
         });
       }
       
@@ -299,7 +299,7 @@ export class DocumentationValidator {
           file: '',
           line: 0,
           autoFixable: false,
-          suggestion: 'Add JSDoc comments to more classes'
+          suggestion: 'Add JSDoc comments to more classes',
         });
       }
       
@@ -364,7 +364,7 @@ export class DocumentationValidator {
               file: '',
               line: 0,
               autoFixable: false,
-              suggestion: 'Create API documentation using Swagger/OpenAPI or similar'
+              suggestion: 'Create API documentation using Swagger/OpenAPI or similar',
             });
             score = 20; // Low score for API projects without docs
           } else {
@@ -440,7 +440,7 @@ export class DocumentationValidator {
           file: '',
           line: 0,
           autoFixable: false,
-          suggestion: 'Create a CHANGELOG.md to track project changes'
+          suggestion: 'Create a CHANGELOG.md to track project changes',
         });
         score = 40;
       }
@@ -535,7 +535,7 @@ export class DocumentationValidator {
       documentedFunctions: 0,
       totalClasses: 0,
       documentedClasses: 0,
-      issues: [] as ValidationIssue[]
+      issues: [] as ValidationIssue[],
     };
     
     try {
@@ -563,7 +563,7 @@ export class DocumentationValidator {
               file: relativeFilePath,
               line: lineNumber,
               autoFixable: false,
-              suggestion: 'Add JSDoc comment to describe function purpose and parameters'
+              suggestion: 'Add JSDoc comment to describe function purpose and parameters',
             });
           }
         }
@@ -583,7 +583,7 @@ export class DocumentationValidator {
               file: relativeFilePath,
               line: lineNumber,
               autoFixable: false,
-              suggestion: 'Add JSDoc comment to describe class purpose'
+              suggestion: 'Add JSDoc comment to describe class purpose',
             });
           }
         }
@@ -603,7 +603,7 @@ export class DocumentationValidator {
     // Look at the previous few lines for JSDoc comments
     for (let i = Math.max(0, lineIndex - 5); i < lineIndex; i++) {
       const line = lines[i].trim();
-      if (line.includes('/**') || line.includes('*') || line.includes('*/')  || line.startsWith('//')) {
+      if (line.includes('/**') || line.includes('*') || line.includes('*/') || line.startsWith('//')) {
         return true;
       }
     }

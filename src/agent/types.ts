@@ -22,11 +22,11 @@ export type AgentSpecialization =
 
 // NEW: Agent spawn request for recursive spawning
 export interface AgentSpawnRequest {
-  vision: string; // Sub-vision for the child agent
+  vision: string; // Sub-vision for the child agent,
   specialization: AgentSpecialization;
   parentSessionId: string;
   workingDirectory: string;
-  gitBranch: string; // Branch name for this child
+  gitBranch: string; // Branch name for this child,
   maxIterations?: number;
   costBudget?: number;
   context?: any; // Filtered context from parent
@@ -65,7 +65,7 @@ export interface AgentTreeStatus {
   failedNodes: number;
   maxDepth: number;
   tree: Record<string, AgentTreeNode>;
-  executionOrder: string[]; // Sequential execution order
+  executionOrder: string[]; // Sequential execution order,
 }
 
 // Agent execution context with user authentication - UPDATED for Phase 3.3
@@ -118,7 +118,7 @@ export interface AgentSessionOptions {
 export interface ToolSchema {
   name: string;
   description: string;
-  input_schema: {
+  input_schema: {,
     type: 'object';
     properties: Record<string, any>;
     required?: string[];
@@ -184,7 +184,7 @@ export interface AgentMetrics {
   costEstimate: number;
   successRate: number;
   // 🎯 NEW: Authentication metrics
-  authenticationMetrics: {
+  authenticationMetrics: {,
     authenticated: boolean;
     userId?: string;
     isAdmin: boolean;
@@ -272,7 +272,7 @@ export interface SessionSummary {
   metrics: AgentMetrics;
   qualityMetrics?: QualityMetrics;
   // 🎯 NEW: User session info
-  userInfo: {
+  userInfo: {,
     userId: string;
     isAdmin: boolean;
     authenticationDuration: number;

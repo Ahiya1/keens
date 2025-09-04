@@ -56,10 +56,7 @@ export class WebSocketManager {
 
     this.wss.on('error', (error) => {
       console.error('WebSocket server error:', error);
-    });
-
-    console.log('✅ WebSocket server event handlers configured');
-  }
+    });}
 
   /**
    * Handle new WebSocket connection
@@ -98,7 +95,7 @@ export class WebSocketManager {
         connectionId,
         connectedAt: new Date(),
         lastPingAt: new Date(),
-        subscriptions: new Set()
+        subscriptions: new Set(),
       };
 
       // Store connection
@@ -118,17 +115,17 @@ export class WebSocketManager {
         event_type: 'connection_established',
         timestamp: new Date().toISOString(),
         session_id: 'system',
-        data: {
+        data: {,
           connection_id: connectionId,
           user_id: mockUser.id,
           admin_access: mockUser.isAdmin,
           session_filters: sessionFilters,
           privileges: mockUser.adminPrivileges,
-          features: {
+          features: {,
             real_time_streaming: true,
             admin_monitoring: mockUser.isAdmin,
             session_filtering: true,
-            heartbeat: true
+            heartbeat: true,
           }
         }
       });
@@ -137,17 +134,13 @@ export class WebSocketManager {
       await this.auditLogger.logAdminAction({
         adminUserId: mockUser.id,
         action: 'websocket_connect',
-        details: {
+        details: {,
           connection_id: connectionId,
           is_admin: mockUser.isAdmin,
           session_filters: sessionFilters,
-          client_ip: this.getClientIP(req)
+          client_ip: this.getClientIP(req),
         }
-      });
-
-      console.log(`🔗 WebSocket connected: ${connectionId} (user: ${mockUser.id}, admin: ${mockUser.isAdmin})`);
-
-    } catch (error) {
+      });} catch (error) {
       console.error('WebSocket authentication failed:', error);
       ws.close(1008, 'Authentication failed');
       
@@ -155,9 +148,9 @@ export class WebSocketManager {
       await this.auditLogger.logSecurityEvent({
         type: 'invalid_token',
         ip: this.getClientIP(req),
-        details: {
+        details: {,
           reason: 'websocket_auth_failed',
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         }
       });
     }
@@ -226,17 +219,15 @@ export class WebSocketManager {
               event_type: 'error',
               timestamp: new Date().toISOString(),
               session_id: 'system',
-              data: {
+              data: {,
                 error: 'INSUFFICIENT_PRIVILEGES',
-                message: 'Admin privileges required'
+                message: 'Admin privileges required',
               }
             });
           }
           break;
           
-        default:
-          console.log(`Unknown message type: ${message.type}`);
-      }
+        default:}
       
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
@@ -244,9 +235,9 @@ export class WebSocketManager {
         event_type: 'error',
         timestamp: new Date().toISOString(),
         session_id: 'system',
-        data: {
+        data: {,
           error: 'INVALID_MESSAGE_FORMAT',
-          message: 'Invalid JSON message'
+          message: 'Invalid JSON message',
         }
       });
     }
@@ -270,15 +261,12 @@ export class WebSocketManager {
       event_type: 'subscription_confirmed',
       timestamp: new Date().toISOString(),
       session_id: sessionId,
-      data: {
+      data: {,
         session_id: sessionId,
         subscribed: true,
-        admin_access: connection.isAdmin
+        admin_access: connection.isAdmin,
       }
-    });
-
-    console.log(`📡 ${connectionId} subscribed to session ${sessionId}`);
-  }
+    });}
 
   /**
    * Handle session unsubscription
@@ -301,14 +289,11 @@ export class WebSocketManager {
       event_type: 'subscription_cancelled',
       timestamp: new Date().toISOString(),
       session_id: sessionId,
-      data: {
+      data: {,
         session_id: sessionId,
-        subscribed: false
+        subscribed: false,
       }
-    });
-
-    console.log(`📡 ${connectionId} unsubscribed from session ${sessionId}`);
-  }
+    });}
 
   /**
    * Handle admin commands
@@ -324,11 +309,11 @@ export class WebSocketManager {
           event_type: 'admin_response',
           timestamp: new Date().toISOString(),
           session_id: 'system',
-          data: {
+          data: {,
             command: 'get_active_sessions',
             active_sessions: activeSessions,
             total_connections: this.connections.size,
-            admin_connections: Array.from(this.connections.values()).filter(c => c.isAdmin).length
+            admin_connections: Array.from(this.connections.values()).filter(c => c.isAdmin).length,
           }
         });
         break;
@@ -339,9 +324,9 @@ export class WebSocketManager {
             event_type: 'admin_broadcast',
             timestamp: new Date().toISOString(),
             session_id: message.target_session,
-            data: {
+            data: {,
               message: message.broadcast_message,
-              from_admin: connection.userId
+              from_admin: connection.userId,
             }
           });
         }
@@ -352,10 +337,10 @@ export class WebSocketManager {
     await this.auditLogger.logAdminAction({
       adminUserId: connection.userId,
       action: 'websocket_admin_command',
-      details: {
+      details: {,
         connection_id: connectionId,
         command: message.command,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
     });
   }
@@ -393,17 +378,14 @@ export class WebSocketManager {
     await this.auditLogger.logAdminAction({
       adminUserId: connection.userId,
       action: 'websocket_disconnect',
-      details: {
+      details: {,
         connection_id: connectionId,
         code,
         reason,
         duration_ms: Date.now() - connection.connectedAt.getTime(),
-        was_admin: connection.isAdmin
+        was_admin: connection.isAdmin,
       }
-    });
-
-    console.log(`🔌 WebSocket disconnected: ${connectionId} (code: ${code}, reason: ${reason})`);
-  }
+    });}
 
   /**
    * Handle pong response
@@ -439,7 +421,7 @@ export class WebSocketManager {
   async broadcastToUser(
     userId: string,
     event: StreamingEvent,
-    adminOnly: boolean = false
+    adminOnly: boolean = false,
   ): Promise<void> {
     const userConnections = this.userConnections.get(userId);
     if (!userConnections) return;
@@ -548,7 +530,7 @@ export class WebSocketManager {
       adminConnections,
       activeConnections,
       sessionSubscriptions: this.sessionSubscriptions.size,
-      userConnections: this.userConnections.size
+      userConnections: this.userConnections.size,
     };
   }
 
@@ -566,10 +548,7 @@ export class WebSocketManager {
   /**
    * Shutdown WebSocket manager
    */
-  async shutdown(): Promise<void> {
-    console.log('🛑 Shutting down WebSocket manager...');
-    
-    // Clear intervals
+  async shutdown(): Promise<void> {// Clear intervals
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
     }
@@ -585,8 +564,5 @@ export class WebSocketManager {
     // Clear all maps
     this.connections.clear();
     this.userConnections.clear();
-    this.sessionSubscriptions.clear();
-    
-    console.log('✅ WebSocket manager shutdown complete');
-  }
+    this.sessionSubscriptions.clear();}
 }

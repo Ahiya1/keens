@@ -40,21 +40,21 @@ export class QualityGateManager {
     this.gates.set('EXPLORE', {
       name: 'Exploration Quality Gate',
       threshold: 0.8,
-      criteria: [
+      criteria: [,
         {
           name: 'Project structure analyzed',
           weight: 0.4,
-          validator: this.validateProjectAnalysis.bind(this)
+          validator: this.validateProjectAnalysis.bind(this),
         },
         {
           name: 'Requirements understood',
           weight: 0.4,
-          validator: this.validateRequirementsUnderstanding.bind(this)
+          validator: this.validateRequirementsUnderstanding.bind(this),
         },
         {
           name: 'Technology stack identified',
           weight: 0.2,
-          validator: this.validateTechStackAnalysis.bind(this)
+          validator: this.validateTechStackAnalysis.bind(this),
         }
       ]
     });
@@ -63,21 +63,21 @@ export class QualityGateManager {
     this.gates.set('PLAN', {
       name: 'Planning Quality Gate',
       threshold: 0.75,
-      criteria: [
+      criteria: [,
         {
           name: 'Implementation plan created',
           weight: 0.5,
-          validator: this.validateImplementationPlan.bind(this)
+          validator: this.validateImplementationPlan.bind(this),
         },
         {
           name: 'Dependencies identified',
           weight: 0.3,
-          validator: this.validateDependencies.bind(this)
+          validator: this.validateDependencies.bind(this),
         },
         {
           name: 'Task breakdown complete',
           weight: 0.2,
-          validator: this.validateTaskBreakdown.bind(this)
+          validator: this.validateTaskBreakdown.bind(this),
         }
       ]
     });
@@ -86,21 +86,21 @@ export class QualityGateManager {
     this.gates.set('FOUND', {
       name: 'Foundation Quality Gate',
       threshold: 0.8,
-      criteria: [
+      criteria: [,
         {
           name: 'Basic structure established',
           weight: 0.4,
-          validator: this.validateBasicStructure.bind(this)
+          validator: this.validateBasicStructure.bind(this),
         },
         {
           name: 'Core patterns defined',
           weight: 0.3,
-          validator: this.validateCorePatterns.bind(this)
+          validator: this.validateCorePatterns.bind(this),
         },
         {
           name: 'Foundation ready for specialization',
           weight: 0.3,
-          validator: this.validateFoundationReadiness.bind(this)
+          validator: this.validateFoundationReadiness.bind(this),
         }
       ]
     });
@@ -109,31 +109,31 @@ export class QualityGateManager {
     this.gates.set('SUMMON', {
       name: 'Implementation Quality Gate',
       threshold: 0.85,
-      criteria: [
+      criteria: [,
         {
           name: 'Core functionality implemented',
           weight: 0.3,
-          validator: this.validateCoreImplementation.bind(this)
+          validator: this.validateCoreImplementation.bind(this),
         },
         {
           name: 'Basic tests written',
           weight: 0.2,
-          validator: this.validateBasicTesting.bind(this)
+          validator: this.validateBasicTesting.bind(this),
         },
         {
           name: 'Code quality standards met',
           weight: 0.2,
-          validator: this.validateCodeQuality.bind(this)
+          validator: this.validateCodeQuality.bind(this),
         },
         {
           name: 'Documentation updated',
           weight: 0.15,
-          validator: this.validateDocumentationUpdates.bind(this)
+          validator: this.validateDocumentationUpdates.bind(this),
         },
         {
           name: 'Security considerations addressed',
           weight: 0.15,
-          validator: this.validateSecurityConsiderations.bind(this)
+          validator: this.validateSecurityConsiderations.bind(this),
         }
       ]
     });
@@ -142,41 +142,41 @@ export class QualityGateManager {
     this.gates.set('COMPLETE', {
       name: 'Completion Quality Gate',
       threshold: 0.9,
-      criteria: [
+      criteria: [,
         {
           name: 'All tests passing',
           weight: 0.25,
-          validator: this.validateAllTests.bind(this)
+          validator: this.validateAllTests.bind(this),
         },
         {
           name: 'Code coverage adequate',
           weight: 0.15,
-          validator: this.validateCodeCoverage.bind(this)
+          validator: this.validateCodeCoverage.bind(this),
         },
         {
           name: 'Performance acceptable',
           weight: 0.15,
-          validator: this.validatePerformance.bind(this)
+          validator: this.validatePerformance.bind(this),
         },
         {
           name: 'Security scan passed',
           weight: 0.15,
-          validator: this.validateSecurityScan.bind(this)
+          validator: this.validateSecurityScan.bind(this),
         },
         {
           name: 'Documentation complete',
           weight: 0.15,
-          validator: this.validateDocumentationComplete.bind(this)
+          validator: this.validateDocumentationComplete.bind(this),
         },
         {
           name: 'Code style consistent',
           weight: 0.1,
-          validator: this.validateCodeStyle.bind(this)
+          validator: this.validateCodeStyle.bind(this),
         },
         {
           name: 'No critical issues',
           weight: 0.05,
-          validator: this.validateNoCriticalIssues.bind(this)
+          validator: this.validateNoCriticalIssues.bind(this),
         }
       ]
     });
@@ -206,7 +206,7 @@ export class QualityGateManager {
           weight: criteria.weight,
           passed,
           issues: evaluation.issues || [],
-          suggestions: evaluation.suggestions || []
+          suggestions: evaluation.suggestions || [],
         });
         
         totalScore += evaluation.score * criteria.weight;
@@ -219,13 +219,13 @@ export class QualityGateManager {
           score: 0,
           weight: criteria.weight,
           passed: false,
-          issues: [{
+          issues: [{,
             type: 'criteria_evaluation_error',
             severity: 'high',
             message: `Failed to evaluate ${criteria.name}: ${error?.message || 'Unknown error'}`,
             file: '',
             line: 0,
-            autoFixable: false
+            autoFixable: false,
           }],
           suggestions: [`Fix issues with ${criteria.name} evaluation`]
         });

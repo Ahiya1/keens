@@ -25,11 +25,11 @@ export class CompletionBlocker {
     this.debug = options.debug || false;
     this.compilationValidator = new CompilationValidator({ 
       silentMode: true, 
-      debug: this.debug 
+      debug: this.debug ,
     });
     this.validationEngine = new ValidationEngine({ 
       silentMode: true,
-      enableAutoFix: false // Don't auto-fix during completion validation
+      enableAutoFix: false // Don't auto-fix during completion validation,
     });
   }
 
@@ -39,7 +39,7 @@ export class CompletionBlocker {
    */
   async validateCompletion(
     projectPath: string,
-    options: {
+    options: {,
       originalVision?: string;
       specialization?: string;
       sessionId?: string;
@@ -47,7 +47,7 @@ export class CompletionBlocker {
   ): Promise<CompletionValidationResult> {
     this.debugLog('COMPLETION_VALIDATION_START', 'Starting completion validation', {
       projectPath,
-      specialization: options.specialization
+      specialization: options.specialization,
     });
 
     const result: CompletionValidationResult = {
@@ -55,15 +55,15 @@ export class CompletionBlocker {
       blockers: [],
       warnings: [],
       recommendations: [],
-      compilationResult: {
+      compilationResult: {,
         success: false,
         errors: [],
         warnings: [],
         summary: 'Not validated',
         executionTime: 0,
-        validationSteps: []
+        validationSteps: [],
       },
-      summary: 'Completion validation not completed'
+      summary: 'Completion validation not completed',
     };
 
     try {
@@ -79,7 +79,7 @@ export class CompletionBlocker {
         result.summary = `COMPLETION BLOCKED: Code does not compile (${compilationResult.errors.length} errors)`;
         
         this.debugLog('COMPILATION_BLOCKED', 'Completion blocked due to compilation errors', {
-          errorCount: compilationResult.errors.length
+          errorCount: compilationResult.errors.length,
         });
         
         return result;
@@ -90,7 +90,7 @@ export class CompletionBlocker {
       const validationResult = await this.validationEngine.validateProject(projectPath, {
         categories: ['syntax', 'style', 'tests'],
         fixIssues: false, // Don't fix during completion check
-        silentMode: true
+        silentMode: true,
       });
 
       // Check for critical validation issues that should block completion
@@ -109,7 +109,7 @@ export class CompletionBlocker {
         result.summary = `COMPLETION BLOCKED: ${criticalIssues.length} critical validation issues`;
         
         this.debugLog('CRITICAL_ISSUES_BLOCKED', 'Completion blocked due to critical issues', {
-          criticalCount: criticalIssues.length
+          criticalCount: criticalIssues.length,
         });
         
         return result;
@@ -126,7 +126,7 @@ export class CompletionBlocker {
         projectPath, 
         options.specialization || 'general'
       );
-      
+
       result.blockers.push(...specializationChecks.blockers);
       result.warnings.push(...specializationChecks.warnings);
       result.recommendations.push(...specializationChecks.recommendations);
@@ -142,13 +142,13 @@ export class CompletionBlocker {
         
         this.debugLog('COMPLETION_APPROVED', 'Agent completion approved', {
           warningCount: result.warnings.length,
-          recommendationCount: result.recommendations.length
+          recommendationCount: result.recommendations.length,
         });
       } else {
         result.summary = `COMPLETION BLOCKED: ${result.blockers.length} blocking issues must be resolved`;
         
         this.debugLog('COMPLETION_BLOCKED', 'Agent completion blocked', {
-          blockerCount: result.blockers.length
+          blockerCount: result.blockers.length,
         });
       }
 
@@ -156,7 +156,7 @@ export class CompletionBlocker {
 
     } catch (error: any) {
       this.debugLog('COMPLETION_VALIDATION_ERROR', 'Completion validation failed', {
-        error: error.message
+        error: error.message,
       });
       
       result.blockers.push({
@@ -165,7 +165,7 @@ export class CompletionBlocker {
         message: `Completion validation failed: ${error.message}`,
         file: '',
         line: 0,
-        autoFixable: false
+        autoFixable: false,
       });
       
       result.canComplete = false;
@@ -180,7 +180,7 @@ export class CompletionBlocker {
    */
   private async performSpecializationChecks(
     projectPath: string,
-    specialization: string
+    specialization: string,
   ): Promise<{
     blockers: ValidationIssue[];
     warnings: ValidationIssue[];
@@ -222,7 +222,7 @@ export class CompletionBlocker {
             message: `Test execution concern: ${testError.message}`,
             file: '',
             line: 0,
-            autoFixable: false
+            autoFixable: false,
           });
         }
         break;
@@ -304,7 +304,7 @@ export class CompletionBlocker {
     
     lines.push(`\n✓ Compilation: SUCCESS`);
     lines.push(`✓ Validation Steps: ${result.compilationResult.validationSteps.length}`);
-    
+
     if (result.warnings.length > 0) {
       lines.push(`\n⚠️  Warnings: ${result.warnings.length}`);
       result.warnings.slice(0, 3).forEach((warning, index) => {
@@ -326,9 +326,10 @@ export class CompletionBlocker {
   private debugLog(category: string, message: string, data?: any): void {
     if (this.debug) {
       const timestamp = new Date().toISOString();
-      console.log(chalk.gray(`[${timestamp}] 🚫 [${category}] ${message}`));
       if (data) {
-        console.log(chalk.gray(JSON.stringify(data, null, 2)));
+        console.log(`[${timestamp}] [${category}] ${message}`, data);
+      } else {
+        console.log(`[${timestamp}] [${category}] ${message}`);
       }
     }
   }

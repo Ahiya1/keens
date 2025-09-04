@@ -18,7 +18,7 @@ export interface WebSocketConnection {
   last_ping_at: Date;
   disconnected_at?: Date;
   subscribed_events: string[];
-  session_filters: string[]; // UUID array for specific sessions
+  session_filters: string[]; // UUID array for specific sessions,
   connection_status: "active" | "inactive" | "closed";
   created_at: Date;
   updated_at: Date;
@@ -39,7 +39,7 @@ export interface ConnectionMetrics {
   activeConnections: number;
   connectionsByType: Record<string, number>;
   avgConnectionDuration: number;
-  topUsers: Array<{
+  topUsers: Array<{,
     userId: string;
     connectionCount: number;
     totalDuration: number;
@@ -289,7 +289,7 @@ export class WebSocketDAO {
       activeConnections: parseInt(metrics.active_connections || "0"),
       connectionsByType: connectionsByTypeMap,
       avgConnectionDuration: parseFloat(metrics.avg_duration || "0"),
-      topUsers: topUsers.map((user: any) => ({
+      topUsers: topUsers.map((user: any) => ({,
         userId: user.user_id,
         connectionCount: parseInt(user.connection_count),
         totalDuration: parseFloat(user.total_duration),

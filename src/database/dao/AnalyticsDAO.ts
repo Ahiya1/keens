@@ -58,7 +58,7 @@ export interface PlatformMetrics {
   totalClaudeCosts: Decimal;
   adminBypassTotal: Decimal;
   avgSessionDuration: number;
-  topPerformingBranches: Array<{
+  topPerformingBranches: Array<{,
     gitBranch: string;
     sessionCount: number;
     successRate: number;
@@ -365,14 +365,14 @@ export class AnalyticsDAO {
       adminUsers: parseInt(userMetrics.admin_users || "0"),
       totalSessions: parseInt(sessionMetrics.total_sessions || "0"),
       activeSessions: parseInt(sessionMetrics.active_sessions || "0"),
-      totalCreditsConsumed: new Decimal(
+      totalCreditsConsumed: new Decimal(,
         creditMetrics.total_credits_consumed || 0
       ),
       totalRevenue: new Decimal(creditMetrics.total_revenue || 0),
       totalClaudeCosts: new Decimal(creditMetrics.total_claude_costs || 0),
       adminBypassTotal: new Decimal(creditMetrics.admin_bypass_total || 0),
       avgSessionDuration: parseFloat(sessionDuration.avg_duration || "0"),
-      topPerformingBranches: topBranches.map((branch: any) => ({
+      topPerformingBranches: topBranches.map((branch: any) => ({,
         gitBranch: branch.git_branch,
         sessionCount: parseInt(branch.session_count),
         successRate: parseFloat(branch.success_rate || "0"),
@@ -468,17 +468,17 @@ export class AnalyticsDAO {
    * Get system health metrics (admin only)
    */
   async getSystemHealth(context?: UserContext): Promise<{
-    databaseHealth: {
+    databaseHealth: {,
       connected: boolean;
       activeConnections: number;
       poolStats: any;
     };
-    sessionHealth: {
+    sessionHealth: {,
       activeSessions: number;
       averageResponseTime: number;
       errorRate: number;
     };
-    creditHealth: {
+    creditHealth: {,
       totalBalance: Decimal;
       dailyRevenue: Decimal;
       adminBypassToday: Decimal;
@@ -517,17 +517,17 @@ export class AnalyticsDAO {
     const dbHealth = await this.db.healthCheck();
 
     return {
-      databaseHealth: {
+      databaseHealth: {,
         connected: dbHealth.connected,
         activeConnections: dbHealth.poolStats?.totalCount || 0,
         poolStats: dbHealth.poolStats,
       },
-      sessionHealth: {
+      sessionHealth: {,
         activeSessions: parseInt(sessionHealth.active_sessions || "0"),
         averageResponseTime: parseFloat(sessionHealth.avg_response_time || "0"),
         errorRate: parseFloat(sessionHealth.error_rate || "0"),
       },
-      creditHealth: {
+      creditHealth: {,
         totalBalance: new Decimal(creditHealth.total_balance || 0),
         dailyRevenue: new Decimal(creditHealth.daily_revenue || 0),
         adminBypassToday: new Decimal(creditHealth.admin_bypass_today || 0),

@@ -84,7 +84,7 @@ export class TestValidator {
           failed: 0,
           duration: 0,
           output: 'No tests found',
-          errors: ['No test scripts found in package.json']
+          errors: ['No test scripts found in package.json'],
         };
       }
       
@@ -195,7 +195,7 @@ export class TestValidator {
         cwd: projectPath,
         timeout: options.timeout,
         maxBuffer: 256 * 1024, // REDUCED: Only 256KB buffer (was 2MB!)
-        env: {
+        env: {,
           ...process.env,
           NODE_ENV: 'test',
           CI: 'true',
@@ -203,7 +203,7 @@ export class TestValidator {
           JEST_SILENT: 'true',
           // Disable verbose output for all common test runners
           npm_config_loglevel: 'silent',
-          npm_config_silent: 'true'
+          npm_config_silent: 'true',
         }
       });
       
@@ -222,7 +222,7 @@ export class TestValidator {
         duration,
         coverage: results.coverage,
         output: truncatedOutput,
-        errors: results.errors
+        errors: results.errors,
       };
       
     } catch (error: any) {
@@ -241,7 +241,7 @@ export class TestValidator {
           duration,
           coverage: results.coverage,
           output: truncatedOutput,
-          errors: results.errors
+          errors: results.errors,
         };
       } else {
         // Execution failed
@@ -271,7 +271,7 @@ export class TestValidator {
       total: 0,
       failed: 0,
       coverage: undefined as any,
-      errors: [] as string[]
+      errors: [] as string[],
     };
     
     // Jest output parsing
@@ -343,7 +343,7 @@ export class TestValidator {
         statements: coverage,
         branches: coverage,
         functions: coverage,
-        lines: coverage
+        lines: coverage,
       };
     }
     

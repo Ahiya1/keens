@@ -5,6 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
+import { randomBytes } from "crypto";
 import Decimal from 'decimal.js';
 import { asyncHandler, createValidationError } from '../middleware/errorHandler.js';
 import { requireScopes } from '../middleware/authentication.js';
@@ -20,7 +21,7 @@ import { keen } from '../../index.js';
 export function createCreditsRouter(
   authService: AuthenticationService,
   auditLogger: AuditLogger,
-  authMiddleware: any
+  authMiddleware: any,
 ) {
   const router = Router();
   const keenDB = keen.getInstance();
@@ -46,13 +47,13 @@ export function createCreditsRouter(
         {
           userId: user.id,
           isAdmin: user.is_admin || false,
-          adminPrivileges: user.admin_privileges
+          adminPrivileges: user.admin_privileges,
         }
       );
-      
+
       res.status(200).json({
         success: true,
-        balance: {
+        balance: {,
           current_balance: balance.currentBalance.toNumber(),
           reserved_balance: balance.reservedBalance.toNumber(),
           available_balance: balance.availableBalance.toNumber(),
@@ -61,31 +62,31 @@ export function createCreditsRouter(
           daily_limit: balance.dailyLimit?.toNumber() || null,
           daily_used: balance.dailyUsed.toNumber(),
           auto_recharge_enabled: balance.autoRechargeEnabled || false,
-          unlimited_credits: balance.unlimitedCredits || false
+          unlimited_credits: balance.unlimitedCredits || false,
         },
-        credit_system: {
+        credit_system: {,
           markup_multiplier: 5.0,
           no_packages: true,
           individual_tier: !(user.is_admin || false),
           admin_unlimited: (user.is_admin || false) && (balance.unlimitedCredits || false),
-          claude_api_pricing: {
-            standard_context: {
+          claude_api_pricing: {,
+            standard_context: {,
               input_per_1k_tokens: 0.003,
               output_per_1k_tokens: 0.015,
-              keen_markup: '5x'
+              keen_markup: '5x',
             },
-            extended_context: {
+            extended_context: {,
               input_per_1k_tokens: 0.006,
               output_per_1k_tokens: 0.0225,
               keen_markup: '5x',
-              threshold_tokens: 200000
+              threshold_tokens: 200000,
             }
           }
         },
-        user_info: {
+        user_info: {,
           is_admin: user.is_admin || false,
           credit_bypass: (user.is_admin || false) && (balance.unlimitedCredits || false),
-          user_tier: (user.is_admin || false) ? 'admin' : 'individual'
+          user_tier: (user.is_admin || false) ? 'admin' : 'individual',
         }
       });
     })
@@ -105,7 +106,7 @@ export function createCreditsRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid purchase request', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -114,7 +115,7 @@ export function createCreditsRouter(
       
       // TODO: Integrate with payment processor (Stripe)
       // For now, simulate successful payment
-      const paymentReference = `payment_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      const paymentReference = `payment_${Date.now()}_${randomBytes(8).toString("hex")}`;
       
       try {
         // Add credits to account
@@ -126,54 +127,54 @@ export function createCreditsRouter(
           {
             userId: user.id,
             isAdmin: user.is_admin || false,
-            adminPrivileges: user.admin_privileges
+            adminPrivileges: user.admin_privileges,
           }
         );
-        
+
         // Get updated balance
         const updatedBalance = await creditGateway.getBalance(
           user.id,
           {
             userId: user.id,
             isAdmin: user.is_admin || false,
-            adminPrivileges: user.admin_privileges
+            adminPrivileges: user.admin_privileges,
           }
         );
-        
+
         // Log purchase
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'purchase_credits',
-          details: {
+          details: {,
             amount,
             payment_method_id,
             payment_reference: paymentReference,
-            transaction_id: transaction.id
+            transaction_id: transaction.id,
           }
         });
         
         res.status(200).json({
           success: true,
           message: 'Credits purchased successfully',
-          transaction: {
+          transaction: {,
             id: transaction.id,
             amount: transaction.amount.toNumber(),
             balance_after: transaction.balance_after.toNumber(),
             payment_reference: paymentReference,
-            created_at: transaction.created_at
+            created_at: transaction.created_at,
           },
-          balance: {
+          balance: {,
             current_balance: updatedBalance.currentBalance.toNumber(),
             available_balance: updatedBalance.availableBalance.toNumber(),
-            lifetime_purchased: updatedBalance.lifetimePurchased.toNumber()
+            lifetime_purchased: updatedBalance.lifetimePurchased.toNumber(),
           },
-          purchase_info: {
+          purchase_info: {,
             credit_value: `$${amount} = ${amount} keen credits`,
             markup_info: '5x markup over Claude API costs',
-            usage_estimate: {
+            usage_estimate: {,
               standard_requests: Math.floor(amount / 0.50),
               complex_requests: Math.floor(amount / 5.0),
-              note: 'Estimates based on typical usage patterns'
+              note: 'Estimates based on typical usage patterns',
             }
           }
         });
@@ -185,7 +186,7 @@ export function createCreditsRouter(
           requestId: req.id,
           userId: user.id,
           error: `Credit purchase failed: ${errorMessage}`,
-          isAdmin: user.is_admin || false
+          isAdmin: user.is_admin || false,
         });
         
         throw error;
@@ -209,7 +210,7 @@ export function createCreditsRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid transaction query parameters', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -227,22 +228,22 @@ export function createCreditsRouter(
         offset: Number(offset),
         type: type as any,
         startDate: start_date ? new Date(start_date as string) : undefined,
-        endDate: end_date ? new Date(end_date as string) : undefined
+        endDate: end_date ? new Date(end_date as string) : undefined,
       };
-      
+
       const result = await creditGateway.getTransactionHistory(
         user.id,
         options,
         {
           userId: user.id,
           isAdmin: user.is_admin || false,
-          adminPrivileges: user.admin_privileges
+          adminPrivileges: user.admin_privileges,
         }
       );
-      
+
       res.status(200).json({
         success: true,
-        transactions: result.transactions.map(t => ({
+        transactions: result.transactions.map(t => ({,
           id: t.id,
           type: t.transaction_type,
           amount: t.amount.toNumber(),
@@ -254,21 +255,21 @@ export function createCreditsRouter(
           metadata: t.metadata,
           is_admin_bypass: t.is_admin_bypass || false,
           created_at: t.created_at,
-          reconciliation_status: t.reconciliation_status
+          reconciliation_status: t.reconciliation_status,
         })),
-        pagination: {
+        pagination: {,
           total: result.total,
           limit: Number(limit),
           offset: Number(offset),
-          has_more: Number(offset) + Number(limit) < result.total
+          has_more: Number(offset) + Number(limit) < result.total,
         },
-        summary: {
+        summary: {,
           total_spent: result.summary.totalSpent.toNumber(),
           total_purchased: result.summary.totalPurchased.toNumber(),
           admin_bypasses: result.summary.adminBypasses,
-          avg_transaction_amount: result.summary.avgTransactionAmount.toNumber()
+          avg_transaction_amount: result.summary.avgTransactionAmount.toNumber(),
         },
-        filters: {
+        filters: {,
           type: type || 'all',
           start_date,
           end_date
@@ -297,20 +298,20 @@ export function createCreditsRouter(
         {
           userId: user.id,
           isAdmin: user.is_admin || false,
-          adminPrivileges: user.admin_privileges
+          adminPrivileges: user.admin_privileges,
         }
       );
-      
+
       const transactions = await creditGateway.getTransactionHistory(
         user.id,
         { limit: 100 },
         {
           userId: user.id,
           isAdmin: user.is_admin || false,
-          adminPrivileges: user.admin_privileges
+          adminPrivileges: user.admin_privileges,
         }
       );
-      
+
       // Calculate analytics
       const usageTransactions = transactions.transactions.filter(t => t.amount.lt(0));
       const purchaseTransactions = transactions.transactions.filter(t => t.amount.gt(0));
@@ -331,39 +332,39 @@ export function createCreditsRouter(
         success: true,
         period,
         group_by,
-        analytics: {
-          usage: {
+        analytics: {,
+          usage: {,
             total_spent: totalSpent.toNumber(),
             total_sessions: usageTransactions.filter(t => t.session_id).length,
             avg_session_cost: avgSessionCost.toNumber(),
             total_claude_costs: claudeCosts.toNumber(),
-            markup_revenue: totalSpent.sub(claudeCosts).toNumber()
+            markup_revenue: totalSpent.sub(claudeCosts).toNumber(),
           },
-          purchases: {
+          purchases: {,
             total_purchased: balance.lifetimePurchased.toNumber(),
             purchase_count: purchaseTransactions.length,
-            avg_purchase_amount: purchaseTransactions.length > 0
+            avg_purchase_amount: purchaseTransactions.length > 0,
               ? balance.lifetimePurchased.div(purchaseTransactions.length).toNumber()
               : 0
           },
-          efficiency: {
+          efficiency: {,
             cost_per_session: avgSessionCost.toNumber(),
             claude_vs_keen_ratio: claudeCosts.gt(0) ? totalSpent.div(claudeCosts).toNumber() : 5.0,
-            usage_pattern: usageTransactions.length > 10 ? 'active' : 'light'
+            usage_pattern: usageTransactions.length > 10 ? 'active' : 'light',
           },
-          admin_info: isAdmin ? {
+          admin_info: isAdmin ? {,
             unlimited_credits: unlimitedCredits,
             bypass_count: transactions.summary.adminBypasses,
-            total_theoretical_cost: usageTransactions
+            total_theoretical_cost: usageTransactions,
               .filter(t => t.is_admin_bypass)
               .reduce((sum, t) => sum.add(t.claude_cost_usd?.mul(5) || new Decimal(0)), new Decimal(0))
               .toNumber()
           } : undefined
         },
-        credit_system: {
+        credit_system: {,
           markup_multiplier: 5.0,
           individual_tier: !isAdmin,
-          admin_unlimited: isAdmin && unlimitedCredits
+          admin_unlimited: isAdmin && unlimitedCredits,
         }
       });
     })
@@ -384,7 +385,7 @@ export function createCreditsRouter(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw createValidationError('Invalid cost estimation request', {
-          validation_errors: errors.array()
+          validation_errors: errors.array(),
         });
       }
 
@@ -394,12 +395,12 @@ export function createCreditsRouter(
       // Create mock agent request for estimation
       const mockRequest = {
         vision,
-        options: {
+        options: {,
           maxIterations: max_iterations,
-          enableWebSearch: enable_web_search
+          enableWebSearch: enable_web_search,
         }
       };
-      
+
       try {
         // Get cost estimation (without actually reserving credits)
         const balance = await creditGateway.getBalance(
@@ -407,10 +408,10 @@ export function createCreditsRouter(
           {
             userId: user.id,
             isAdmin: user.is_admin || false,
-            adminPrivileges: user.admin_privileges
+            adminPrivileges: user.admin_privileges,
           }
         );
-        
+
         // TODO: Use actual cost estimation logic
         const estimatedClaudeCost = vision.length * 0.0001 + max_iterations * 0.01; // Mock calculation
         const estimatedCreditCost = estimatedClaudeCost * 5.0;
@@ -420,38 +421,38 @@ export function createCreditsRouter(
         
         res.status(200).json({
           success: true,
-          estimation: {
-            vision_analysis: {
+          estimation: {,
+            vision_analysis: {,
               length: vision.length,
               estimated_complexity: complexity || 'medium',
               max_iterations,
-              web_search_enabled: enable_web_search
+              web_search_enabled: enable_web_search,
             },
-            cost_breakdown: {
+            cost_breakdown: {,
               claude_api_cost: estimatedClaudeCost,
               keen_credit_cost: estimatedCreditCost,
               markup_multiplier: 5.0,
-              breakdown: {
+              breakdown: {,
                 input_tokens_est: Math.floor(vision.length * 1.2),
                 output_tokens_est: Math.floor(max_iterations * 500),
                 thinking_tokens_est: Math.floor(max_iterations * 200),
-                extended_context: vision.length > 1000
+                extended_context: vision.length > 1000,
               }
             },
-            affordability: {
+            affordability: {,
               can_afford: canAfford,
               current_balance: balance.currentBalance.toNumber(),
               available_balance: balance.availableBalance.toNumber(),
               shortfall: canAfford ? 0 : estimatedCreditCost - balance.availableBalance.toNumber(),
-              admin_unlimited: isAdmin && unlimitedCredits
+              admin_unlimited: isAdmin && unlimitedCredits,
             },
             estimated_duration: `${Math.max(5, max_iterations * 0.5)} minutes`,
-            confidence: 'medium'
+            confidence: 'medium',
           },
-          user_context: {
+          user_context: {,
             is_admin: isAdmin,
             credit_bypass: isAdmin && unlimitedCredits,
-            tier: isAdmin ? 'admin' : 'individual'
+            tier: isAdmin ? 'admin' : 'individual',
           }
         });
         
@@ -461,7 +462,7 @@ export function createCreditsRouter(
           requestId: req.id,
           userId: user.id,
           error: `Cost estimation failed: ${errorMessage}`,
-          isAdmin: user.is_admin || false
+          isAdmin: user.is_admin || false,
         });
         
         throw error;

@@ -4,7 +4,7 @@
     "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "node",
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -27,10 +27,10 @@
     "experimentalDecorators": false,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "coverage", "test-results", "tests"],
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist", "coverage", "test-results"],
   "ts-node": {
     "esm": true
   }

@@ -99,7 +99,7 @@ export interface QualityCriteria {
   description?: string;
   weight: number;
   threshold?: number;
-  validator: (context: ValidationContext) => Promise<{
+  validator: (context: ValidationContext) => Promise<{,
     score: number;
     issues?: ValidationIssue[];
     suggestions?: string[];
@@ -108,7 +108,7 @@ export interface QualityCriteria {
 }
 
 export interface CriteriaEvaluation {
-  criteria: string; // Changed from criteriaName to criteria to match actual usage
+  criteria: string; // Changed from criteriaName to criteria to match actual usage,
   passed: boolean;
   score: number;
   weight: number;
@@ -196,7 +196,7 @@ export interface TestExecutionResult {
 // Security scan types (enhanced) - FIXED: Added severity property
 export interface SecurityVulnerability {
   type: string;
-  severity: 'critical' | 'high' | 'medium' | 'low'; // FIXED: Removed 'info' type
+  severity: 'critical' | 'high' | 'medium' | 'low'; // FIXED: Removed 'info' type,
   description: string;
   file?: string;
   line?: number;

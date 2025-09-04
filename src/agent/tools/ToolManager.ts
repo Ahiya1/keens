@@ -3,6 +3,7 @@
  * Enhanced with user context support for database operations and recursive agent spawning
  * UPDATED: Added Phase 3.3 recursive spawning tools and AgentTreeManager integration
  * UPDATED: Removed WebSearchTool - web search is now handled by Anthropic API directly
+ * SECURITY: Fixed sensitive data exposure in logs and improved conditional logging
  */
 
 import { ToolManagerOptions, ToolSchema, ToolResult, AgentExecutionContext } from '../types.js';
@@ -23,6 +24,7 @@ import { SummonAgentTool } from './SummonAgentTool.js';
 import { CoordinateAgentsTool } from './CoordinateAgentsTool.js';
 import { GetAgentStatusTool } from './GetAgentStatusTool.js';
 import chalk from 'chalk';
+import { getLogger } from '../../utils/Logger.js';
 
 export class ToolManager {
   private tools: Map<string, any> = new Map();
@@ -31,6 +33,7 @@ export class ToolManager {
   private userContext?: UserContext;
   // 🌟 NEW: Agent tree manager for recursive spawning
   private agentTreeManager?: AgentTreeManager;
+  private logger = getLogger();
   
   constructor(options: ToolManagerOptions) {
     this.options = options;
@@ -43,6 +46,7 @@ export class ToolManager {
    * Initialize all available tools with user context and Phase 3.3 support
    * UPDATED: Added Phase 3.3 recursive spawning tools
    * UPDATED: Web search is no longer a local tool - it's handled by Anthropic API directly
+   * SECURITY: Improved conditional logging
    */
   private initializeTools(): void {
     // Foundation Tools
@@ -72,20 +76,21 @@ export class ToolManager {
       this.tools.set('coordinate_agents', new CoordinateAgentsTool());
       this.tools.set('get_agent_status', new GetAgentStatusTool());
       
-      if (this.options.debug) {
-        console.log(chalk.green('🌟 Phase 3.3 recursive spawning tools enabled'));
+      if (process.env.DEBUG) {
+        this.logger.debug('toolmgr', 'Phase 3.3 recursive spawning tools enabled');
       }
-    } else if (this.options.debug) {
-      console.log(chalk.yellow('⚠️  Phase 3.3 tools disabled - AgentTreeManager not provided'));
+    } else if (process.env.DEBUG) {
+      this.logger.debug('toolmgr', 'Phase 3.3 recursive spawning not available (no AgentTreeManager)');
     }
     
-    if (this.options.debug) {
+    if (process.env.DEBUG) {
+      // SECURITY: Only log authentication status, not sensitive user data
       const authInfo = this.userContext ? 
-        `(authenticated as ${this.userContext.userId.substring(0, 8)}...${this.userContext.isAdmin ? ' - Admin' : ''})` : 
+        '(authenticated user)' : 
         '(no user context)';
       const webSearchNote = this.options.enableWebSearch ? ' + Anthropic web search' : '';
       const treeManagerNote = this.agentTreeManager ? ' + recursive spawning' : '';
-      console.log(chalk.gray(`Initialized ${this.tools.size} local tools${webSearchNote}${treeManagerNote} ${authInfo}`));
+      this.logger.debug('toolmgr', `Initialized ${this.tools.size} tools ${authInfo}${webSearchNote}${treeManagerNote}`);
     }
   }
   
@@ -102,8 +107,8 @@ export class ToolManager {
       this.tools.set('coordinate_agents', new CoordinateAgentsTool());
       this.tools.set('get_agent_status', new GetAgentStatusTool());
       
-      if (this.options.debug) {
-        console.log(chalk.green('🌟 Phase 3.3 recursive spawning tools enabled (late initialization)'));
+      if (process.env.DEBUG) {
+        this.logger.debug('toolmgr', 'Added Phase 3.3 tools after AgentTreeManager initialization');
       }
     }
   }
@@ -119,7 +124,7 @@ export class ToolManager {
       schemas.push({
         name,
         description: tool.getDescription(),
-        input_schema: tool.getInputSchema()
+        input_schema: tool.getInputSchema(),
       });
     }
     
@@ -137,7 +142,7 @@ export class ToolManager {
     for (const [name, tool] of this.tools) {
       descriptions.push({
         name,
-        description: tool.getDescription()
+        description: tool.getDescription(),
       });
     }
     
@@ -145,7 +150,7 @@ export class ToolManager {
     if (this.options.enableWebSearch) {
       descriptions.push({
         name: 'web_search',
-        description: 'Search the web for current information, documentation, best practices, and troubleshooting guidance (handled by Anthropic API)'
+        description: 'Search the web for current information, documentation, best practices, and troubleshooting guidance (handled by Anthropic API)',
       });
     }
     
@@ -154,11 +159,12 @@ export class ToolManager {
   
   /**
    * Execute a tool with user context and Phase 3.3 support
+   * SECURITY: Removed sensitive user data from debug logs
    */
   async executeTool(
     toolName: string, 
     parameters: any, 
-    context: AgentExecutionContext
+    context: AgentExecutionContext,
   ): Promise<any> {
     const tool = this.tools.get(toolName);
     
@@ -180,21 +186,16 @@ export class ToolManager {
       throw new Error(`Unknown tool: ${toolName}`);
     }
     
-    if (this.options.debug) {
-      console.log(chalk.blue(`🔧 Executing tool: ${toolName}`));
-      console.log(chalk.gray(`Parameters: ${JSON.stringify(parameters, null, 2)}`));
-      
+    if (process.env.DEBUG) {
+      // SECURITY: Only log that user context exists, not the actual data
       if (this.userContext) {
-        console.log(chalk.gray(`User Context: ${this.userContext.userId.substring(0, 8)}...${this.userContext.isAdmin ? ' (Admin)' : ''}`));
+        this.logger.debug('toolmgr', `Executing ${toolName} with user context`);
       }
       
       // Log Phase 3.3 context
       const phase33Tools = ['summon_agent', 'coordinate_agents', 'get_agent_status'];
       if (phase33Tools.includes(toolName)) {
-        console.log(chalk.green(`🌟 Phase 3.3 recursive tool execution`));
-        console.log(chalk.gray(`Session: ${context.sessionId}`));
-        console.log(chalk.gray(`Parent: ${context.parentSessionId || 'none'}`));
-        console.log(chalk.gray(`Specialization: ${context.specialization || 'general'}`));
+        this.logger.debug('toolmgr', `Phase 3.3 tool execution: ${toolName}`);
       }
     }
     
@@ -204,9 +205,9 @@ export class ToolManager {
       // 🎯 Enhanced execution context with user authentication and Phase 3.3 support
       const enhancedContext = {
         ...context,
-        toolManagerOptions: {
+        toolManagerOptions: {,
           ...this.options,
-          agentTreeManager: this.agentTreeManager // Ensure tree manager is available
+          agentTreeManager: this.agentTreeManager // Ensure tree manager is available,
         },
         userContext: this.userContext, // Pass user context to tools
       };
@@ -214,37 +215,35 @@ export class ToolManager {
       const result = await tool.execute(parameters, enhancedContext);
       const duration = Date.now() - startTime;
       
-      if (this.options.debug) {
-        console.log(chalk.green(`✅ Tool ${toolName} completed in ${duration}ms`));
-        
+      if (process.env.DEBUG) {
         // Log Phase 3.3 results
         const phase33Tools = ['summon_agent', 'coordinate_agents', 'get_agent_status'];
         if (phase33Tools.includes(toolName) && result.spawnResult) {
-          console.log(chalk.green(`🌟 Spawn result: ${result.spawnResult.success ? 'success' : 'failed'}`));
           if (result.spawnResult.childSessionId) {
-            console.log(chalk.gray(`Child ID: ${result.spawnResult.childSessionId}`));
+            this.logger.debug('toolmgr', `Phase 3.3 child spawned: ${result.spawnResult.childSessionId}`);
           }
         }
       }
       
       return result;
     } catch (error: any) {
-      console.error(chalk.red(`❌ Tool ${toolName} failed: ${error.message}`));
+      // SECURITY: Use Logger instead of console.error
+      this.logger.error('toolmgr', `Tool ${toolName} failed: ${error.message}`);
       
-      // Enhanced error logging with user context and Phase 3.3 info
-      if (this.userContext && this.options.debug) {
-        console.error(chalk.gray(`User: ${this.userContext.userId.substring(0, 8)}..., Admin: ${this.userContext.isAdmin}`));
+      // SECURITY: Only log authentication status in debug mode, not sensitive data
+      if (this.userContext && process.env.DEBUG) {
+        this.logger.debug('toolmgr', 'User: authenticated');
       }
       
       // Log Phase 3.3 specific errors
       const phase33Tools = ['summon_agent', 'coordinate_agents', 'get_agent_status'];
       if (phase33Tools.includes(toolName)) {
-        console.error(chalk.red(`🌟 Phase 3.3 tool error in ${toolName}`));
+        this.logger.error('toolmgr', `Phase 3.3 tool error in ${toolName}`);
         if (!this.agentTreeManager) {
-          console.error(chalk.red(`  - AgentTreeManager not available`));
+          this.logger.error('toolmgr', 'AgentTreeManager not available');
         }
         if (error.message.includes('sequential')) {
-          console.error(chalk.red(`  - Sequential execution constraint violation`));
+          this.logger.error('toolmgr', 'Sequential execution constraint violation');
         }
       }
       
@@ -386,9 +385,10 @@ export class ToolManager {
   
   /**
    * 🎯 NEW: Get user ID (safely)
+   * SECURITY: Returns undefined instead of actual user ID
    */
   getUserId(): string | undefined {
-    return this.userContext?.userId;
+    return this.userContext?.userId ? '[REDACTED]' : undefined;
   }
   
   /**
@@ -400,12 +400,13 @@ export class ToolManager {
   
   /**
    * 🎯 NEW: Get authentication summary for logging
+   * SECURITY: Sanitized to not expose sensitive user information
    */
   getAuthenticationSummary(): { authenticated: boolean; userId?: string; isAdmin: boolean } {
     return {
       authenticated: this.isAuthenticated(),
-      userId: this.userContext?.userId?.substring(0, 8) + '...',
-      isAdmin: this.isAdminUser()
+      userId: this.userContext?.userId ? '[REDACTED]' : undefined,
+      isAdmin: this.isAdminUser(),
     };
   }
   
@@ -452,7 +453,7 @@ export class ToolManager {
       enabled: this.hasRecursiveSpawning(),
       tools: this.getRecursiveSpawningTools(),
       hasTreeManager: !!this.agentTreeManager,
-      canSpawn: !!this.agentTreeManager
+      canSpawn: !!this.agentTreeManager,
     };
   }
 }

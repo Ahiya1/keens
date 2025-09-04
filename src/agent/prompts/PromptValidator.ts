@@ -16,8 +16,8 @@ export class PromptValidator {
    * Validate assembled prompt components
    */
   validatePrompt(
-    components: SystemPromptComponents, 
-    config: PromptConfiguration
+    components: SystemPromptComponents,
+    config: PromptConfiguration,
   ): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -26,7 +26,7 @@ export class PromptValidator {
 
     // Check required components based on prompt type
     const requiredComponents = this.getRequiredComponents(config.type);
-    
+
     for (const component of requiredComponents) {
       if (!components[component] || components[component].trim().length === 0) {
         missingComponents.push(component);
@@ -137,16 +137,16 @@ export class PromptValidator {
     switch (type) {
       case 'system':
         return ['header', 'toolInstructions', 'autonomousOperation', 'sessionInfo'];
-      
+
       case 'conversation':
         return ['header', 'autonomousOperation', 'toolInstructions', 'sessionInfo'];
-      
+
       case 'child_agent':
         return ['header', 'task', 'toolInstructions', 'autonomousOperation', 'sessionInfo'];
-      
+
       case 'error_recovery':
         return ['header', 'task', 'context', 'autonomousOperation', 'sessionInfo'];
-      
+
       default:
         return ['header', 'sessionInfo'];
     }
@@ -159,14 +159,14 @@ export class PromptValidator {
     components: SystemPromptComponents,
     errors: string[],
     warnings: string[],
-    recommendations: string[]
+    recommendations: string[],
   ): void {
     // Check header content
     if (components.header) {
       if (!components.header.includes('autonomous') && !components.header.includes('conversation')) {
         warnings.push('Header should clearly identify the agent type');
       }
-      
+
       if (!components.header.includes('{{') && !components.header.includes('TASK:')) {
         warnings.push('Header should include task information or template variables');
       }
@@ -177,7 +177,7 @@ export class PromptValidator {
       if (!components.toolInstructions.includes('write_files')) {
         warnings.push('Tool instructions should include write_files format requirements');
       }
-      
+
       if (!components.toolInstructions.includes('"files"')) {
         recommendations.push('Consider including specific format examples in tool instructions');
       }
@@ -188,7 +188,7 @@ export class PromptValidator {
       if (!components.compilationRequirements.includes('MUST compile')) {
         warnings.push('Compilation requirements should emphasize mandatory nature');
       }
-      
+
       if (!components.compilationRequirements.includes('validate_project')) {
         recommendations.push('Compilation requirements should mention validation tools');
       }
@@ -199,7 +199,7 @@ export class PromptValidator {
       if (!components.autonomousOperation.includes('report_complete')) {
         warnings.push('Autonomous protocol should mention completion reporting');
       }
-      
+
       if (!components.autonomousOperation.includes('tools')) {
         warnings.push('Autonomous protocol should emphasize tool usage');
       }
@@ -217,7 +217,7 @@ export class PromptValidator {
       if (content && content.includes('{{') && !content.includes('}}')) {
         errors.push(`Malformed template variable in ${componentName}`);
       }
-      
+
       if (content && content.includes('undefined') || content?.includes('null')) {
         errors.push(`Invalid content in ${componentName}: contains undefined/null values`);
       }
@@ -230,7 +230,7 @@ export class PromptValidator {
   private validateConfigurationConsistency(
     config: PromptConfiguration,
     errors: string[],
-    warnings: string[]
+    warnings: string[],
   ): void {
     // Check for conflicting options
     if (config.type === 'conversation' && config.includeRecursiveSpawning) {
@@ -262,22 +262,22 @@ export class PromptValidator {
     errorCount: number,
     warningCount: number,
     missingCount: number,
-    componentCount: number
+    componentCount: number,
   ): number {
     let score = 100;
-    
+
     // Deduct for errors (critical)
     score -= errorCount * 25;
-    
+
     // Deduct for warnings (moderate)
     score -= warningCount * 10;
-    
+
     // Deduct for missing components (severe)
     score -= missingCount * 20;
-    
+
     // Bonus for having more components (completeness)
     score += Math.min(componentCount * 2, 20);
-    
+
     return Math.max(0, Math.min(100, score));
   }
 
@@ -286,25 +286,25 @@ export class PromptValidator {
    */
   getValidationSummary(result: ValidationResult): string {
     const lines = [];
-    
+
     lines.push(`Validation Score: ${result.score}/100`);
     lines.push(`Status: ${result.isValid ? 'VALID' : 'INVALID'}`);
-    
+
     if (result.errors.length > 0) {
       lines.push(`\nErrors (${result.errors.length}):`);
       result.errors.forEach(error => lines.push(`  - ${error}`));
     }
-    
+
     if (result.warnings.length > 0) {
       lines.push(`\nWarnings (${result.warnings.length}):`);
       result.warnings.forEach(warning => lines.push(`  - ${warning}`));
     }
-    
+
     if (result.recommendations.length > 0) {
       lines.push(`\nRecommendations (${result.recommendations.length}):`);
       result.recommendations.forEach(rec => lines.push(`  - ${rec}`));
     }
-    
+
     return lines.join('\n');
   }
 }

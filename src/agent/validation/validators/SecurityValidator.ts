@@ -62,22 +62,22 @@ export class SecurityValidator {
         severity,
         scanDuration,
         recommendations: [...new Set(recommendations)], // Remove duplicates
-        autoFixesAvailable: [...new Set(autoFixesAvailable)]
+        autoFixesAvailable: [...new Set(autoFixesAvailable)],
       };
       
     } catch (error: any) {
       const scanDuration = Date.now() - startTime;
       return {
-        vulnerabilities: [{
+        vulnerabilities: [{,
           type: 'security_scan_error',
           severity: 'medium',
           description: `Security scan failed: ${error.message}`,
-          recommendation: 'Check security scanning tools and dependencies'
+          recommendation: 'Check security scanning tools and dependencies',
         }],
         severity: 'medium',
         scanDuration,
         recommendations: ['Install security scanning tools'],
-        autoFixesAvailable: []
+        autoFixesAvailable: [],
       };
     }
   }
@@ -103,7 +103,7 @@ export class SecurityValidator {
       const silentFlag = this.options.silentMode ? ' --silent' : '';
       const { stdout, stderr } = await execAsync(`cd "${projectPath}" && npm audit --json${silentFlag}`, {
         timeout: this.options.timeout,
-        maxBuffer: 2 * 1024 * 1024
+        maxBuffer: 2 * 1024 * 1024,
       });
       
       if (stdout) {
@@ -275,7 +275,7 @@ export class SecurityValidator {
             file: relativeFilePath,
             line: lineNumber,
             cwe: 'CWE-89',
-            recommendation: 'Use parameterized queries or prepared statements'
+            recommendation: 'Use parameterized queries or prepared statements',
           });
         }
         
@@ -288,7 +288,7 @@ export class SecurityValidator {
             file: relativeFilePath,
             line: lineNumber,
             cwe: 'CWE-78',
-            recommendation: 'Validate and sanitize user input before executing commands'
+            recommendation: 'Validate and sanitize user input before executing commands',
           });
         }
         
@@ -301,7 +301,7 @@ export class SecurityValidator {
             file: relativeFilePath,
             line: lineNumber,
             cwe: 'CWE-798',
-            recommendation: 'Use environment variables or secure configuration management'
+            recommendation: 'Use environment variables or secure configuration management',
           });
         }
         
@@ -314,7 +314,7 @@ export class SecurityValidator {
             file: relativeFilePath,
             line: lineNumber,
             cwe: 'CWE-338',
-            recommendation: 'Use cryptographically secure random number generator'
+            recommendation: 'Use cryptographically secure random number generator',
           });
         }
         
@@ -327,7 +327,7 @@ export class SecurityValidator {
             file: relativeFilePath,
             line: lineNumber,
             cwe: 'CWE-200',
-            recommendation: 'Remove debug statements before production deployment'
+            recommendation: 'Remove debug statements before production deployment',
           });
         }
       }
@@ -372,7 +372,7 @@ export class SecurityValidator {
   private async checkPackageJsonSecurity(
     projectPath: string, 
     vulnerabilities: SecurityVulnerability[], 
-    recommendations: string[]
+    recommendations: string[],
   ): Promise<void> {
     try {
       const packagePath = path.join(projectPath, 'package.json');
@@ -389,7 +389,7 @@ export class SecurityValidator {
           type: 'missing_security_middleware',
           severity: 'medium',
           description: 'Express app detected but security middleware packages not found',
-          recommendation: 'Install security packages like helmet, express-rate-limit'
+          recommendation: 'Install security packages like helmet, express-rate-limit',
         });
       }
       
@@ -399,7 +399,7 @@ export class SecurityValidator {
           type: 'deprecated_package',
           severity: 'low',
           description: 'Deprecated "request" package detected',
-          recommendation: 'Replace with axios or node-fetch'
+          recommendation: 'Replace with axios or node-fetch',
         });
       }
       
@@ -414,7 +414,7 @@ export class SecurityValidator {
   private async checkEnvironmentFiles(
     projectPath: string, 
     vulnerabilities: SecurityVulnerability[], 
-    recommendations: string[]
+    recommendations: string[],
   ): Promise<void> {
     const envFiles = ['.env', '.env.local', '.env.production', '.env.development'];
     
@@ -434,7 +434,7 @@ export class SecurityValidator {
               severity: 'high',
               description: '.env file found but not in .gitignore',
               file: '.gitignore',
-              recommendation: 'Add .env* to .gitignore to prevent secret exposure'
+              recommendation: 'Add .env* to .gitignore to prevent secret exposure',
             });
           }
         } catch (gitignoreError) {
@@ -442,7 +442,7 @@ export class SecurityValidator {
             type: 'missing_gitignore',
             severity: 'medium',
             description: '.env file found but no .gitignore exists',
-            recommendation: 'Create .gitignore and add .env* to prevent secret exposure'
+            recommendation: 'Create .gitignore and add .env* to prevent secret exposure',
           });
         }
         
@@ -458,7 +458,7 @@ export class SecurityValidator {
   private async checkConfigurationFiles(
     projectPath: string, 
     vulnerabilities: SecurityVulnerability[], 
-    recommendations: string[]
+    recommendations: string[],
   ): Promise<void> {
     // Check for common sensitive config files
     const sensitiveFiles = ['config.json', 'secrets.json', 'keys.json'];
@@ -473,7 +473,7 @@ export class SecurityValidator {
           severity: 'medium',
           description: `Potentially sensitive configuration file found: ${file}`,
           file,
-          recommendation: 'Ensure sensitive config files are in .gitignore and use environment variables instead'
+          recommendation: 'Ensure sensitive config files are in .gitignore and use environment variables instead',
         });
         
       } catch (error) {
@@ -491,7 +491,7 @@ export class SecurityValidator {
       case 'high': return 'high';
       case 'moderate': return 'medium';
       case 'low': return 'low';
-      default: return 'low'; // FIXED: Default to 'low' instead of 'info'
+      default: return 'low'; // FIXED: Default to 'low' instead of 'info',
     }
   }
   

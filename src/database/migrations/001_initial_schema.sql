@@ -1,6 +1,7 @@
 -- keen Platform Database Schema - Phase 1
 -- Multi-tenant PostgreSQL architecture with admin privileges
 -- Implements comprehensive user management, credit system, and session tracking
+-- FIXED: Made password_hash nullable to support both Supabase Auth and custom auth
 
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -26,8 +27,9 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     username VARCHAR(64) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL, -- bcrypt hash
+    password_hash VARCHAR(255), -- FIXED: Made nullable - supports both Supabase Auth and custom auth
     display_name VARCHAR(255),
+    avatar_url TEXT, -- Added for Supabase compatibility
     
     -- Admin and role management
     role VARCHAR(20) NOT NULL DEFAULT 'user', -- user, admin, super_admin
@@ -52,7 +54,8 @@ CREATE TABLE users (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     last_login_at TIMESTAMP WITH TIME ZONE,
-    last_login_ip INET
+    last_login_ip INET,
+    last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW() -- Added for real-time presence
 );
 
 -- Authentication Tokens Table
@@ -261,6 +264,7 @@ CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_is_admin ON users(is_admin);
 CREATE INDEX idx_users_account_status ON users(account_status);
 CREATE INDEX idx_users_created_at ON users(created_at);
+CREATE INDEX idx_users_last_seen ON users(last_seen);
 
 -- Auth tokens indexes
 CREATE INDEX idx_auth_tokens_user_id ON auth_tokens(user_id);
@@ -439,7 +443,7 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO application_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO application_user;
 
 -- Comments for table documentation
-COMMENT ON TABLE users IS 'Core user management with admin privilege support and multi-factor authentication';
+COMMENT ON TABLE users IS 'Core user management with admin privilege support and multi-factor authentication. Supports both Supabase Auth and custom auth.';
 COMMENT ON TABLE auth_tokens IS 'Authentication token management with scoped permissions and rate limiting';
 COMMENT ON TABLE credit_accounts IS 'Credit balance management with admin unlimited credits and spending controls';
 COMMENT ON TABLE credit_transactions IS 'Immutable audit trail of all credit operations with 5x markup tracking';
@@ -452,3 +456,4 @@ COMMENT ON COLUMN credit_transactions.markup_multiplier IS 'Multiplier applied t
 COMMENT ON COLUMN credit_transactions.is_admin_bypass IS 'True if this transaction was bypassed for admin user';
 COMMENT ON COLUMN credit_accounts.unlimited_credits IS 'Admin accounts have unlimited credits without deductions';
 COMMENT ON COLUMN users.admin_privileges IS 'JSON object containing admin-specific privileges and permissions';
+COMMENT ON COLUMN users.password_hash IS 'Nullable bcrypt hash - null for Supabase Auth users, populated for custom auth users';

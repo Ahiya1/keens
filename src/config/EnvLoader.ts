@@ -220,7 +220,7 @@ JWT_SECRET=your-jwt-secret-here
     const result = {
       valid: [] as string[],
       invalid: [] as string[],
-      errors: [] as string[]
+      errors: [] as string[],
     };
     
     const envFiles = this.getEnvFilePaths();

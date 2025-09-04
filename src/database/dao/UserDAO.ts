@@ -1,6 +1,7 @@
 /**
  * UserDAO - Enhanced user management for keen-s-a with Supabase integration
  * Combines Supabase Auth with custom user management and admin privilege handling
+ * FIXED: Always provide password_hash to satisfy database constraints
  */
 
 import bcrypt from "bcrypt";
@@ -82,7 +83,7 @@ export class UserDAO {
         email: request.email,
         password: request.password,
         email_confirm: true,
-        user_metadata: {
+        user_metadata: {,
           username: request.username,
           display_name: request.display_name || request.username,
         },
@@ -99,10 +100,11 @@ export class UserDAO {
       userId = uuidv4();
     }
 
-    // Create user record in our users table
+    // FIXED: Always create password_hash to satisfy database constraints
+    // For Supabase Auth users, create a dummy hash that won't be used
     const hashedPassword = request.useSupabaseAuth === false 
       ? await bcrypt.hash(request.password, securityConfig.bcryptRounds)
-      : null;
+      : await bcrypt.hash('dummy-password-supabase-auth', securityConfig.bcryptRounds);
 
     const { data, error } = await supabaseAdmin
       .from('users')
@@ -110,7 +112,7 @@ export class UserDAO {
         id: userId,
         email: request.email,
         username: request.username,
-        password_hash: hashedPassword,
+        password_hash: hashedPassword, // Always provide a value
         display_name: request.display_name || request.username,
         avatar_url: supabaseUser?.user_metadata?.avatar_url,
         timezone: request.timezone || 'UTC',
@@ -598,7 +600,7 @@ export class UserDAO {
    */
   subscribeToUserChanges(
     userId: string,
-    callback: (payload: any) => void
+    callback: (payload: any) => void,
   ) {
     return this.db.subscribeToRealtime(
       'users',
@@ -607,7 +609,7 @@ export class UserDAO {
         event: '*',
         filter: `id=eq.${userId}`,
       }
-    );
+
   }
 
   /**

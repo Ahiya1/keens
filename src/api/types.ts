@@ -13,7 +13,7 @@ import { Request } from 'express';
  * Extended Express Request with authentication and audit info
  */
 export interface AuthenticatedRequest extends Request {
-  id: string; // Request ID
+  id: string; // Request ID,
   user?: AuthenticatedUser;
   apiKeyScopes?: string[];
   rateLimitInfo?: RateLimitInfo;
@@ -58,7 +58,7 @@ export interface AuthenticatedUser {
 // ============================================================================
 
 export interface JWTPayload {
-  sub: string; // User ID
+  sub: string; // User ID,
   email: string;
   username: string;
   role: string;
@@ -83,7 +83,7 @@ export interface ClientInfo {
 
 export interface AuthenticationResult {
   user: AuthenticatedUser;
-  tokens: {
+  tokens: {,
     access_token: string;
     refresh_token: string;
     expires_in: number;
@@ -100,7 +100,7 @@ export interface APIKeyConfig {
 
 export interface APIKeyResult {
   id: string;
-  key: string; // Only shown once
+  key: string; // Only shown once,
   name: string;
   scopes: string[];
   rateLimitPerHour: number | null;
@@ -189,7 +189,7 @@ export interface AgentExecutionOptions {
 export interface PureAgentRequest {
   vision: string;
   workingDirectory: string;
-  options: {
+  options: {,
     maxIterations: number;
     enableWebSearch: boolean;
     enableStreaming: boolean;
@@ -223,7 +223,7 @@ export interface AgentSession {
 // ============================================================================
 
 export interface AuthenticatedWebSocket {
-  ws: any; // WebSocket instance
+  ws: any; // WebSocket instance,
   userId: string;
   isAdmin: boolean;
   adminPrivileges: Record<string, any> | null;
@@ -234,7 +234,7 @@ export interface AuthenticatedWebSocket {
 }
 
 export interface StreamingEvent {
-  event_type: 'phase_transition' | 'agent_spawned' | 'git_operation' | 'tool_execution' | 
+  event_type: 'phase_transition' | 'agent_spawned' | 'git_operation' | 'tool_execution' | ,
              'progress_update' | 'error' | 'session_complete' | 'connection_established' |
              'pong' | 'subscription_confirmed' | 'subscription_cancelled' | 'admin_response' |
              'admin_broadcast';
@@ -265,40 +265,40 @@ export interface UserWorkspace {
 // ============================================================================
 
 export interface AdminAnalytics {
-  sessions: {
+  sessions: {,
     total_started: number;
     completed_successfully: number;
     failed: number;
     cancelled: number;
     success_rate: number;
   };
-  agents: {
+  agents: {,
     total_spawned: number;
     max_recursion_depth: number;
     avg_agents_per_session: number;
   };
-  costs: {
+  costs: {,
     total_spent: number;
     avg_per_session: number;
     most_expensive_session: number;
-    cost_breakdown: {
+    cost_breakdown: {,
       standard_context: number;
       extended_context: number;
     };
   };
-  credit_system: {
+  credit_system: {,
     markup_multiplier: number;
     no_packages: boolean;
     admin_bypasses: number;
   };
-  tools: {
-    most_used: Array<{
+  tools: {,
+    most_used: Array<{,
       name: string;
       count: number;
       success_rate: number;
     }>;
   };
-  git_operations: {
+  git_operations: {,
     commits: number;
     branches_created: number;
     merges: number;
@@ -388,22 +388,22 @@ export interface APIGatewayConfig {
   port: number;
   host: string;
   environment: 'development' | 'staging' | 'production';
-  cors: {
+  cors: {,
     origins: string[];
     credentials: boolean;
   };
-  rateLimit: {
+  rateLimit: {,
     windowMs: number;
     max: number;
     skipSuccessfulRequests: boolean;
     adminBypass: boolean;
   };
-  websocket: {
+  websocket: {,
     pingInterval: number;
     pongTimeout: number;
     maxConnections: number;
   };
-  security: {
+  security: {,
     jwtSecret: string;
     jwtExpiration: string;
     refreshTokenExpiration: string;

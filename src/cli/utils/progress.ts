@@ -81,36 +81,23 @@ export class StepProgress {
     this.startTime = Date.now();
   }
   
-  start(): void {
-    console.log(chalk.blue('\n🚀 Starting execution...'));
-    this.showCurrentStep();
+  start(): void {this.showCurrentStep();
   }
   
   nextStep(customMessage?: string): void {
-    if (this.currentStep < this.steps.length) {
-      console.log(chalk.green(`✅ ${this.steps[this.currentStep]}`));
-    }
+    if (this.currentStep < this.steps.length) {}
     
     this.currentStep++;
     
-    if (customMessage) {
-      console.log(chalk.cyan(`ℹ️  ${customMessage}`));
-    }
+    if (customMessage) {}
     
     this.showCurrentStep();
   }
   
-  error(message: string): void {
-    console.log(chalk.red(`❌ ${message}`));
-  }
+  error(message: string): void {}
   
   complete(message?: string): void {
-    const duration = Date.now() - this.startTime;
-    console.log(chalk.green(`\n✅ All steps completed in ${Math.round(duration / 1000)}s`));
-    
-    if (message) {
-      console.log(chalk.cyan(`📋 ${message}`));
-    }
+    const duration = Date.now() - this.startTime;if (message) {}
   }
   
   private showCurrentStep(): void {

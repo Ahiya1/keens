@@ -17,6 +17,9 @@ export class StatusCommand {
       .option("--json", "Output status information in JSON format")
       .action(async (options: any) => {
         try {
+          // Initialize auth manager to load stored auth state
+          await cliAuth.initialize();
+          
           const isAuthenticated = cliAuth.isAuthenticated();
           const currentUser = cliAuth.getCurrentUser();
           const userContext = await cliAuth.getCurrentUserContext();
@@ -28,121 +31,110 @@ export class StatusCommand {
               user: currentUser,
               userContext,
               timestamp: new Date().toISOString(),
-              version: "3.1.0"
+              version: "3.1.0",
             };
-            
-            // 🔧 FIXED: Add system info conditionally for verbose mode
+
+            // Add system info conditionally for verbose mode
             if (options.verbose) {
               status.system = {
                 nodeVersion: process.version,
                 platform: process.platform,
                 arch: process.arch,
-                cwd: process.cwd()
+                cwd: process.cwd(),
               };
             }
-            
+
             console.log(JSON.stringify(status, null, 2));
             return;
           }
 
           // Human-readable output
-          console.log(chalk.blue("🔍 keen Status"));
-          console.log(chalk.gray("Authentication and system information\n"));
-
+          console.log(chalk.blue("\n🔍 Authentication Status"));
+          
           // Authentication Status
-          console.log(chalk.cyan("🔐 Authentication:"));
           if (isAuthenticated && currentUser) {
-            console.log(chalk.green("   ✅ Authenticated"));
-            console.log(chalk.white(`   👤 User: ${currentUser.displayName || currentUser.username}`));
-            console.log(chalk.white(`   📧 Email: ${currentUser.email}`));
-            console.log(chalk.white(`   🔐 Role: ${currentUser.role}`));
+            console.log(chalk.green(`✅ Authenticated as: ${currentUser.username} (${currentUser.email})`));
             
             if (currentUser.isAdmin) {
-              console.log(chalk.yellow(`   ⚡ Admin: Yes`));
+              console.log(chalk.yellow(`🔑 Admin user with elevated privileges`));
+              
               if (options.verbose && currentUser.adminPrivileges) {
-                console.log(chalk.gray("   🔧 Admin Privileges:"));
                 const privileges = currentUser.adminPrivileges;
+                console.log(chalk.gray("   Admin privileges:"));
                 Object.entries(privileges).forEach(([key, value]) => {
                   if (value) {
-                    console.log(chalk.gray(`      • ${key.replace(/_/g, ' ')}`));
+                    console.log(chalk.gray(`     • ${key}: enabled`));
                   }
                 });
               }
             } else {
-              console.log(chalk.white(`   ⚡ Admin: No`));
+              console.log(chalk.cyan("👤 Regular user account"));
             }
-            
+
             // Show token expiry if verbose
             if (options.verbose && userContext) {
-              console.log(chalk.gray(`   🕒 Session active`));
+              console.log(chalk.gray(`🕐 Session valid until: ${new Date(userContext.tokenExpiry).toLocaleString()}`));
             }
           } else {
-            console.log(chalk.red("   ❌ Not authenticated"));
-            console.log(chalk.gray("   💡 Run 'keen login' to authenticate"));
+            console.log(chalk.red("❌ Not authenticated"));
           }
 
-          console.log(""); // Empty line
+          // Empty line
+          console.log("");
 
           // System Information
           if (options.verbose) {
-            console.log(chalk.cyan("🖥️  System Information:"));
-            console.log(chalk.white(`   📦 keen Version: 3.1.0`));
-            console.log(chalk.white(`   🌐 Node.js: ${process.version}`));
-            console.log(chalk.white(`   🖥️  Platform: ${process.platform} (${process.arch})`));
-            console.log(chalk.white(`   📁 Working Directory: ${process.cwd()}`));
+            console.log(chalk.blue("🖥️ System Information"));
+            console.log(chalk.gray(`   Node.js: ${process.version}`));
+            console.log(chalk.gray(`   Platform: ${process.platform} ${process.arch}`));
+            console.log(chalk.gray(`   Working directory: ${process.cwd()}`));
             
             // Check database connectivity if authenticated
             if (isAuthenticated) {
-              console.log(chalk.gray("   🔄 Checking database connection..."));
               try {
                 const context = await cliAuth.getCurrentUserContext();
                 if (context) {
-                  console.log(chalk.green("   ✅ Database: Connected"));
+                  console.log(chalk.green("   Database: Connected ✅"));
                 } else {
-                  console.log(chalk.red("   ❌ Database: Connection failed"));
+                  console.log(chalk.yellow("   Database: Connection issues ⚠️"));
                 }
               } catch (error) {
-                console.log(chalk.red("   ❌ Database: Connection error"));
+                console.log(chalk.red("   Database: Connection failed ❌"));
                 if (options.verbose) {
-                  console.log(chalk.gray(`      Error: ${error}`));
+                  console.log(chalk.gray(`     Error: ${(error as Error).message}`));
                 }
               }
             }
             
-            console.log(""); // Empty line
+            // Empty line
+            console.log("");
           }
 
           // Available Actions
-          console.log(chalk.cyan("🚀 Available Actions:"));
+          console.log(chalk.blue("🎯 Available Actions"));
           if (isAuthenticated) {
-            console.log(chalk.green('   ✅ keen breathe "<vision>"     # Execute autonomous agent'));
-            console.log(chalk.green("   ✅ keen breathe -f <file>      # Execute from vision file"));
-            console.log(chalk.green("   ✅ keen converse              # Interactive conversation mode"));
-            console.log(chalk.white("   📤 keen logout                # End current session"));
+            console.log(chalk.green("   • keen breathe [vision]     # Start autonomous execution"));
+            console.log(chalk.green("   • keen converse              # Interactive conversation"));
+            console.log(chalk.green("   • keen manifest              # Create vision files"));
+            console.log(chalk.green("   • keen logout                # End session"));
           } else {
-            console.log(chalk.yellow("   🔐 keen login                 # Authenticate to unlock commands"));
-            console.log(chalk.gray("   ❌ keen breathe               # Requires authentication"));
-            console.log(chalk.gray("   ❌ keen converse              # Requires authentication"));
+            console.log(chalk.yellow("   • keen login                 # Authenticate with keen service"));
           }
-          
-          console.log(chalk.white("   ℹ️  keen status --verbose     # Detailed system information"));
-          console.log(chalk.white("   ❓ keen --help                # Show all available commands"));
-          
+
           if (!isAuthenticated) {
-            console.log(chalk.yellow("\n💡 Pro tip: Login to unlock all keen features!"));
-            console.log(chalk.gray('   Run: keen login'));
+            console.log(chalk.gray("\n💡 Run 'keen login' to access authenticated features"));
           }
-          
         } catch (error: any) {
           if (options.json) {
             console.log(JSON.stringify({
               authenticated: false,
               error: error.message,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             }, null, 2));
           } else {
             console.error(chalk.red("❌ Error checking status: " + error.message));
           }
+
           process.exit(1);
         }
       })

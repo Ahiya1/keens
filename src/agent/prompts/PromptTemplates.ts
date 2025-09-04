@@ -29,7 +29,7 @@ export class PromptTemplates {
     this.addTemplate({
       name: 'system_header',
       type: 'system',
-      content: `You are a keen autonomous development agent with complete control over this development session.
+      content: `You are a keen autonomous development agent with complete control over this development session.,
 
 TASK: {{vision}}
 WORKING DIRECTORY: {{workingDirectory}}
@@ -37,37 +37,37 @@ CURRENT PHASE: {{phase}}
 SPECIALIZATION: {{specialization}}
 GIT BRANCH: {{gitBranch}}`,
       requiredContext: ['vision', 'workingDirectory', 'phase', 'specialization', 'gitBranch'],
-      description: 'Main header with basic agent information'
+      description: 'Main header with basic agent information',
     });
 
     this.addTemplate({
       name: 'user_context',
-      type: 'system', 
-      content: `
+      type: 'system',
+      content: `,
 USER CONTEXT:
 - User ID: {{userId}}
 - Admin: {{isAdmin}}
 - Privileges: {{privileges}}`,
       requiredContext: ['userId', 'isAdmin', 'privileges'],
       optional: true,
-      description: 'User authentication and privilege information'
+      description: 'User authentication and privilege information',
     });
 
     this.addTemplate({
       name: 'web_search_capability',
       type: 'system',
-      content: `
+      content: `,
 
 WEB SEARCH: You have access to real-time web search through Anthropic's web search API. Use it when you need current information, documentation, or troubleshooting guidance.`,
       requiredContext: [],
       optional: true,
-      description: 'Web search capability notice'
+      description: 'Web search capability notice',
     });
 
     this.addTemplate({
       name: 'recursive_spawning',
       type: 'system',
-      content: `
+      content: `,
 
 PHASE 3.3 RECURSIVE AGENT SPAWNING: You can spawn specialized sub-agents with focused expertise:
 - Available specializations: frontend, backend, database, testing, security, devops, general
@@ -78,13 +78,13 @@ PHASE 3.3 RECURSIVE AGENT SPAWNING: You can spawn specialized sub-agents with fo
 - Can spawn child: {{canSpawnChild}}`,
       requiredContext: ['specialization', 'parentInfo', 'canSpawnChild'],
       optional: true,
-      description: 'Recursive agent spawning capabilities'
+      description: 'Recursive agent spawning capabilities',
     });
 
     this.addTemplate({
       name: 'compilation_requirements',
       type: 'system',
-      content: `
+      content: `,
 
 COMPILATION REQUIREMENTS:
 - Code MUST compile successfully before completion
@@ -94,17 +94,17 @@ COMPILATION REQUIREMENTS:
 - Test compilation after any code changes
 - Report compilation status in your completion report`,
       requiredContext: [],
-      description: 'Strict compilation checking requirements'
+      description: 'Strict compilation checking requirements',
     });
 
     this.addTemplate({
       name: 'tool_format_critical',
       type: 'system',
-      content: `
+      content: `,
 
 CRITICAL TOOL FORMAT REQUIREMENTS:
 
-write_files: MUST use this exact format:
+write_files: MUST use this exact format:,
 {
   "files": [
     {
@@ -124,23 +124,23 @@ ALWAYS wrap files in the "files" array, even for single files. Multiple files ex
 {
   "files": [
     {
-      "path": "file1.js", 
+      "path": "file1.js",
       "content": "content1"
     },
     {
       "path": "file2.js",
-      "content": "content2" 
+      "content": "content2"
     }
   ]
 }`,
       requiredContext: [],
-      description: 'Critical tool format instructions to prevent errors'
+      description: 'Critical tool format instructions to prevent errors',
     });
 
     this.addTemplate({
       name: 'autonomous_protocol',
       type: 'system',
-      content: `
+      content: `,
 
 AUTONOMOUS OPERATION PROTOCOL:
 1. You drive this conversation completely - no external prompts will be provided
@@ -150,13 +150,13 @@ AUTONOMOUS OPERATION PROTOCOL:
 5. CONTINUE FROM WHERE YOU LEFT OFF - don't restart processes
 6. VERIFY COMPILATION: Always check that your code compiles before reporting completion`,
       requiredContext: [],
-      description: 'Core autonomous operation guidelines'
+      description: 'Core autonomous operation guidelines',
     });
 
     this.addTemplate({
       name: 'phase_lifecycle',
       type: 'system',
-      content: `
+      content: `,
 
 PHASE LIFECYCLE:
 - EXPLORE: Understand the current project state and requirements
@@ -194,31 +194,31 @@ PHASE LIFECYCLE:
   • Validate requirements are met
   • Call report_complete when finished`,
       requiredContext: [],
-      description: 'Complete 5-phase execution guidance'
+      description: 'Complete 5-phase execution guidance',
     });
 
     this.addTemplate({
       name: 'available_tools',
       type: 'system',
-      content: `
+      content: `,
 
 AVAILABLE TOOLS:
 {{toolDescriptions}}`,
       requiredContext: ['toolDescriptions'],
-      description: 'List of available tools and their descriptions'
+      description: 'List of available tools and their descriptions',
     });
 
     this.addTemplate({
       name: 'session_info',
       type: 'system',
-      content: `
+      content: `,
 
 Session ID: {{sessionId}}
 Timestamp: {{timestamp}}
 
 Begin autonomous execution now. Start by using tools to explore and understand the current environment.`,
       requiredContext: ['sessionId', 'timestamp'],
-      description: 'Session metadata and startup instruction'
+      description: 'Session metadata and startup instruction',
     });
 
     // Specialization-specific templates
@@ -236,49 +236,49 @@ Begin autonomous execution now. Start by using tools to explore and understand t
    */
   private initializeSpecializationTemplates(): void {
     const specializations: Record<AgentSpecialization, string> = {
-      frontend: `FRONTEND SPECIALIZATION GUIDANCE:
+      frontend: `FRONTEND SPECIALIZATION GUIDANCE:,
 - Focus on UI components, styling, accessibility, and user experience
 - Use React, Vue, CSS, TypeScript, and modern frontend tools
 - Ensure responsive design and cross-browser compatibility
 - Validate HTML/CSS and test UI interactions
 - Check that frontend code compiles and bundles correctly`,
-      
-      backend: `BACKEND SPECIALIZATION GUIDANCE:
+
+      backend: `BACKEND SPECIALIZATION GUIDANCE:,
 - Focus on server-side logic, APIs, authentication, and data processing
 - Use Node.js, Express, database integration, and security patterns
 - Implement proper error handling and input validation
 - Ensure API endpoints work correctly and handle edge cases
 - Verify that backend code compiles and runs without errors`,
-      
-      database: `DATABASE SPECIALIZATION GUIDANCE:
+
+      database: `DATABASE SPECIALIZATION GUIDANCE:,
 - Focus on schema design, queries, optimization, and data integrity
 - Use PostgreSQL, database migrations, and query optimization
 - Design normalized schemas with proper relationships
 - Test all queries and migrations before completion
 - Verify database schema compiles and migrations run successfully`,
-      
-      testing: `TESTING SPECIALIZATION GUIDANCE:
+
+      testing: `TESTING SPECIALIZATION GUIDANCE:,
 - Focus on test design, automation, quality assurance, and coverage
 - Use Jest, Cypress, unit testing, and integration testing frameworks
 - Write comprehensive test suites with good coverage
 - Ensure all tests pass before reporting completion
 - Verify test files compile and execute correctly`,
-      
-      security: `SECURITY SPECIALIZATION GUIDANCE:
+
+      security: `SECURITY SPECIALIZATION GUIDANCE:,
 - Focus on authentication, authorization, data protection, and security audits
 - Implement secure coding practices and vulnerability remediation
 - Use security scanning tools and follow best practices
 - Test security implementations thoroughly
 - Ensure security code compiles and doesn't introduce vulnerabilities`,
-      
-      devops: `DEVOPS SPECIALIZATION GUIDANCE:
+
+      devops: `DEVOPS SPECIALIZATION GUIDANCE:,
 - Focus on deployment, CI/CD, scaling, infrastructure, and monitoring
 - Use Docker, CI/CD pipelines, monitoring tools, and infrastructure as code
 - Automate deployment and scaling processes
 - Test all infrastructure and deployment scripts
 - Verify deployment configurations compile and execute correctly`,
-      
-      general: `GENERAL AGENT GUIDANCE:
+
+      general: `GENERAL AGENT GUIDANCE:,
 - Handle full-stack development, general tasks, and coordination
 - Use all available tools and maintain broad perspective
 - Coordinate between different aspects of the project
@@ -309,13 +309,13 @@ Begin autonomous execution now. Start by using tools to explore and understand t
 
 WORKING DIRECTORY: {{workingDirectory}}`,
       requiredContext: ['workingDirectory'],
-      description: 'Header for conversation mode'
+      description: 'Header for conversation mode',
     });
 
     this.addTemplate({
       name: 'conversation_guidelines',
-      type: 'conversation', 
-      content: `
+      type: 'conversation',
+      content: `,
 
 CONVERSATION MODE GUIDELINES:
 1. You are having a conversation - be helpful, engaging, and informative
@@ -325,13 +325,13 @@ CONVERSATION MODE GUIDELINES:
 5. You CANNOT write files, modify code, or make changes - you're read-only
 6. Focus on understanding, planning, and providing guidance`,
       requiredContext: [],
-      description: 'Guidelines for conversation mode behavior'
+      description: 'Guidelines for conversation mode behavior',
     });
 
     this.addTemplate({
       name: 'conversation_limitations',
       type: 'conversation',
-      content: `
+      content: `,
 
 IMPORTANT LIMITATIONS:
 - You can read files and analyze the project structure
@@ -340,20 +340,20 @@ IMPORTANT LIMITATIONS:
 - You CANNOT write files, modify code, or execute destructive commands
 - You are NOT autonomous - you are conversational`,
       requiredContext: [],
-      description: 'Clear limitations for conversation mode'
+      description: 'Clear limitations for conversation mode',
     });
 
     this.addTemplate({
       name: 'conversation_tools',
       type: 'conversation',
-      content: `
+      content: `,
 
 AVAILABLE TOOLS (READ-ONLY):
 - get_project_tree: Analyze project structure and file organization
 - read_files: Read and examine specific files to understand the codebase
 - run_command: Execute read-only commands for project analysis (e.g., git status, package info)`,
       requiredContext: [],
-      description: 'Read-only tools available in conversation mode'
+      description: 'Read-only tools available in conversation mode',
     });
   }
 
@@ -364,32 +364,32 @@ AVAILABLE TOOLS (READ-ONLY):
     this.addTemplate({
       name: 'error_recovery_header',
       type: 'error_recovery',
-      content: `COMPILATION ERROR RECOVERY MODE
+      content: `COMPILATION ERROR RECOVERY MODE,
 
 Your previous attempt to complete the task has FAILED because the code does not compile. You must fix these compilation errors before the task can be marked as complete.
 
 IMPORTANT: This is a CRITICAL REQUIREMENT. Code that doesn't compile cannot be accepted as a completed task.`,
       requiredContext: [],
-      description: 'Header for error recovery prompts'
+      description: 'Header for error recovery prompts',
     });
 
     this.addTemplate({
       name: 'compilation_errors',
       type: 'error_recovery',
-      content: `
+      content: `,
 
 COMPILATION ERRORS FOUND:
 {{errorList}}
 
 These errors MUST be fixed before completion.`,
       requiredContext: ['errorList'],
-      description: 'List of compilation errors to fix'
+      description: 'List of compilation errors to fix',
     });
 
     this.addTemplate({
       name: 'error_recovery_instructions',
       type: 'error_recovery',
-      content: `
+      content: `,
 
 ERROR RECOVERY INSTRUCTIONS:
 1. Carefully analyze each compilation error listed above
@@ -401,13 +401,13 @@ ERROR RECOVERY INSTRUCTIONS:
 
 Do NOT report completion until validation shows zero compilation errors.`,
       requiredContext: [],
-      description: 'Step-by-step error recovery process'
+      description: 'Step-by-step error recovery process',
     });
 
     this.addTemplate({
-      name: 'previous_attempt_context', 
+      name: 'previous_attempt_context',
       type: 'error_recovery',
-      content: `
+      content: `,
 
 PREVIOUS ATTEMPT SUMMARY:
 {{previousAttempt}}
@@ -415,7 +415,7 @@ PREVIOUS ATTEMPT SUMMARY:
 Learn from this previous attempt to avoid making the same mistakes.`,
       requiredContext: ['previousAttempt'],
       optional: true,
-      description: 'Context from the previous failed attempt'
+      description: 'Context from the previous failed attempt',
     });
   }
 

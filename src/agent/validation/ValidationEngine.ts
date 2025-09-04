@@ -140,7 +140,7 @@ export class ValidationEngine {
         suggestions: [...new Set(allSuggestions)], // Remove duplicates
         autoFixApplied,
         executionTime: Date.now() - startTime,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       
     } catch (error: any) {
@@ -148,17 +148,17 @@ export class ValidationEngine {
         overall: 'fail',
         score: 0,
         categories: validationResults,
-        issues: [{
+        issues: [{,
           type: 'validation_engine_error',
           severity: 'critical',
           message: `Validation engine failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         suggestions: ['Check project structure and dependencies'],
         autoFixApplied: [],
-        executionTime: Date.now() - startTime
+        executionTime: Date.now() - startTime,
       };
     }
   }
@@ -182,7 +182,7 @@ export class ValidationEngine {
    */
   private updateCategoryResultsAfterFixes(
     validationResults: { [category: string]: CategoryValidation },
-    autoFixApplied: ValidationFix[]
+    autoFixApplied: ValidationFix[],
   ): void {
     const fixesByCategory: { [category: string]: number } = {};
     
@@ -261,23 +261,23 @@ export class ValidationEngine {
         score: Math.max(0, 100 - (result.issues.length * 10)),
         issues: result.issues,
         executionTime: Date.now() - startTime,
-        suggestions: result.suggestions || []
+        suggestions: result.suggestions || [],
       };
     } catch (error: any) {
       return {
         category: 'syntax',
         passed: false,
         score: 0,
-        issues: [{
+        issues: [{,
           type: 'syntax_validation_error',
           severity: 'high',
           message: `Syntax validation failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         executionTime: Date.now() - startTime,
-        suggestions: ['Check project structure and file syntax']
+        suggestions: ['Check project structure and file syntax'],
       };
     }
   }
@@ -297,23 +297,23 @@ export class ValidationEngine {
         score: Math.max(0, 100 - (result.issues.length * 2)),
         issues: result.issues,
         executionTime: Date.now() - startTime,
-        suggestions: result.suggestions || []
+        suggestions: result.suggestions || [],
       };
     } catch (error: any) {
       return {
         category: 'style',
         passed: false,
         score: 0,
-        issues: [{
+        issues: [{,
           type: 'style_validation_error',
           severity: 'medium',
           message: `Style validation failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         executionTime: Date.now() - startTime,
-        suggestions: ['Install and configure linting tools']
+        suggestions: ['Install and configure linting tools'],
       };
     }
   }
@@ -326,7 +326,7 @@ export class ValidationEngine {
     
     try {
       const result = await this.testValidator.executeTests(projectPath, {
-        silentMode: true  // ALWAYS SILENT
+        silentMode: true  // ALWAYS SILENT,
       });
       
       const issues: ValidationIssue[] = [];
@@ -339,7 +339,7 @@ export class ValidationEngine {
           message: `${result.failed} out of ${result.total} tests failed`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         });
       }
       
@@ -353,7 +353,7 @@ export class ValidationEngine {
             file: '',
             line: 0,
             autoFixable: false,
-            suggestion: 'Add more tests to improve coverage'
+            suggestion: 'Add more tests to improve coverage',
           });
         }
       }
@@ -370,23 +370,23 @@ export class ValidationEngine {
         issues,
         executionTime: Date.now() - startTime,
         testsRun,
-        suggestions: result.passed ? ['Tests are passing'] : ['Fix failing tests and improve coverage']
+        suggestions: result.passed ? ['Tests are passing'] : ['Fix failing tests and improve coverage'],
       };
     } catch (error: any) {
       return {
         category: 'tests',
         passed: false,
         score: 0,
-        issues: [{
+        issues: [{,
           type: 'test_execution_error',
           severity: 'high',
           message: `Test execution failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         executionTime: Date.now() - startTime,
-        suggestions: ['Check test configuration and dependencies']
+        suggestions: ['Check test configuration and dependencies'],
       };
     }
   }
@@ -410,7 +410,7 @@ export class ValidationEngine {
         file: vuln.file || '',
         line: vuln.line || 0,
         autoFixable: result.autoFixesAvailable.includes(vuln.type),
-        suggestion: vuln.recommendation
+        suggestion: vuln.recommendation,
       }));
       
       return {
@@ -419,23 +419,23 @@ export class ValidationEngine {
         score: Math.max(0, 100 - (criticalVulns * 30 + highVulns * 15 + (result.vulnerabilities.length - criticalVulns - highVulns) * 5)),
         issues,
         executionTime: Date.now() - startTime,
-        suggestions: result.recommendations
+        suggestions: result.recommendations,
       };
     } catch (error: any) {
       return {
         category: 'security',
         passed: false,
         score: 50, // Give partial credit if security scan fails
-        issues: [{
+        issues: [{,
           type: 'security_scan_error',
           severity: 'medium',
           message: `Security scan failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         executionTime: Date.now() - startTime,
-        suggestions: ['Install security scanning tools and dependencies']
+        suggestions: ['Install security scanning tools and dependencies'],
       };
     }
   }
@@ -459,7 +459,7 @@ export class ValidationEngine {
         file: bottleneck.file || '',
         line: 0,
         autoFixable: false,
-        suggestion: bottleneck.recommendation
+        suggestion: bottleneck.recommendation,
       }));
       
       return {
@@ -468,23 +468,23 @@ export class ValidationEngine {
         score: result.score,
         issues,
         executionTime: Date.now() - startTime,
-        suggestions: result.optimizations
+        suggestions: result.optimizations,
       };
     } catch (error: any) {
       return {
         category: 'performance',
         passed: true, // Performance validation failure is not blocking
         score: 70, // Give neutral score if performance analysis fails
-        issues: [{
+        issues: [{,
           type: 'performance_analysis_error',
           severity: 'low',
           message: `Performance analysis failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         executionTime: Date.now() - startTime,
-        suggestions: ['Performance analysis tools may need configuration']
+        suggestions: ['Performance analysis tools may need configuration'],
       };
     }
   }
@@ -504,23 +504,23 @@ export class ValidationEngine {
         score: result.score,
         issues: result.issues,
         executionTime: Date.now() - startTime,
-        suggestions: result.suggestions
+        suggestions: result.suggestions,
       };
     } catch (error: any) {
       return {
         category: 'documentation',
         passed: true, // Documentation validation failure is not blocking
         score: 60, // Give partial credit if documentation validation fails
-        issues: [{
+        issues: [{,
           type: 'documentation_validation_error',
           severity: 'low',
           message: `Documentation validation failed: ${error.message}`,
           file: '',
           line: 0,
-          autoFixable: false
+          autoFixable: false,
         }],
         executionTime: Date.now() - startTime,
-        suggestions: ['Check documentation structure and completeness']
+        suggestions: ['Check documentation structure and completeness'],
       };
     }
   }
@@ -651,7 +651,7 @@ export class ValidationEngine {
         line: issue.line || 0,
         before: beforeLine,
         after: afterLine,
-        applied: true
+        applied: true,
       };
     }
     
@@ -668,7 +668,7 @@ export class ValidationEngine {
       tests: 0.25,
       security: 0.2,
       performance: 0.1,
-      documentation: 0.1
+      documentation: 0.1,
     };
     
     let totalScore = 0;

@@ -45,7 +45,7 @@ export class ValidationDAO {
    */
   async storeValidationResult(
     sessionId: string, 
-    validationResult: ValidationResult
+    validationResult: ValidationResult,
   ): Promise<string> {
     const query = `
       INSERT INTO validation_results (
@@ -97,7 +97,7 @@ export class ValidationDAO {
   async storeQualityGateEvaluation(
     sessionId: string,
     phase: string,
-    gateResult: GateResult
+    gateResult: GateResult,
   ): Promise<string> {
     const query = `
       INSERT INTO quality_gate_evaluations (
@@ -259,7 +259,7 @@ export class ValidationDAO {
   private async storeAutoFixes(
     sessionId: string, 
     validationResultId: string, 
-    fixes: ValidationFix[]
+    fixes: ValidationFix[],
   ): Promise<void> {
     if (!fixes || fixes.length === 0) return;
     
@@ -293,7 +293,7 @@ export class ValidationDAO {
    */
   private async updateSessionValidationStatus(
     sessionId: string, 
-    validationResult: ValidationResult
+    validationResult: ValidationResult,
   ): Promise<void> {
     const query = `
       UPDATE agent_sessions 
@@ -327,7 +327,7 @@ export class ValidationDAO {
       auto_fixes_applied: row.auto_fixes_applied || [],
       suggestions: row.suggestions || [],
       execution_time_ms: parseInt(row.execution_time_ms) || 0,
-      created_at: new Date(row.created_at)
+      created_at: new Date(row.created_at),
     };
   }
   
@@ -345,7 +345,7 @@ export class ValidationDAO {
       threshold: parseFloat(row.threshold) || 0,
       criteria_evaluations: row.criteria_evaluations || [],
       recommendations: row.recommendations || [],
-      created_at: new Date(row.created_at)
+      created_at: new Date(row.created_at),
     };
   }
   

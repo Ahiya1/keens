@@ -27,24 +27,24 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       version: '2.0.0',
       phase: 'Phase 2 - API Gateway',
-      services: {
+      services: {,
         database: 'operational',
         authentication: 'operational',
         credit_system: 'operational',
-        websocket: 'operational'
+        websocket: 'operational',
       },
-      performance: {
+      performance: {,
         response_time_ms: responseTime,
-        database_status: 'connected'
+        database_status: 'connected',
       },
-      features: {
+      features: {,
         agent_purity: true,
         admin_bypass: true,
         rate_limiting: true,
         audit_logging: true,
         multi_tenant: true,
-        websocket_streaming: true
-      }
+        websocket_streaming: true,
+
     });
   } catch (error) {
     const responseTime = Date.now() - startTime;
@@ -53,17 +53,17 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: 'Database connectivity failed',
-      performance: {
-        response_time_ms: responseTime
+      performance: {,
+        response_time_ms: responseTime,
       },
-      services: {
+      services: {,
         database: 'offline',
         authentication: 'degraded',
         credit_system: 'offline',
-        websocket: 'operational'
-      }
+        websocket: 'operational',
+
     });
-  }
+
 }));
 
 /**
@@ -86,77 +86,77 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
       phase: 'Phase 2 - API Gateway Complete',
       
       // System overview
-      system: {
+      system: {,
         platform_ready: systemStatus.platform.ready,
         uptime: process.uptime(),
         memory_usage: process.memoryUsage(),
-        cpu_usage: process.cpuUsage()
+        cpu_usage: process.cpuUsage(),
       },
       
       // Database health
-      database: {
+      database: {,
         connected: systemStatus.database.connected,
         active_connections: systemStatus.database.activeConnections,
         total_connections: connectionStats.totalConnections,
         idle_connections: connectionStats.idleConnections,
-        waiting_connections: connectionStats.waitingConnections // Fixed property name
+        waiting_connections: connectionStats.waitingConnections // Fixed property name,
       },
       
       // Anthropic integration
-      anthropic: {
+      anthropic: {,
         configured: systemStatus.anthropic.configured,
         model: systemStatus.anthropic.model,
         extended_context: systemStatus.anthropic.extendedContext,
         thinking_enabled: systemStatus.anthropic.thinking,
-        beta_headers: systemStatus.anthropic.betaHeaders
+        beta_headers: systemStatus.anthropic.betaHeaders,
       },
       
       // API Gateway features
-      api_gateway: {
-        authentication: {
+      api_gateway: {,
+        authentication: {,
           jwt_enabled: true,
           api_keys_enabled: true,
-          admin_bypass: true
+          admin_bypass: true,
         },
-        rate_limiting: {
+        rate_limiting: {,
           enabled: true,
           admin_exempt: true,
-          concurrent_sessions: true
+          concurrent_sessions: true,
         },
-        credit_system: {
+        credit_system: {,
           markup_multiplier: 5.0,
           admin_unlimited: true,
-          real_time_validation: true
+          real_time_validation: true,
         },
-        websocket: {
+        websocket: {,
           enabled: true,
           real_time_streaming: true,
-          admin_monitoring: true
+          admin_monitoring: true,
         },
-        audit_logging: {
+        audit_logging: {,
           enabled: true,
           security_events: true,
           admin_actions: true,
-          compliance_ready: true
-        }
+          compliance_ready: true,
+
       },
       
       // Performance metrics
-      performance: {
+      performance: {,
         response_time_ms: responseTime,
         requests_per_second: 0, // TODO: implement metrics collection
         error_rate: 0,
-        avg_response_time: responseTime
+        avg_response_time: responseTime,
       },
       
       // Integration status
-      integrations: {
+      integrations: {,
         phase_1_database: 'operational',
         phase_2_api_gateway: 'operational',
         phase_3_agent_core: 'pending',
         phase_4_websockets: 'operational',
-        phase_5_dashboard: 'pending'
-      }
+        phase_5_dashboard: 'pending',
+
     });
     
   } catch (error) {
@@ -166,14 +166,14 @@ router.get('/detailed', asyncHandler(async (req: Request, res: Response) => {
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown error',
-      performance: {
-        response_time_ms: responseTime
+      performance: {,
+        response_time_ms: responseTime,
       },
-      system: {
-        platform_ready: false
-      }
+      system: {,
+        platform_ready: false,
+
     });
-  }
+
 }));
 
 /**
@@ -188,29 +188,29 @@ router.get('/ready', asyncHandler(async (req: Request, res: Response) => {
       res.status(200).json({
         ready: true,
         timestamp: new Date().toISOString(),
-        services: {
+        services: {,
           database: validation.database,
-          anthropic: validation.anthropic
-        }
+          anthropic: validation.anthropic,
+
       });
     } else {
       res.status(503).json({
         ready: false,
         timestamp: new Date().toISOString(),
         issues: validation.issues,
-        services: {
+        services: {,
           database: validation.database,
-          anthropic: validation.anthropic
-        }
+          anthropic: validation.anthropic,
+
       });
-    }
+
   } catch (error) {
     res.status(503).json({
       ready: false,
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
-  }
+
 }));
 
 /**
@@ -222,7 +222,7 @@ router.get('/live', (req: Request, res: Response) => {
     alive: true,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    pid: process.pid
+    pid: process.pid,
   });
 });
 

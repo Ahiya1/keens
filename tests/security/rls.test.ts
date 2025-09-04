@@ -1,17 +1,13 @@
 /**
  * Row Level Security Tests
  * Tests multi-tenant isolation and admin bypass functionality
+ * SECURITY: Fixed compilation issues and removed testConfig dependency
  */
 
 import { DatabaseService } from '../../src/database/index.js';
 import { UserContext } from '../../src/database/DatabaseManager.js';
-import { testConfig, adminConfig } from '../../src/config/database.js';
+import { adminConfig } from '../../src/config/database.js';
 import { generateTestEmail, generateTestSessionId } from '../setup';
-
-// Use test database
-process.env.DB_NAME = testConfig.database;
-process.env.DB_USER = testConfig.user;
-process.env.DB_PASSWORD = testConfig.password;
 
 describe('Row Level Security Tests', () => {
   let dbService: DatabaseService;
@@ -86,11 +82,10 @@ describe('Row Level Security Tests', () => {
         workingDirectory: '/tmp/user1'
       }, user1Context);
 
-      // User 1 should see their own sessions
+      // User 1 should see their own sessions - SECURITY: Fixed method call
       const user1OwnSessions = await dbService.sessions.getUserSessions(
         user1Id,
-        50,
-        0,
+        { limit: 50, offset: 0 },
         user1Context
       );
 

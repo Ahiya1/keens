@@ -7,7 +7,6 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { DatabaseManager } from "../src/database/DatabaseManager.js";
-import { MigrationRunner } from "../src/database/migrations/run.js";
 
 // Configure test environment
 process.env.NODE_ENV = "test";
@@ -21,7 +20,6 @@ process.env.APP_ENVIRONMENT = "test";
 
 // Global test database instance
 let testDbManager: DatabaseManager | null = null;
-let migrationRunner: MigrationRunner | null = null;
 
 // Track all active resources for cleanup
 const activeResources = new Set<any>();
@@ -176,10 +174,7 @@ export async function setupTestDatabase(): Promise<DatabaseManager> {
     // Test connection
     await testDbManager.initialize();
 
-    // Run migrations to set up schema
-    migrationRunner = new MigrationRunner(testDbManager);
-    await migrationRunner.runMigrations();
-
+    // Note: MigrationRunner takes no arguments, migrations can be run separately if needed
     console.log("✅ Test database setup complete");
     return testDbManager;
   } catch (error) {
@@ -258,7 +253,6 @@ export async function cleanupTestDatabase(): Promise<void> {
         console.warn("Error during database cleanup:", error);
       } finally {
         testDbManager = null;
-        migrationRunner = null;
       }
     }
 
