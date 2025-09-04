@@ -18,29 +18,29 @@ export class ContinueWorkTool {
     return {
       type: 'object',
       properties: {
-        nextAction: {,
+        nextAction: {
           type: 'string',
           description: 'Clear description of what the agent will do next',
         },
-        reasoning: {,
+        reasoning: {
           type: 'string',
           description: 'Optional reasoning behind the chosen next action',
         },
-        estimatedDuration: {,
+        estimatedDuration: {
           type: 'string',
           description: 'Estimated time to complete the next action (e.g., \'5 minutes\', \'2 steps\')'
         },
-        dependencies: {,
+        dependencies: {
           type: 'array',
           items: { type: 'string' },
           description: 'Dependencies that must be met before proceeding',
         },
-        risks: {,
+        risks: {
           type: 'array',
           items: { type: 'string' },
           description: 'Potential risks or issues with the planned action',
         },
-        requiresUserInput: {,
+        requiresUserInput: {
           type: 'boolean',
           description: 'Whether the next action requires user input or intervention',
         }

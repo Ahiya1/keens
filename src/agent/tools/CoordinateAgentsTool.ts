@@ -24,22 +24,22 @@ export class CoordinateAgentsTool {
     return {
       type: "object",
       properties: {
-        action: {,
+        action: {
           type: "string",
           enum: ["status", "validate_sequential", "check_dependencies", "sync_phase"],
           description: "Coordination action to perform",
         },
-        dependencies: {,
+        dependencies: {
           type: "array",
           items: { type: "string" },
           description: "List of dependencies to check (session IDs or requirements)",
         },
-        targetPhase: {,
+        targetPhase: {
           type: "string",
           enum: ["EXPLORE", "PLAN", "FOUND", "SUMMON", "COMPLETE"],
           description: "Target phase for sync_phase action",
         },
-        waitForChildren: {,
+        waitForChildren: {
           type: "boolean",
           default: true,
           description: "Whether to wait for all children to complete before proceeding",

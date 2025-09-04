@@ -57,14 +57,17 @@ export class KeenAPIServer {
       this.keenDB.getDatabaseManager(),
       this.keenDB.users,
       this.auditLogger
-
+    );
   }
 
   /**
    * Initialize the API server
    */
-  async initialize(): Promise<void> {// Initialize database connection
-    await this.keenDB.initialize();// Setup Express middleware
+  async initialize(): Promise<void> {
+    // Initialize database connection
+    await this.keenDB.initialize();
+
+    // Setup Express middleware
     this.setupMiddleware();
     
     // Setup routes
@@ -77,7 +80,8 @@ export class KeenAPIServer {
     this.server = createServer(this.app);
     
     // Setup WebSocket server
-    this.setupWebSocket();}
+    this.setupWebSocket();
+  }
 
   /**
    * Setup Express middleware
@@ -235,7 +239,7 @@ export class KeenAPIServer {
         version: '2.0.0',
         phase: 'Phase 2 - API Gateway Complete',
         status: 'operational',
-        endpoints: {,
+        endpoints: {
           health: '/health',
           auth: '/api/v1/auth',
           agents: '/api/v1/agents',
@@ -243,7 +247,7 @@ export class KeenAPIServer {
           admin: '/api/v1/admin',
           websocket: `ws://localhost:${PORT}/ws`
         },
-        features: {,
+        features: {
           authentication: 'JWT tokens and API keys with admin bypass',
           rateLimit: 'Per-user rate limiting with admin exemptions',
           creditSystem: '5x markup with admin bypass',
@@ -252,7 +256,7 @@ export class KeenAPIServer {
           realTime: 'WebSocket streaming',
           auditLogging: 'Comprehensive security and compliance logging',
         },
-        api_gateway: {,
+        api_gateway: {
           phase: 'Phase 2 Complete',
           agent_purity: true,
           admin_bypass: true,
@@ -289,7 +293,8 @@ export class KeenAPIServer {
       this.wss,
       this.keenDB,
       this.auditLogger
-    );}
+    );
+  }
 
   /**
    * Start the server
@@ -300,7 +305,11 @@ export class KeenAPIServer {
         if (err) {
           reject(err);
           return;
-        }if (NODE_ENV === 'development') {}
+        }
+        
+        if (NODE_ENV === 'development') {
+          console.log(`🚀 keen API Gateway running on port ${PORT}`);
+        }
         
         resolve();
       });
@@ -311,7 +320,8 @@ export class KeenAPIServer {
    * Stop the server
    */
   async stop(): Promise<void> {
-    return new Promise((resolve) => {// Close WebSocket connections
+    return new Promise((resolve) => {
+      // Close WebSocket connections
       if (this.wsManager) {
         this.wsManager.shutdown();
       }
@@ -321,8 +331,10 @@ export class KeenAPIServer {
       
       // Close HTTP server
       if (this.server) {
-        this.server.close(async () => {// Close database connections
-          await this.keenDB.close();resolve();
+        this.server.close(async () => {
+          // Close database connections
+          await this.keenDB.close();
+          resolve();
         });
       } else {
         resolve();
@@ -373,13 +385,15 @@ export class KeenAPIServer {
 }
 
 // Handle graceful shutdown
-process.on('SIGTERM', async () => {if (server) {
+process.on('SIGTERM', async () => {
+  if (server) {
     await server.stop();
     process.exit(0);
   }
 });
 
-process.on('SIGINT', async () => {if (server) {
+process.on('SIGINT', async () => {
+  if (server) {
     await server.stop();
     process.exit(0);
   }

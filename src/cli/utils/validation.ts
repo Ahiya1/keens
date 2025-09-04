@@ -14,20 +14,20 @@ export function validateVision(vision: string, source: string): void {
   if (!vision || typeof vision !== "string") {
     throw new Error(
       `Invalid vision from ${source}: vision must be a non-empty string`
-
+    );
   }
 
   const trimmed = vision.trim();
   if (trimmed.length < 10) {
     throw new Error(
       `Invalid vision from ${source}: vision must be at least 10 characters long`
-
+    );
   }
 
   if (trimmed.length > 30000) {
     throw new Error(
       `Invalid vision from ${source}: vision must be less than 30,000 characters`
-
+    );
   }
 }
 
@@ -85,7 +85,7 @@ export function validatePhase(phase: string): void {
   if (!validPhases.includes(phase)) {
     throw new Error(
       `Invalid phase: ${phase}. Valid phases are: ${validPhases.join(", ")}`
-
+    );
   }
 }
 
@@ -144,6 +144,6 @@ export function validatePathSecurity(
   if (!resolved.startsWith(allowedResolved)) {
     throw new Error(
       `Path ${resolved} is outside allowed directory ${allowedResolved}`
-
+    );
   }
 }

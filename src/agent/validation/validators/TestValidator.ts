@@ -195,7 +195,7 @@ export class TestValidator {
         cwd: projectPath,
         timeout: options.timeout,
         maxBuffer: 256 * 1024, // REDUCED: Only 256KB buffer (was 2MB!)
-        env: {,
+        env: {
           ...process.env,
           NODE_ENV: 'test',
           CI: 'true',

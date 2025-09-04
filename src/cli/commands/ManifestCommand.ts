@@ -180,7 +180,7 @@ export class ManifestCommand {
         console.log(chalk.gray(response.thinking));
       }
       
-      console.log(chalk.white("\n" + response.message));
+      console.log(chalk.white("\n" + response.response));
     } catch (error: any) {
       console.error(chalk.red("❌ Failed to start conversation: " + error.message));
     }
@@ -225,7 +225,7 @@ export class ManifestCommand {
             console.log(chalk.gray("\n💭 Claude's thinking:"));
             console.log(chalk.gray(response.thinking));
           }
-          console.log(chalk.white("\nClaude: " + response.message));
+          console.log(chalk.white("\nClaude: " + response.response));
         }
       } catch (error: any) {
         console.error(chalk.red("❌ Conversation error: " + error.message));

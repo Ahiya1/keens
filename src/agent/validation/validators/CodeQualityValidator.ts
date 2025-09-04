@@ -107,7 +107,7 @@ export class CodeQualityValidator {
       
     } catch (error: any) {
       return {
-        issues: [{,
+        issues: [{
           type: 'syntax_validator_error',
           severity: 'high',
           message: `Syntax validation failed: ${error.message}`,
@@ -156,7 +156,7 @@ export class CodeQualityValidator {
       
     } catch (error: any) {
       return {
-        issues: [{,
+        issues: [{
           type: 'style_validator_error',
           severity: 'medium',
           message: `Style validation failed: ${error.message}`,

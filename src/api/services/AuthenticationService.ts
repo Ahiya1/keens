@@ -91,7 +91,7 @@ export class AuthenticationService {
         // Safe audit logging - don't let it break authentication
         this.safeAuditLog(() => 
           this.auditLogger.logFailedLogin(email, clientInfo, 'invalid_credentials')
-
+        );
         throw new AuthenticationError('Invalid email or password');
       }
 
@@ -99,7 +99,7 @@ export class AuthenticationService {
       if (user.account_status !== 'active') {
         this.safeAuditLog(() => 
           this.auditLogger.logFailedLogin(email, clientInfo, 'account_suspended')
-
+        );
         throw new AuthenticationError('Account is suspended or inactive');
       }
 
@@ -112,7 +112,7 @@ export class AuthenticationService {
         if (!await this.verifyMFAToken(user.mfa_secret!, mfaToken)) {
           this.safeAuditLog(() => 
             this.auditLogger.logFailedLogin(email, clientInfo, 'invalid_mfa')
-
+          );
           throw new AuthenticationError('Invalid two-factor authentication token');
         }
       }
@@ -130,17 +130,18 @@ export class AuthenticationService {
           isAdmin: user.is_admin,
           adminPrivileges: user.admin_privileges,
         })
+      );
 
       // 8. Return sanitized user data
       const sanitizedUser = this.sanitizeUserForResponse(user);
 
       return {
-        user: {,
+        user: {
           ...sanitizedUser,
           authMethod: 'jwt' as const,
           tokenIsAdmin: user.is_admin,
         },
-        tokens: {,
+        tokens: {
           access_token: accessToken,
           refresh_token: refreshToken,
           expires_in: user.is_admin ? 3600 : 900 // Admin: 1h, User: 15min
@@ -156,7 +157,7 @@ export class AuthenticationService {
       console.error('Login error:', error);
       this.safeAuditLog(() => 
         this.auditLogger.logFailedLogin(email, clientInfo, 'system_error')
-
+      );
       throw new AuthenticationError('Login failed due to system error');
     }
   }
@@ -247,6 +248,7 @@ export class AuthenticationService {
         keyConfig.expiresAt
       ],
       context
+    );
 
     return {
       id: keyId,
@@ -273,6 +275,7 @@ export class AuthenticationService {
       WHERE t.token_hash = $1 AND t.token_type = 'api_key' AND t.is_active = true
       `,
       [keyHash]
+    );
 
     const apiKey = result[0];
     if (!apiKey) {
@@ -288,6 +291,7 @@ export class AuthenticationService {
     await this.db.query(
       'UPDATE auth_tokens SET last_used_at = NOW(), usage_count = usage_count + 1 WHERE id = $1',
       [apiKey.id]
+    );
 
     return {
       userId: apiKey.user_id,
@@ -337,6 +341,7 @@ export class AuthenticationService {
           clientInfo.ip,
           true
         ]
+      );
 
     } catch (error) {
       console.warn('Failed to store refresh token in database (using memory only):', error);
@@ -370,7 +375,8 @@ export class AuthenticationService {
    */
   private async checkLoginRateLimit(email: string, ip: string): Promise<void> {
     // TODO: Implement Redis-based rate limiting
-    // For now, just log the attempt}
+    // For now, just log the attempt
+  }
 
   /**
    * Update user login tracking
@@ -379,7 +385,7 @@ export class AuthenticationService {
     await this.db.query(
       'UPDATE users SET last_login_at = NOW(), last_login_ip = $1 WHERE id = $2',
       [ip, userId]
-
+    );
   }
 
   /**
@@ -446,7 +452,7 @@ export class AuthenticationService {
     await this.db.query(
       'UPDATE auth_tokens SET is_active = false WHERE token_hash = $1 AND token_type = $2',
       [tokenHash, 'jwt_refresh']
-
+    );
   }
 
   /**
@@ -489,6 +495,7 @@ export class AuthenticationService {
       `,
       [userId],
       context
+    );
 
     return keys.map(key => ({
       id: key.id,
@@ -512,6 +519,7 @@ export class AuthenticationService {
       'UPDATE auth_tokens SET is_active = false WHERE id = $1 AND user_id = $2 AND token_type = $3',
       [keyId, userId, 'api_key'],
       context
+    );
 
     return result.length > 0;
   }

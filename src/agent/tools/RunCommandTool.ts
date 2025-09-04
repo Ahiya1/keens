@@ -23,23 +23,23 @@ export class RunCommandTool {
     return {
       type: 'object',
       properties: {
-        command: {,
+        command: {
           type: 'string',
           description: 'Shell command to execute',
         },
-        timeout: {,
+        timeout: {
           type: 'number',
           description: 'Timeout in milliseconds (default: 30000)',
         },
-        workingDirectory: {,
+        workingDirectory: {
           type: 'string',
           description: 'Working directory for command execution',
         },
-        env: {,
+        env: {
           type: 'object',
           description: 'Environment variables to set',
         },
-        shell: {,
+        shell: {
           type: 'string',
           description: 'Shell to use (default: system default)',
         }
@@ -222,7 +222,7 @@ export class RunCommandTool {
         stderr: errorStderr,
         exitCode: error.code || -1,
         duration,
-        outputTruncated: (error.stdout && error.stdout.length > MAX_OUTPUT_LENGTH) ||,
+        outputTruncated: (error.stdout && error.stdout.length > MAX_OUTPUT_LENGTH) ||
                         (error.stderr && error.stderr.length > MAX_OUTPUT_LENGTH)
       };
     }

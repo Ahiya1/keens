@@ -46,5 +46,3 @@ export class SeedRunner {
     await this.db.close();
   }
 }
-
-export { SeedRunner };

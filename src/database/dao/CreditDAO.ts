@@ -295,9 +295,7 @@ export class CreditDAO {
           ...metadata,
           admin_bypass: true,
           actual_cost: claudeCostUSD.toString(),
-          would_have_charged: claudeCostUSD,
-            .mul(creditConfig.markupMultiplier)
-            .toString(),
+          would_have_charged: claudeCostUSD.mul(creditConfig.markupMultiplier).toString(),
         },
       ]
     );
@@ -428,7 +426,7 @@ export class CreditDAO {
     totalAdminBypass: Decimal;
     transactionCount: number;
     avgMarkup: Decimal;
-    topUsers: Array<{,
+    topUsers: Array<{
       userId: string;
       totalSpent: Decimal;
       transactionCount: number;
@@ -479,7 +477,7 @@ export class CreditDAO {
       totalAdminBypass: new Decimal(analytics.total_admin_bypass || 0),
       transactionCount: parseInt(analytics.transaction_count || "0"),
       avgMarkup: new Decimal(analytics.avg_markup || 0),
-      topUsers: topUsers.map((user: any) => ({,
+      topUsers: topUsers.map((user: any) => ({
         userId: user.user_id,
         totalSpent: new Decimal(user.total_spent || 0),
         transactionCount: parseInt(user.transaction_count || "0"),
@@ -524,18 +522,10 @@ export class CreditDAO {
       current_balance: new Decimal(account.current_balance),
       lifetime_purchased: new Decimal(account.lifetime_purchased),
       lifetime_spent: new Decimal(account.lifetime_spent),
-      daily_limit: account.daily_limit,
-        ? new Decimal(account.daily_limit)
-        : undefined,
-      monthly_limit: account.monthly_limit,
-        ? new Decimal(account.monthly_limit)
-        : undefined,
-      auto_recharge_threshold: account.auto_recharge_threshold,
-        ? new Decimal(account.auto_recharge_threshold)
-        : undefined,
-      auto_recharge_amount: account.auto_recharge_amount,
-        ? new Decimal(account.auto_recharge_amount)
-        : undefined,
+      daily_limit: account.daily_limit ? new Decimal(account.daily_limit) : undefined,
+      monthly_limit: account.monthly_limit ? new Decimal(account.monthly_limit) : undefined,
+      auto_recharge_threshold: account.auto_recharge_threshold ? new Decimal(account.auto_recharge_threshold) : undefined,
+      auto_recharge_amount: account.auto_recharge_amount ? new Decimal(account.auto_recharge_amount) : undefined,
     };
   }
 
@@ -547,9 +537,7 @@ export class CreditDAO {
       ...transaction,
       amount: new Decimal(transaction.amount),
       balance_after: new Decimal(transaction.balance_after),
-      claude_cost_usd: transaction.claude_cost_usd,
-        ? new Decimal(transaction.claude_cost_usd)
-        : undefined,
+      claude_cost_usd: transaction.claude_cost_usd ? new Decimal(transaction.claude_cost_usd) : undefined,
       markup_multiplier: new Decimal(transaction.markup_multiplier),
     };
   }

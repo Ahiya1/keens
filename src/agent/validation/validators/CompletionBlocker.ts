@@ -39,7 +39,7 @@ export class CompletionBlocker {
    */
   async validateCompletion(
     projectPath: string,
-    options: {,
+    options: {
       originalVision?: string;
       specialization?: string;
       sessionId?: string;
@@ -55,7 +55,7 @@ export class CompletionBlocker {
       blockers: [],
       warnings: [],
       recommendations: [],
-      compilationResult: {,
+      compilationResult: {
         success: false,
         errors: [],
         warnings: [],

@@ -53,7 +53,7 @@ export function createCreditsRouter(
 
       res.status(200).json({
         success: true,
-        balance: {,
+        balance: {
           current_balance: balance.currentBalance.toNumber(),
           reserved_balance: balance.reservedBalance.toNumber(),
           available_balance: balance.availableBalance.toNumber(),
@@ -64,18 +64,18 @@ export function createCreditsRouter(
           auto_recharge_enabled: balance.autoRechargeEnabled || false,
           unlimited_credits: balance.unlimitedCredits || false,
         },
-        credit_system: {,
+        credit_system: {
           markup_multiplier: 5.0,
           no_packages: true,
           individual_tier: !(user.is_admin || false),
           admin_unlimited: (user.is_admin || false) && (balance.unlimitedCredits || false),
-          claude_api_pricing: {,
-            standard_context: {,
+          claude_api_pricing: {
+            standard_context: {
               input_per_1k_tokens: 0.003,
               output_per_1k_tokens: 0.015,
               keen_markup: '5x',
             },
-            extended_context: {,
+            extended_context: {
               input_per_1k_tokens: 0.006,
               output_per_1k_tokens: 0.0225,
               keen_markup: '5x',
@@ -83,7 +83,7 @@ export function createCreditsRouter(
             }
           }
         },
-        user_info: {,
+        user_info: {
           is_admin: user.is_admin || false,
           credit_bypass: (user.is_admin || false) && (balance.unlimitedCredits || false),
           user_tier: (user.is_admin || false) ? 'admin' : 'individual',
@@ -145,7 +145,7 @@ export function createCreditsRouter(
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'purchase_credits',
-          details: {,
+          details: {
             amount,
             payment_method_id,
             payment_reference: paymentReference,
@@ -156,22 +156,22 @@ export function createCreditsRouter(
         res.status(200).json({
           success: true,
           message: 'Credits purchased successfully',
-          transaction: {,
+          transaction: {
             id: transaction.id,
             amount: transaction.amount.toNumber(),
             balance_after: transaction.balance_after.toNumber(),
             payment_reference: paymentReference,
             created_at: transaction.created_at,
           },
-          balance: {,
+          balance: {
             current_balance: updatedBalance.currentBalance.toNumber(),
             available_balance: updatedBalance.availableBalance.toNumber(),
             lifetime_purchased: updatedBalance.lifetimePurchased.toNumber(),
           },
-          purchase_info: {,
+          purchase_info: {
             credit_value: `$${amount} = ${amount} keen credits`,
             markup_info: '5x markup over Claude API costs',
-            usage_estimate: {,
+            usage_estimate: {
               standard_requests: Math.floor(amount / 0.50),
               complex_requests: Math.floor(amount / 5.0),
               note: 'Estimates based on typical usage patterns',
@@ -243,7 +243,7 @@ export function createCreditsRouter(
 
       res.status(200).json({
         success: true,
-        transactions: result.transactions.map(t => ({,
+        transactions: result.transactions.map(t => ({
           id: t.id,
           type: t.transaction_type,
           amount: t.amount.toNumber(),
@@ -257,19 +257,19 @@ export function createCreditsRouter(
           created_at: t.created_at,
           reconciliation_status: t.reconciliation_status,
         })),
-        pagination: {,
+        pagination: {
           total: result.total,
           limit: Number(limit),
           offset: Number(offset),
           has_more: Number(offset) + Number(limit) < result.total,
         },
-        summary: {,
+        summary: {
           total_spent: result.summary.totalSpent.toNumber(),
           total_purchased: result.summary.totalPurchased.toNumber(),
           admin_bypasses: result.summary.adminBypasses,
           avg_transaction_amount: result.summary.avgTransactionAmount.toNumber(),
         },
-        filters: {,
+        filters: {
           type: type || 'all',
           start_date,
           end_date
@@ -332,36 +332,36 @@ export function createCreditsRouter(
         success: true,
         period,
         group_by,
-        analytics: {,
-          usage: {,
+        analytics: {
+          usage: {
             total_spent: totalSpent.toNumber(),
             total_sessions: usageTransactions.filter(t => t.session_id).length,
             avg_session_cost: avgSessionCost.toNumber(),
             total_claude_costs: claudeCosts.toNumber(),
             markup_revenue: totalSpent.sub(claudeCosts).toNumber(),
           },
-          purchases: {,
+          purchases: {
             total_purchased: balance.lifetimePurchased.toNumber(),
             purchase_count: purchaseTransactions.length,
-            avg_purchase_amount: purchaseTransactions.length > 0,
+            avg_purchase_amount: purchaseTransactions.length > 0
               ? balance.lifetimePurchased.div(purchaseTransactions.length).toNumber()
               : 0
           },
-          efficiency: {,
+          efficiency: {
             cost_per_session: avgSessionCost.toNumber(),
             claude_vs_keen_ratio: claudeCosts.gt(0) ? totalSpent.div(claudeCosts).toNumber() : 5.0,
             usage_pattern: usageTransactions.length > 10 ? 'active' : 'light',
           },
-          admin_info: isAdmin ? {,
+          admin_info: isAdmin ? {
             unlimited_credits: unlimitedCredits,
             bypass_count: transactions.summary.adminBypasses,
-            total_theoretical_cost: usageTransactions,
+            total_theoretical_cost: usageTransactions
               .filter(t => t.is_admin_bypass)
               .reduce((sum, t) => sum.add(t.claude_cost_usd?.mul(5) || new Decimal(0)), new Decimal(0))
               .toNumber()
           } : undefined
         },
-        credit_system: {,
+        credit_system: {
           markup_multiplier: 5.0,
           individual_tier: !isAdmin,
           admin_unlimited: isAdmin && unlimitedCredits,
@@ -395,7 +395,7 @@ export function createCreditsRouter(
       // Create mock agent request for estimation
       const mockRequest = {
         vision,
-        options: {,
+        options: {
           maxIterations: max_iterations,
           enableWebSearch: enable_web_search,
         }
@@ -421,25 +421,25 @@ export function createCreditsRouter(
         
         res.status(200).json({
           success: true,
-          estimation: {,
-            vision_analysis: {,
+          estimation: {
+            vision_analysis: {
               length: vision.length,
               estimated_complexity: complexity || 'medium',
               max_iterations,
               web_search_enabled: enable_web_search,
             },
-            cost_breakdown: {,
+            cost_breakdown: {
               claude_api_cost: estimatedClaudeCost,
               keen_credit_cost: estimatedCreditCost,
               markup_multiplier: 5.0,
-              breakdown: {,
+              breakdown: {
                 input_tokens_est: Math.floor(vision.length * 1.2),
                 output_tokens_est: Math.floor(max_iterations * 500),
                 thinking_tokens_est: Math.floor(max_iterations * 200),
                 extended_context: vision.length > 1000,
               }
             },
-            affordability: {,
+            affordability: {
               can_afford: canAfford,
               current_balance: balance.currentBalance.toNumber(),
               available_balance: balance.availableBalance.toNumber(),
@@ -449,7 +449,7 @@ export function createCreditsRouter(
             estimated_duration: `${Math.max(5, max_iterations * 0.5)} minutes`,
             confidence: 'medium',
           },
-          user_context: {,
+          user_context: {
             is_admin: isAdmin,
             credit_bypass: isAdmin && unlimitedCredits,
             tier: isAdmin ? 'admin' : 'individual',

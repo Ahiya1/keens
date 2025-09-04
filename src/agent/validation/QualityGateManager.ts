@@ -40,7 +40,7 @@ export class QualityGateManager {
     this.gates.set('EXPLORE', {
       name: 'Exploration Quality Gate',
       threshold: 0.8,
-      criteria: [,
+      criteria: [
         {
           name: 'Project structure analyzed',
           weight: 0.4,
@@ -63,7 +63,7 @@ export class QualityGateManager {
     this.gates.set('PLAN', {
       name: 'Planning Quality Gate',
       threshold: 0.75,
-      criteria: [,
+      criteria: [
         {
           name: 'Implementation plan created',
           weight: 0.5,
@@ -86,7 +86,7 @@ export class QualityGateManager {
     this.gates.set('FOUND', {
       name: 'Foundation Quality Gate',
       threshold: 0.8,
-      criteria: [,
+      criteria: [
         {
           name: 'Basic structure established',
           weight: 0.4,
@@ -109,7 +109,7 @@ export class QualityGateManager {
     this.gates.set('SUMMON', {
       name: 'Implementation Quality Gate',
       threshold: 0.85,
-      criteria: [,
+      criteria: [
         {
           name: 'Core functionality implemented',
           weight: 0.3,
@@ -142,7 +142,7 @@ export class QualityGateManager {
     this.gates.set('COMPLETE', {
       name: 'Completion Quality Gate',
       threshold: 0.9,
-      criteria: [,
+      criteria: [
         {
           name: 'All tests passing',
           weight: 0.25,
@@ -219,7 +219,7 @@ export class QualityGateManager {
           score: 0,
           weight: criteria.weight,
           passed: false,
-          issues: [{,
+          issues: [{
             type: 'criteria_evaluation_error',
             severity: 'high',
             message: `Failed to evaluate ${criteria.name}: ${error?.message || 'Unknown error'}`,

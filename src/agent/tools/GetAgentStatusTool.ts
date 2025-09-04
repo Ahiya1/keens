@@ -16,47 +16,47 @@ export class GetAgentStatusTool {
     return {
       type: 'object',
       properties: {
-        includeMetrics: {,
+        includeMetrics: {
           type: 'boolean',
           description: 'Include detailed execution metrics for each agent',
           default: true,
         },
-        includeVisualization: {,
+        includeVisualization: {
           type: 'boolean',
           description: 'Include ASCII tree visualization',
           default: true,
         },
-        filterBy: {,
+        filterBy: {
           type: 'object',
           properties: {
-            status: {,
+            status: {
               type: 'string',
               enum: ['running', 'completed', 'failed', 'cancelled'],
               description: 'Filter agents by status',
             },
-            specialization: {,
+            specialization: {
               type: 'string',
               enum: ['frontend', 'backend', 'database', 'testing', 'security', 'devops', 'general'],
               description: 'Filter agents by specialization',
             },
-            phase: {,
+            phase: {
               type: 'string',
               enum: ['EXPLORE', 'PLAN', 'FOUND', 'SUMMON', 'COMPLETE'],
               description: 'Filter agents by current phase',
             },
-            minDepth: {,
+            minDepth: {
               type: 'number',
               description: 'Minimum tree depth to include',
               minimum: 0,
             },
-            maxDepth: {,
+            maxDepth: {
               type: 'number',
               description: 'Maximum tree depth to include',
               minimum: 0,
             }
           }
         },
-        sortBy: {,
+        sortBy: {
           type: 'string',
           enum: ['startTime', 'depth', 'specialization', 'status', 'duration'],
           description: 'Sort agents by specified field',
@@ -68,7 +68,7 @@ export class GetAgentStatusTool {
   }
 
   async execute(
-    parameters: {,
+    parameters: {
       includeMetrics?: boolean;
       includeVisualization?: boolean;
       filterBy?: {
@@ -80,7 +80,7 @@ export class GetAgentStatusTool {
       };
       sortBy?: string;
     },
-    context: AgentExecutionContext,
+    context: AgentExecutionContext
   ): Promise<any> {
     try {
       // Validate that we have AgentTreeManager
@@ -131,14 +131,14 @@ export class GetAgentStatusTool {
         success: true,
         treeStatus,
         currentNode,
-        filteredAgents: sortedNodes.map(node => ({,
+        filteredAgents: sortedNodes.map(node => ({
           sessionId: node.sessionId,
           specialization: node.specialization,
           phase: node.phase,
           status: node.status,
           depth: node.depth,
           gitBranch: node.gitBranch,
-          duration: node.endTime ?,
+          duration: node.endTime ?
             node.endTime.getTime() - node.startTime.getTime() :
             Date.now() - node.startTime.getTime(),
           childCount: node.children.length,
@@ -166,7 +166,7 @@ export class GetAgentStatusTool {
    */
   private filterNodes(
     tree: Record<string, AgentTreeNode>,
-    filter: {,
+    filter: {
       status?: string;
       specialization?: string;
       phase?: string;
@@ -237,7 +237,7 @@ export class GetAgentStatusTool {
    */
   private generateMetrics(
     treeStatus: AgentTreeStatus,
-    filteredNodes: AgentTreeNode[],
+    filteredNodes: AgentTreeNode[]
   ): any {
     const nodes = Object.values(treeStatus.tree);
     const now = Date.now();
@@ -268,39 +268,39 @@ export class GetAgentStatusTool {
     }, {} as Record<number, number>);
 
     return {
-      execution: {,
+      execution: {
         totalNodes: treeStatus.totalNodes,
         activeNodes: treeStatus.activeNodes,
         completedNodes: treeStatus.completedNodes,
         failedNodes: treeStatus.failedNodes,
-        successRate: treeStatus.totalNodes > 0 ?,
+        successRate: treeStatus.totalNodes > 0 ?
           treeStatus.completedNodes / (treeStatus.completedNodes + treeStatus.failedNodes) : 0
       },
-      timing: {,
-        averageDuration: durations.length > 0 ?,
+      timing: {
+        averageDuration: durations.length > 0 ?
           durations.reduce((a, b) => a + b, 0) / durations.length : 0,
         minDuration: Math.min(...durations),
         maxDuration: Math.max(...durations),
         totalExecutionTime: durations.reduce((a, b) => a + b, 0)
       },
-      hierarchy: {,
+      hierarchy: {
         maxDepth: treeStatus.maxDepth,
-        averageDepth: nodes.length > 0 ?,
+        averageDepth: nodes.length > 0 ?
           nodes.reduce((sum, node) => sum + node.depth, 0) / nodes.length : 0,
         depthDistribution: depthCounts,
       },
-      specialization: {,
+      specialization: {
         distribution: specializationCounts,
-        mostCommon: Object.entries(specializationCounts),
+        mostCommon: Object.entries(specializationCounts)
           .sort(([,a], [,b]) => b - a)[0]?.[0] || 'none'
       },
-      phases: {,
+      phases: {
         distribution: phaseCounts,
         activePhases: Object.keys(phaseCounts).filter(phase => phaseCounts[phase] > 0),
       },
-      filtered: {,
+      filtered: {
         totalFiltered: filteredNodes.length,
-        percentageOfTotal: treeStatus.totalNodes > 0 ?,
+        percentageOfTotal: treeStatus.totalNodes > 0 ?
           (filteredNodes.length / treeStatus.totalNodes) * 100 : 0
       }
     };
@@ -312,7 +312,7 @@ export class GetAgentStatusTool {
   private displayStatusSummary(
     treeStatus: AgentTreeStatus,
     currentNode: AgentTreeNode | undefined,
-    filteredCount: number,
+    filteredCount: number
   ): void {
     console.log(chalk.blue("\n📊 Agent Tree Status Summary"));
     console.log(chalk.cyan(`   Total Agents: ${treeStatus.totalNodes}`));

@@ -72,7 +72,7 @@ export function createAuthRouter(
       res.status(201).json({
         success: true,
         message: 'User account created successfully',
-        user: {,
+        user: {
           id: user.id,
           email: user.email,
           username: user.username,
@@ -81,7 +81,7 @@ export function createAuthRouter(
           is_admin: user.is_admin || false,
           created_at: user.created_at,
         },
-        tokens: {,
+        tokens: {
           access_token: accessToken,
           refresh_token: refreshToken,
           expires_in: user.is_admin ? 3600 : 900,
@@ -129,7 +129,7 @@ export function createAuthRouter(
         user: authResult.user,
         tokens: authResult.tokens,
         admin_access: authResult.adminAccess,
-        session_info: {,
+        session_info: {
           ip: clientInfo.ip,
           user_agent: clientInfo.userAgent,
           login_time: new Date().toISOString(),
@@ -161,7 +161,7 @@ export function createAuthRouter(
 
       res.status(200).json({
         success: true,
-        tokens: {,
+        tokens: {
           access_token: result.access_token,
           expires_in: result.expires_in,
         }
@@ -233,7 +233,7 @@ export function createAuthRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'create_api_key',
-        details: {,
+        details: {
           key_name: keyConfig.name,
           scopes: keyConfig.scopes,
           rate_limit: keyConfig.rateLimitPerHour,
@@ -245,7 +245,7 @@ export function createAuthRouter(
         message: 'API key created successfully',
         api_key: apiKey,
         warning: 'Store this API key securely. It will not be shown again.',
-        usage: {,
+        usage: {
           header: `Authorization: ApiKey ${apiKey.key}`,
           curl_example: `curl -H "Authorization: ApiKey ${apiKey.key}" https://api.keen.dev/api/v1/credits/balance`
         }
@@ -271,7 +271,7 @@ export function createAuthRouter(
         success: true,
         api_keys: apiKeys,
         total: apiKeys.length,
-        usage_info: {,
+        usage_info: {
           header_format: 'Authorization: ApiKey {your_key}',
           rate_limits: 'Per-key rate limits apply',
           scopes: 'Keys are limited to specified scopes',
@@ -298,7 +298,7 @@ export function createAuthRouter(
       if (!revoked) {
         res.status(404).json({
           success: false,
-          error: {,
+          error: {
             type: 'NOT_FOUND',
             code: 'API_KEY_NOT_FOUND',
             message: 'API key not found or already revoked',
@@ -311,7 +311,7 @@ export function createAuthRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'revoke_api_key',
-        details: {,
+        details: {
           key_id: keyId,
         }
       });
@@ -333,7 +333,7 @@ export function createAuthRouter(
       
       res.status(200).json({
         success: true,
-        user: {,
+        user: {
           id: user.id,
           email: user.email,
           username: user.username,
@@ -383,7 +383,7 @@ export function createAuthRouter(
           type: 'admin_privilege_escalation',
           userId: user.id,
           ip: getClientIP(req),
-          details: {,
+          details: {
             reason: 'invalid_admin_password',
             email: user.email,
           }
@@ -391,7 +391,7 @@ export function createAuthRouter(
         
         res.status(401).json({
           success: false,
-          error: {,
+          error: {
             type: 'AUTHENTICATION_ERROR',
             code: 'INVALID_ADMIN_PASSWORD',
             message: 'Invalid admin password',
@@ -404,7 +404,7 @@ export function createAuthRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'admin_password_verified',
-        details: {,
+        details: {
           ip: getClientIP(req),
           user_agent: req.get('User-Agent'),
         }
@@ -413,7 +413,7 @@ export function createAuthRouter(
       res.status(200).json({
         success: true,
         message: 'Admin credentials verified',
-        admin_session: {,
+        admin_session: {
           verified_at: new Date().toISOString(),
           expires_in: 3600 // 1 hour,
         }

@@ -16,10 +16,14 @@ export class LoginCommand {
       .option("-e, --email <email>", "Email address for login")
       .option("-p, --password <password>", "Password (not recommended, will prompt if not provided)")
       .option("--remember", "Remember login for extended period")
-      .action(async (options: any) => {try {
+      .action(async (options: any) => {
+        try {
           // Check if already logged in
           if (cliAuth.isAuthenticated()) {
-            const currentUser = cliAuth.getCurrentUser();// Ask if they want to logout and login as different user
+            const currentUser = cliAuth.getCurrentUser();
+            console.log(chalk.green(`✅ Already logged in as: ${currentUser?.email || 'Unknown'}`));
+
+            // Ask if they want to logout and login as different user
             const rl = readline.createInterface({
               input: process.stdin,
               output: process.stdout,
@@ -31,12 +35,19 @@ export class LoginCommand {
                 (answer) => {
                   rl.close();
                   resolve(answer);
-
+                }
+              );
             });
 
-            if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {return;
+            if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
+              console.log(chalk.blue('👋 Staying logged in'));
+              return;
+            }
 
-            // Logout current sessionawait cliAuth.logout();
+            // Logout current session
+            console.log(chalk.yellow('🔄 Logging out current session...'));
+            await cliAuth.logout();
+          }
 
           // Get email
           let email = options.email;
@@ -52,10 +63,12 @@ export class LoginCommand {
                 resolve(answer);
               });
             });
+          }
 
           if (!email?.trim()) {
             console.error(chalk.red("❌ Email is required"));
             process.exit(1);
+          }
 
           // Get password
           let password = options.password;
@@ -69,7 +82,10 @@ export class LoginCommand {
             const stdin = process.stdin;
             stdin.setRawMode!(true);
             
-            password = await new Promise<string>((resolve) => {let password = '';
+            console.log(chalk.cyan("🔒 Password: "));
+            
+            password = await new Promise<string>((resolve) => {
+              let password = '';
               
               const onData = (char: Buffer) => {
                 const c = char.toString('utf8');
@@ -78,7 +94,8 @@ export class LoginCommand {
                   // Enter pressed
                   stdin.setRawMode!(false);
                   stdin.removeListener('data', onData);
-                  rl.close();// New line after hidden input
+                  rl.close();
+                  console.log(); // New line after hidden input
                   resolve(password);
                 } else if (c === '\u0003') {
                   // Ctrl+C
@@ -88,41 +105,64 @@ export class LoginCommand {
                   // Backspace
                   if (password.length > 0) {
                     password = password.slice(0, -1);
-
+                  }
                 } else if (c >= ' ' && c <= '~') {
                   // Printable characters only
                   password += c;
-
+                }
+              };
+              
               stdin.on('data', onData);
             });
+          }
 
           if (!password?.trim()) {
             console.error(chalk.red("❌ Password is required"));
             process.exit(1);
+          }
 
-          // Attempt loginconst result = await cliAuth.login({
+          // Attempt login
+          console.log(chalk.blue('🔐 Authenticating...'));
+          
+          const result = await cliAuth.login({
             email: email.trim(),
             password: password.trim(),
             remember: options.remember || false,
           });
 
-          if (result.success) {const user = cliAuth.getCurrentUser();
-            if (user) {if (user.isAdmin) {}
-            }// Don't cleanup immediately - let the auth state persist
+          if (result.success) {
+            console.log(chalk.green('✅ ' + result.message));
+            
+            const user = cliAuth.getCurrentUser();
+            if (user) {
+              console.log(chalk.cyan(`👤 User: ${user.username || user.email}`));
+              console.log(chalk.cyan(`🎭 Role: ${user.role}`));
+              
+              if (user.isAdmin) {
+                console.log(chalk.magenta('👑 Admin privileges enabled'));
+              }
+            }
+            
+            // Don't cleanup immediately - let the auth state persist
             // The CLI framework will handle cleanup on exit
           } else {
-            console.error(chalk.red("\n❌ Login failed: " + result.message));process.exit(1);
+            console.error(chalk.red("\n❌ Login failed: " + result.message));
+            process.exit(1);
+          }
 
         } catch (error: any) {
           console.error(chalk.red("\n❌ Login error: " + error.message));
           
-          if (error.message.includes('database') || error.message.includes('connection')) {}
+          if (error.message.includes('database') || error.message.includes('connection')) {
+            console.error(chalk.yellow('💡 Hint: Check your network connection and try again'));
+          }
           
           process.exit(1);
-
+        }
       })
       .addHelpText(
         "after",
         `\nExamples:\n  keen login\n  keen login --email user@example.com\n  keen login --email user@example.com --remember\n\nSecurity:\n  • Passwords are never stored locally\n  • Session tokens are encrypted\n  • Use --remember for extended sessions\n\nNote:\n  First time users need to be created via the web interface or admin CLI.`
-
-`
+      );
+  }
+}

@@ -25,23 +25,23 @@ import { cliAuth } from "../auth/CLIAuthManager.js";
  */
 function expandShortCommand(vision: string): string {
   const shortCommands: Record<string, string> = {
-    create:,
+    create:
       "Create a new project with modern development setup including TypeScript, testing framework, linting, and proper project structure",
     init: "Initialize a new development project with essential files and configuration",
-    setup:,
+    setup:
       "Set up a development environment with all necessary tools and dependencies",
-    scaffold:,
+    scaffold:
       "Generate project scaffolding with best practices and modern tooling",
     bootstrap: "Bootstrap a new application with complete development setup",
     new: "Create a new project from scratch with modern development standards",
-    enhance:,
+    enhance:
       "Enhance existing project with improved functionality, logging, and testing capabilities",
-    debug:,
+    debug:
       "Debug and fix issues in the existing codebase with comprehensive logging",
     test: "Add comprehensive testing suite with Jest and proper test coverage",
-    monitor:,
+    monitor:
       "Add monitoring, logging, and observability features to the project",
-    readme:,
+    readme:
       "Update and enhance the README file with comprehensive documentation",
     docs: "Improve project documentation including README, API docs, and code comments"
   };

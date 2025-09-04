@@ -85,11 +85,11 @@ export function createAgentsRouter(
           if (activeSessions >= 3) {
             return res.status(409).json({
               success: false,
-              error: {,
+              error: {
                 type: "CONCURRENCY_ERROR",
                 code: "TOO_MANY_CONCURRENT_SESSIONS",
                 message: "Maximum concurrent sessions exceeded",
-                details: {,
+                details: {
                   current: activeSessions,
                   limit: 3,
                   admin_bypass_available: false,
@@ -104,7 +104,7 @@ export function createAgentsRouter(
         const agentRequest: AgentExecutionRequest = {
           vision,
           workingDirectory: working_directory,
-          options: {,
+          options: {
             maxIterations: options.max_iterations || 50,
             costBudget: options.cost_budget || 100,
             enableWebSearch: options.enable_web_search !== false,
@@ -141,7 +141,7 @@ export function createAgentsRouter(
             gitBranch: "main",
             vision: agentRequest.vision,
             workingDirectory: workspace.path,
-            agentOptions: {,
+            agentOptions: {
               maxIterations: agentRequest.options.maxIterations!,
               enableWebSearch: agentRequest.options.enableWebSearch!,
               enableStreaming: agentRequest.options.enableStreaming!,
@@ -161,9 +161,9 @@ export function createAgentsRouter(
         // 6. Return immediate response with cost tracking info
         const immediateResponse = {
           success: true,
-          message:,
+          message:
             "Agent execution started successfully with cost tracking enabled",
-          session: {,
+          session: {
             id: agentSession.id,
             session_id: workspace.sessionId,
             status: "running" as const,
@@ -174,14 +174,14 @@ export function createAgentsRouter(
             estimated_cost: creditReservation.estimatedCost,
             streaming_url: `wss://ws.keen.dev/sessions/${workspace.sessionId}`,
             created_at: new Date().toISOString(),
-            cost_tracking: {,
+            cost_tracking: {
               enabled: true,
               initial_budget: agentRequest.options.costBudget!,
               estimated_cost: creditReservation.estimatedCost,
               real_time_monitoring: true,
             },
           },
-          credit_info: {,
+          credit_info: {
             reserved: creditReservation.reservedAmount,
             estimated_cost: creditReservation.estimatedCost,
             claude_cost: creditReservation.claudeCost,
@@ -190,16 +190,16 @@ export function createAgentsRouter(
             credit_bypass: creditReservation.unlimited || false,
             remaining_balance: creditReservation.remainingBalance,
           },
-          execution_info: {,
+          execution_info: {
             agent_purity: true,
             business_logic_isolated: true,
             cost_tracking_enabled: true,
             real_time_cost_monitoring: true,
-            sanitized_request: {,
+            sanitized_request: {
               vision_length: agentRequest.vision.length,
               working_directory: workspace.path,
               max_iterations: agentRequest.options.maxIterations!,
-              features_enabled: {,
+              features_enabled: {
                 web_search: agentRequest.options.enableWebSearch!,
                 streaming: agentRequest.options.enableStreaming!,
                 progress_display: agentRequest.options.showProgress!,
@@ -232,7 +232,7 @@ export function createAgentsRouter(
               debug: false,
               dryRun: false,
               // Pass user context for cost tracking and database integration
-              userContext: {,
+              userContext: {
                 userId: user.id,
                 isAdmin: user.is_admin,
                 adminPrivileges: user.admin_privileges,
@@ -253,7 +253,7 @@ export function createAgentsRouter(
               {
                 executionStatus: result.success ? "completed" : "failed",
                 totalCost: finalCostBreakdown.totalCost,
-                completionReport: {,
+                completionReport: {
                   success: result.success,
                   summary: result.summary,
                   filesCreated: result.filesCreated,
@@ -266,14 +266,14 @@ export function createAgentsRouter(
                   costBreakdown: finalCostBreakdown,
                   error: result.error,
                   completed_at: new Date().toISOString(),
-                  cost_analysis: {,
+                  cost_analysis: {
                     total_api_calls: finalCostBreakdown.totalCalls,
-                    average_cost_per_call:,
+                    average_cost_per_call:
                       finalCostBreakdown.averageCostPerCall,
-                    extended_pricing_calls:,
+                    extended_pricing_calls:
                       finalCostBreakdown.extendedPricingCalls,
                     cost_by_phase: finalCostBreakdown.costByPhase,
-                    tokens_breakdown: {,
+                    tokens_breakdown: {
                       input: finalCostBreakdown.inputTokens,
                       output: finalCostBreakdown.outputTokens,
                       thinking: finalCostBreakdown.thinkingTokens,
@@ -332,7 +332,7 @@ export function createAgentsRouter(
               const agent = new KeenAgent({
                 vision: agentRequest.vision,
                 directory: workspace.path,
-                userContext: {,
+                userContext: {
                   userId: user.id,
                   isAdmin: user.is_admin,
                   adminPrivileges: user.admin_privileges,
@@ -349,7 +349,7 @@ export function createAgentsRouter(
               {
                 executionStatus: "failed",
                 totalCost: partialCost,
-                completionReport: {,
+                completionReport: {
                   success: false,
                   error: agentError.message,
                   failed_at: new Date().toISOString(),
@@ -391,17 +391,17 @@ export function createAgentsRouter(
         if (error.name === "InsufficientCreditsError") {
           return res.status(402).json({
             success: false,
-            error: {,
+            error: {
               type: "INSUFFICIENT_CREDITS",
               code: "PAYMENT_REQUIRED",
               message: "Insufficient credits for this operation",
-              details: {,
+              details: {
                 required: error.required,
                 available: error.available,
                 shortfall: error.shortfall,
                 claude_cost: error.claudeCost,
                 markup_multiplier: error.markupMultiplier,
-                credit_info: {,
+                credit_info: {
                   pricing: "5x markup over Claude API costs",
                   no_packages: true,
                   individual_tier: true,
@@ -448,7 +448,7 @@ export function createAgentsRouter(
       if (!session) {
         return res.status(404).json({
           success: false,
-          error: {,
+          error: {
             type: "NOT_FOUND",
             code: "SESSION_NOT_FOUND",
             message: "Agent session not found",
@@ -462,7 +462,7 @@ export function createAgentsRouter(
       if (!user.is_admin && session.user_id !== user.id) {
         return res.status(403).json({
           success: false,
-          error: {,
+          error: {
             type: "AUTHORIZATION_ERROR",
             code: "SESSION_ACCESS_DENIED",
             message: "You do not have access to this session",
@@ -483,18 +483,18 @@ export function createAgentsRouter(
         status: session.execution_status || "running",
         current_phase: "EXPLORE", // TODO: Get from session data
         phase_started_at: session.created_at,
-        progress: {,
+        progress: {
           phase_progress: session.execution_status === "completed" ? 1.0 : 0.35,
-          overall_progress:,
+          overall_progress:
             session.execution_status === "completed" ? 1.0 : 0.15,
-          current_action:,
+          current_action:
             session.execution_status === "completed"
               ? "Completed"
               : "Processing...",
           agents_spawned: 1,
           files_examined: 12,
         },
-        metrics: {,
+        metrics: {
           iteration_count: 8,
           tool_calls_count: 23,
           total_cost: session.total_cost || 0,
@@ -503,39 +503,39 @@ export function createAgentsRouter(
           files_modified: completionReport.filesModified || [],
         },
         // NEW: Detailed cost information
-        cost_tracking: {,
+        cost_tracking: {
           total_cost: session.total_cost || 0,
-          cost_breakdown: {,
+          cost_breakdown: {
             total_api_calls: costAnalysis.total_api_calls || 0,
             average_cost_per_call: costAnalysis.average_cost_per_call || 0,
             extended_pricing_calls: costAnalysis.extended_pricing_calls || 0,
             cost_by_phase: costAnalysis.cost_by_phase || {},
-            tokens_breakdown: costAnalysis.tokens_breakdown || {,
+            tokens_breakdown: costAnalysis.tokens_breakdown || {
               input: 0,
               output: 0,
               thinking: 0,
               total: 0,
             },
           },
-          cost_efficiency: {,
-            cost_per_iteration:,
+          cost_efficiency: {
+            cost_per_iteration:
               session.total_cost && costAnalysis.total_api_calls
                 ? (session.total_cost / costAnalysis.total_api_calls).toFixed(4)
                 : "0.0000",
-            tokens_per_dollar:,
+            tokens_per_dollar:
               session.total_cost && costAnalysis.tokens_breakdown?.total
                 ? Math.round(
                     costAnalysis.tokens_breakdown.total / session.total_cost
                   )
                 : 0,
-            pricing_tier:,
+            pricing_tier:
               costAnalysis.extended_pricing_calls > 0
                 ? "Extended (>200K tokens)"
                 : "Standard",
           },
           real_time_monitoring: true,
         },
-        git_operations: [,
+        git_operations: [
           {
             type: "init",
             branch: "main",
@@ -551,17 +551,15 @@ export function createAgentsRouter(
       return res.status(200).json({
         success: true,
         session: sessionStatus,
-        admin_info: user.is_admin,
-          ? {
-              user_id: session.user_id,
-              cost_tracking: {,
-                admin_bypass: user.is_admin,
-                actual_charges: user.is_admin ? 0 : session.total_cost || 0,
-                theoretical_cost: session.total_cost || 0,
-                credit_system_markup: "5x Claude API costs",
-              },
-            }
-          : undefined,
+        admin_info: user.is_admin ? {
+            user_id: session.user_id,
+            cost_tracking: {
+              admin_bypass: user.is_admin,
+              actual_charges: user.is_admin ? 0 : session.total_cost || 0,
+              theoretical_cost: session.total_cost || 0,
+              credit_system_markup: "5x Claude API costs",
+            },
+          } : undefined,
       });
     })
   );
@@ -576,7 +574,7 @@ export function createAgentsRouter(
  */
 async function createUserWorkspace(
   userId: string,
-  config: {,
+  config: {
     sessionType: "agent_execution" | "user_workspace";
     visionHash: string;
     isAdminSession: boolean;
@@ -602,7 +600,7 @@ async function createUserWorkspace(
  */
 async function getSessionByCustomId(
   sessionId: string,
-  context: {,
+  context: {
     userId: string;
     isAdmin: boolean;
     adminPrivileges?: any;

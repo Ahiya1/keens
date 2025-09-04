@@ -148,7 +148,7 @@ export class ValidationEngine {
         overall: 'fail',
         score: 0,
         categories: validationResults,
-        issues: [{,
+        issues: [{
           type: 'validation_engine_error',
           severity: 'critical',
           message: `Validation engine failed: ${error.message}`,
@@ -268,7 +268,7 @@ export class ValidationEngine {
         category: 'syntax',
         passed: false,
         score: 0,
-        issues: [{,
+        issues: [{
           type: 'syntax_validation_error',
           severity: 'high',
           message: `Syntax validation failed: ${error.message}`,
@@ -304,7 +304,7 @@ export class ValidationEngine {
         category: 'style',
         passed: false,
         score: 0,
-        issues: [{,
+        issues: [{
           type: 'style_validation_error',
           severity: 'medium',
           message: `Style validation failed: ${error.message}`,
@@ -377,7 +377,7 @@ export class ValidationEngine {
         category: 'tests',
         passed: false,
         score: 0,
-        issues: [{,
+        issues: [{
           type: 'test_execution_error',
           severity: 'high',
           message: `Test execution failed: ${error.message}`,
@@ -426,7 +426,7 @@ export class ValidationEngine {
         category: 'security',
         passed: false,
         score: 50, // Give partial credit if security scan fails
-        issues: [{,
+        issues: [{
           type: 'security_scan_error',
           severity: 'medium',
           message: `Security scan failed: ${error.message}`,
@@ -475,7 +475,7 @@ export class ValidationEngine {
         category: 'performance',
         passed: true, // Performance validation failure is not blocking
         score: 70, // Give neutral score if performance analysis fails
-        issues: [{,
+        issues: [{
           type: 'performance_analysis_error',
           severity: 'low',
           message: `Performance analysis failed: ${error.message}`,
@@ -511,7 +511,7 @@ export class ValidationEngine {
         category: 'documentation',
         passed: true, // Documentation validation failure is not blocking
         score: 60, // Give partial credit if documentation validation fails
-        issues: [{,
+        issues: [{
           type: 'documentation_validation_error',
           severity: 'low',
           message: `Documentation validation failed: ${error.message}`,

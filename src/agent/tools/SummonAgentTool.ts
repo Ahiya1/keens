@@ -28,28 +28,28 @@ export class SummonAgentTool {
     return {
       type: 'object',
       properties: {
-        vision: {,
+        vision: {
           type: 'string',
           description: 'Clear sub-vision/task for the child agent to accomplish',
         },
-        specialization: {,
+        specialization: {
           type: 'string',
           enum: ['frontend', 'backend', 'database', 'testing', 'security', 'devops', 'general'],
           description: 'Area of expertise for the child agent',
         },
-        maxIterations: {,
+        maxIterations: {
           type: 'number',
           description: 'Maximum iterations for child agent (default: 50)',
           minimum: 1,
           maximum: 200,
         },
-        costBudget: {,
+        costBudget: {
           type: 'number',
           description: 'Maximum cost budget for child agent in credits (default: 5.0)',
           minimum: 0.1,
           maximum: 50.0,
         },
-        context: {,
+        context: {
           type: 'object',
           description: 'Filtered context to pass to child agent (optional)',
         }
@@ -59,14 +59,14 @@ export class SummonAgentTool {
   }
   
   async execute(
-    parameters: {,
+    parameters: {
       vision: string;
       specialization: AgentSpecialization;
       maxIterations?: number;
       costBudget?: number;
       context?: any;
     },
-    context: AgentExecutionContext,
+    context: AgentExecutionContext
   ): Promise<any> {
     const startTime = Date.now();
     
@@ -122,7 +122,7 @@ export class SummonAgentTool {
         stream: context.verbose,
         debug: context.verbose,
         dryRun: context.dryRun,
-        userContext: context.userContext // Pass user context,
+        userContext: context.userContext // Pass user context
       });
       
       // Execute child agent (BLOCKING - sequential execution)
@@ -167,7 +167,7 @@ export class SummonAgentTool {
         spawnResult: result,
         executionTime: duration,
         specializationContext,
-        childMetrics: {,
+        childMetrics: {
           sessionId: childSessionId,
           specialization: parameters.specialization,
           gitBranch: childBranch,
@@ -187,7 +187,7 @@ export class SummonAgentTool {
         success: false,
         error: `Failed to spawn ${parameters.specialization} agent: ${error.message}`,
         duration,
-        spawnRequest: {,
+        spawnRequest: {
           vision: parameters.vision,
           specialization: parameters.specialization,
           maxIterations: parameters.maxIterations,
@@ -213,7 +213,7 @@ export class SummonAgentTool {
   private buildChildVision(
     originalVision: string, 
     specialization: AgentSpecialization,
-    specializationContext: any,
+    specializationContext: any
   ): string {
     const prefix = `You are a specialized ${specialization} agent with focused expertise in: ${specializationContext.focus}.\n\n`;
     

@@ -22,9 +22,9 @@ export class WriteFilesTool {
     return {
       type: "object",
       properties: {
-        files: {,
+        files: {
           type: "array",
-          items: {,
+          items: {
             type: "object",
             properties: {
               path: { type: "string", description: "File path" },
@@ -34,12 +34,11 @@ export class WriteFilesTool {
           },
           description: "Array of files to write",
         },
-        createDirectories: {,
+        createDirectories: {
           type: "boolean",
-          description:,
-            "Create parent directories if they don't exist (default: true)",
+          description: "Create parent directories if they don't exist (default: true)",
         },
-        backup: {,
+        backup: {
           type: "boolean",
           description: "Create backup of existing files (default: false)",
         },
@@ -184,11 +183,11 @@ export class WriteFilesTool {
 
       return {
         success: true,
-        message: dryRun,
+        message: dryRun
           ? `Dry run: Would write ${files.length} files`
           : `Successfully wrote ${files.length} files`,
         filesWritten: writtenFiles.length,
-        writtenPaths: writtenFiles.map((p) =>,
+        writtenPaths: writtenFiles.map((p) =>
           path.relative(workingDirectory, p)
         ),
         backupsCreated: backupPaths.length,
@@ -216,7 +215,7 @@ export class WriteFilesTool {
   private async rollback(
     writtenFiles: string[],
     backupPaths: { original: string; backup: string }[],
-    createdDirectories: string[],
+    createdDirectories: string[]
   ): Promise<void> {
     try {
       // Restore from backups

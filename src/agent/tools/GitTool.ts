@@ -19,32 +19,32 @@ export class GitTool {
     return {
       type: 'object',
       properties: {
-        action: {,
+        action: {
           type: 'string',
           description: 'Git action to perform',
-          enum: [,
+          enum: [
             'status', 'init', 'add', 'commit', 'push', 'pull', 'branch', 'checkout',
             'merge', 'log', 'diff', 'remote', 'clone', 'fetch', 'reset', 'stash'
           ]
         },
-        args: {,
+        args: {
           type: 'array',
           items: { type: 'string' },
           description: 'Additional arguments for the git command',
         },
-        message: {,
+        message: {
           type: 'string',
           description: 'Commit message (for commit action)',
         },
-        branch: {,
+        branch: {
           type: 'string',
           description: 'Branch name (for branch/checkout actions)',
         },
-        remote: {,
+        remote: {
           type: 'string',
           description: 'Remote name (default: origin)',
         },
-        files: {,
+        files: {
           type: 'array',
           items: { type: 'string' },
           description: 'File paths to add (for add action)',

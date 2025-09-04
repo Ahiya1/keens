@@ -71,9 +71,9 @@ export class StatusCommand {
               console.log(chalk.cyan("👤 Regular user account"));
             }
 
-            // Show token expiry if verbose
+            // Show session info if verbose (but don't reference tokenExpiry)
             if (options.verbose && userContext) {
-              console.log(chalk.gray(`🕐 Session valid until: ${new Date(userContext.tokenExpiry).toLocaleString()}`));
+              console.log(chalk.gray(`🕐 Session active for user: ${userContext.userId?.substring(0, 8)}...`));
             }
           } else {
             console.log(chalk.red("❌ Not authenticated"));

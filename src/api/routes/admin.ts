@@ -93,7 +93,7 @@ export function createAdminRouter(
             admin_users: allUsers.users.filter(u => u.is_admin).length,
             verified_users: allUsers.users.filter(u => u.email_verified).length,
             mfa_enabled: allUsers.users.filter(u => u.mfa_enabled).length,
-            recent_signups: allUsers.users.filter(u => {,
+            recent_signups: allUsers.users.filter(u => {
               const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
               return new Date(u.created_at) > weekAgo;
             }).length
@@ -133,7 +133,7 @@ export function createAdminRouter(
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'view_analytics',
-          details: {,
+          details: {
             range,
             include_users: includeUsers,
             include_costs: includeCosts,
@@ -148,17 +148,17 @@ export function createAdminRouter(
           admin_user: user.email,
           
           // System overview
-          system: {,
+          system: {
             platform_ready: systemStatus.platform.ready,
             version: systemStatus.platform.version,
             uptime_seconds: process.uptime(),
-            database: {,
+            database: {
               connected: systemStatus.database.connected,
               active_connections: systemStatus.database.activeConnections,
               total_connections: connectionStats.totalConnections,
               pool_status: 'healthy',
             },
-            anthropic: {,
+            anthropic: {
               configured: systemStatus.anthropic.configured,
               model: systemStatus.anthropic.model,
               extended_context: systemStatus.anthropic.extendedContext,
@@ -176,20 +176,20 @@ export function createAdminRouter(
           agents: agentAnalytics,
           
           // Credit system analytics
-          credits: includeCosts ? {,
-            revenue: creditAnalytics.revenue || {,
+          credits: includeCosts ? {
+            revenue: creditAnalytics.revenue || {
               total_revenue: 12547.50,
               total_claude_costs: 2509.50,
               markup_revenue: 10038.00,
               admin_bypasses: 1247.80,
             },
-            usage: creditAnalytics.usage || {,
+            usage: creditAnalytics.usage || {
               total_transactions: 3421,
               active_users: 156,
               avg_transaction_size: 3.67,
               admin_transactions: 89,
             },
-            system: {,
+            system: {
               markup_multiplier: 5.0,
               no_packages: true,
               individual_tier_only: true,
@@ -198,7 +198,7 @@ export function createAdminRouter(
           } : undefined,
           
           // Performance metrics
-          performance: {,
+          performance: {
             api_requests_per_hour: 1247, // TODO: implement real metrics
             avg_response_time_ms: 342,
             error_rate_percent: 1.2,
@@ -206,7 +206,7 @@ export function createAdminRouter(
           },
           
           // Security overview
-          security: {,
+          security: {
             failed_login_attempts: 12,
             rate_limited_requests: 45,
             admin_actions: 67,
@@ -278,7 +278,7 @@ export function createAdminRouter(
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'view_audit_logs',
-          details: {,
+          details: {
             filters,
             results_count: auditLogs.logs.length,
           }
@@ -287,14 +287,14 @@ export function createAdminRouter(
         return res.status(200).json({
           success: true,
           audit_logs: auditLogs.logs,
-          pagination: {,
+          pagination: {
             total: auditLogs.total,
             limit: Number(limit),
             offset: Number(offset),
             has_more: Number(offset) + Number(limit) < auditLogs.total,
           },
           filters,
-          metadata: {,
+          metadata: {
             accessed_by: user.email,
             accessed_at: new Date().toISOString(),
             retention_policy: '2 years',
@@ -371,7 +371,7 @@ export function createAdminRouter(
       await auditLogger.logAdminAction({
         adminUserId: user.id,
         action: 'list_users',
-        details: {,
+        details: {
           filters: { status, role, search },
           results_count: filteredUsers.length,
         }
@@ -379,7 +379,7 @@ export function createAdminRouter(
       
       return res.status(200).json({
         success: true,
-        users: filteredUsers.map(u => ({,
+        users: filteredUsers.map(u => ({
           id: u.id,
           email: u.email,
           username: u.username,
@@ -393,7 +393,7 @@ export function createAdminRouter(
           last_login_at: u.last_login_at,
           last_login_ip: u.last_login_ip,
         })),
-        pagination: {,
+        pagination: {
           total: users.total,
           filtered: filteredUsers.length,
           limit: Number(limit),
@@ -401,7 +401,7 @@ export function createAdminRouter(
           has_more: Number(offset) + Number(limit) < filteredUsers.length,
         },
         filters: { status, role, search },
-        summary: {,
+        summary: {
           total_users: users.total,
           active_users: users.users.filter(u => u.account_status === 'active').length,
           admin_users: users.users.filter(u => u.is_admin).length,
@@ -432,7 +432,7 @@ export function createAdminRouter(
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: {,
+          error: {
             type: 'NOT_FOUND',
             code: 'USER_NOT_FOUND',
             message: 'User not found',
@@ -466,7 +466,7 @@ export function createAdminRouter(
         adminUserId: adminUser.id,
         action: 'view_user_details',
         targetUserId: userId,
-        details: {,
+        details: {
           viewed_user_email: user.email,
           admin_access: true,
         }
@@ -474,10 +474,10 @@ export function createAdminRouter(
       
       return res.status(200).json({
         success: true,
-        user: {,
+        user: {
           // Full user details (admin can see everything)
           ...user,
-          credit_account: creditAccount ? {,
+          credit_account: creditAccount ? {
             current_balance: creditAccount.current_balance.toNumber(),
             lifetime_purchased: creditAccount.lifetime_purchased.toNumber(),
             lifetime_spent: creditAccount.lifetime_spent.toNumber(),
@@ -493,13 +493,13 @@ export function createAdminRouter(
             is_admin_bypass: t.is_admin_bypass,
             created_at: t.created_at,
           })),
-          usage_summary: {,
+          usage_summary: {
             total_sessions: 0, // TODO: implement
             total_spent: transactions.summary.totalSpent.toNumber(),
             avg_session_cost: 0 // TODO: implement,
           }
         },
-        admin_notes: {,
+        admin_notes: {
           viewed_by: adminUser.email,
           viewed_at: new Date().toISOString(),
           full_access: true,
@@ -522,25 +522,25 @@ export function createAdminRouter(
         
         // Test all major components
         const healthChecks = {
-          database: {,
+          database: {
             status: systemStatus.database.connected ? 'healthy' : 'unhealthy',
             active_connections: systemStatus.database.activeConnections,
             total_connections: connectionStats.totalConnections,
             response_time_ms: 0 // TODO: measure actual response time,
           },
-          anthropic: {,
+          anthropic: {
             status: systemStatus.anthropic.configured ? 'healthy' : 'unhealthy',
             model: systemStatus.anthropic.model,
             extended_context: systemStatus.anthropic.extendedContext,
             thinking_enabled: systemStatus.anthropic.thinking,
           },
-          api_gateway: {,
+          api_gateway: {
             status: 'healthy',
             uptime_seconds: process.uptime(),
             memory_usage: process.memoryUsage(),
             active_requests: 0 // TODO: track active requests,
           },
-          websocket: {,
+          websocket: {
             status: 'healthy',
             active_connections: 0 // TODO: track WebSocket connections,
           }
@@ -554,7 +554,7 @@ export function createAdminRouter(
         await auditLogger.logAdminAction({
           adminUserId: user.id,
           action: 'system_health_check',
-          details: {,
+          details: {
             overall_status: overallStatus,
             timestamp: new Date().toISOString(),
           }
@@ -566,7 +566,7 @@ export function createAdminRouter(
           timestamp: new Date().toISOString(),
           checked_by: user.email,
           components: healthChecks,
-          platform: {,
+          platform: {
             ready: systemStatus.platform.ready,
             version: systemStatus.platform.version,
             phase: 'Phase 2 - API Gateway',

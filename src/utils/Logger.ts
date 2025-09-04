@@ -97,7 +97,7 @@ export class Logger {
   private safeStringify(
     obj: any,
     maxDepth: number = 5,
-    prettyPrint: boolean = false,
+    prettyPrint: boolean = false
   ): string {
     const seen = new WeakSet();
     let currentDepth = 0;
@@ -343,7 +343,7 @@ export class Logger {
     phase: string,
     iteration: number,
     totalIterations: number,
-    message: string,
+    message: string
   ): Promise<void> {
     const percentage = Math.round((iteration / totalIterations) * 100);
     await this.log(
@@ -387,14 +387,14 @@ export class Logger {
       level: LogLevel.INFO,
       category: "api",
       message: `🤖 Claude API call completed - ${totalTokens.toLocaleString()} tokens in ${duration}ms${cost ? ` ($${cost.toFixed(4)})` : ""}`,
-      data: {,
+      data: {
         model,
         duration,
         cost,
       },
       sessionId: this.options.sessionId,
       cost: cost,
-      tokens: {,
+      tokens: {
         input: inputTokens,
         output: outputTokens,
         thinking: thinkingTokens,
@@ -450,7 +450,7 @@ export class Logger {
     sessionId: string,
     currentCost: number,
     threshold: number,
-    message: string,
+    message: string
   ): Promise<void> {
     await this.log(
       LogLevel.WARN,
@@ -472,7 +472,7 @@ export class Logger {
     sessionId: string,
     milestone: number,
     currentCost: number,
-    apiCalls: number,
+    apiCalls: number
   ): Promise<void> {
     await this.log(
       LogLevel.INFO,
@@ -665,7 +665,7 @@ export class Logger {
           { ...data, stepCost, totalCost, percentage }
         );
       },
-      complete: async (message: string) => {,
+      complete: async (message: string) => {
         const budgetStatus = budgetLimit
           ? ` (${((totalCost / budgetLimit) * 100).toFixed(1)}% of budget)`
           : "";

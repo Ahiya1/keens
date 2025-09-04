@@ -30,7 +30,7 @@ export function createAuthMiddleware(
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
           ip: getClientIP(req),
-          details: {,
+          details: {
             reason: 'missing_authorization_header',
             path: req.path,
             method: req.method,
@@ -39,7 +39,7 @@ export function createAuthMiddleware(
 
         res.status(401).json({
           success: false,
-          error: {,
+          error: {
             type: 'AUTHENTICATION_ERROR',
             code: 'MISSING_AUTHORIZATION',
             message: 'Authorization header is required',
@@ -93,7 +93,7 @@ export function createAuthMiddleware(
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
           ip: getClientIP(req),
-          details: {,
+          details: {
             reason: 'invalid_authorization_format',
             auth_header_prefix: authHeader.substring(0, 10),
             path: req.path,
@@ -102,7 +102,7 @@ export function createAuthMiddleware(
 
         res.status(401).json({
           success: false,
-          error: {,
+          error: {
             type: 'AUTHENTICATION_ERROR',
             code: 'INVALID_AUTHORIZATION_FORMAT',
             message: 'Authorization header must start with "Bearer " or "ApiKey "',
@@ -125,7 +125,7 @@ export function createAuthMiddleware(
         await auditLogger.logSecurityEvent({
           type: 'invalid_token',
           ip: getClientIP(req),
-          details: {,
+          details: {
             reason: errorMessage,
             path: req.path,
             method: req.method,
@@ -134,7 +134,7 @@ export function createAuthMiddleware(
 
         res.status(401).json({
           success: false,
-          error: {,
+          error: {
             type: 'AUTHENTICATION_ERROR',
             code: 'INVALID_TOKEN',
             message: errorMessage,
@@ -155,7 +155,7 @@ export function createAuthMiddleware(
 
       res.status(500).json({
         success: false,
-        error: {,
+        error: {
           type: 'SYSTEM_ERROR',
           code: 'AUTHENTICATION_SYSTEM_ERROR',
           message: 'Authentication system temporarily unavailable',
@@ -177,7 +177,7 @@ export function requireAdmin() {
     if (!user || !user.is_admin) {
       res.status(403).json({
         success: false,
-        error: {,
+        error: {
           type: 'AUTHORIZATION_ERROR',
           code: 'INSUFFICIENT_PRIVILEGES',
           message: 'Admin privileges required for this operation',
@@ -202,11 +202,11 @@ export function requireAdminPrivilege(privilege: string) {
     if (!user || !user.is_admin || !user.admin_privileges?.[privilege as keyof typeof user.admin_privileges]) {
       res.status(403).json({
         success: false,
-        error: {,
+        error: {
           type: 'AUTHORIZATION_ERROR',
           code: 'INSUFFICIENT_ADMIN_PRIVILEGES',
           message: `Admin privilege '${privilege}' required for this operation`,
-          details: {,
+          details: {
             required_privilege: privilege,
             user_privileges: user?.admin_privileges || {}
           },
@@ -244,11 +244,11 @@ export function requireScopes(requiredScopes: string[]) {
       
       res.status(403).json({
         success: false,
-        error: {,
+        error: {
           type: 'AUTHORIZATION_ERROR',
           code: 'INSUFFICIENT_SCOPES',
           message: 'Required API scopes are missing',
-          details: {,
+          details: {
             required_scopes: requiredScopes,
             user_scopes: allScopes,
             missing_scopes: missingScopes,

@@ -72,7 +72,7 @@ export class PerformanceValidator {
     } catch (error: any) {
       return {
         score: 70, // Neutral score when analysis fails
-        bottlenecks: [{,
+        bottlenecks: [{
           type: 'performance_analysis_error',
           severity: 'low',
           description: `Performance analysis failed: ${error.message}`,

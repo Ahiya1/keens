@@ -29,11 +29,11 @@ export interface CostEstimation {
   estimatedClaudeCostUSD: Decimal;
   estimatedDuration: string;
   complexity: 'low' | 'medium' | 'high' | 'very_high';
-  factors: {,
+  factors: {
     visionLength: number;
     maxIterations: number;
     webSearchEnabled: boolean;
-    expectedTokens: {,
+    expectedTokens: {
       input: number;
       output: number;
       thinking: number;
@@ -101,13 +101,14 @@ export class CreditGatewayService {
           description: 'Agent execution reservation',
           claudeCost: claudeCost,
           sessionId: agentRequest.workingDirectory ? this.generateSessionId() : undefined,
-          metadata: {,
+          metadata: {
             visionLength: agentRequest.vision.length,
             estimatedDuration: costEstimate.estimatedDuration,
             complexity: costEstimate.complexity,
           }
         },
         context
+      );
 
       return {
         reservationId,
@@ -149,7 +150,7 @@ export class CreditGatewayService {
           sessionId,
           'Admin execution completed',
           context
-
+        );
       }
 
       const actualCreditCost = actualClaudeCost.mul(this.MARKUP_MULTIPLIER);
@@ -160,7 +161,7 @@ export class CreditGatewayService {
         claudeCostUSD: actualClaudeCost,
         sessionId,
         description: 'Agent execution completed',
-        metadata: {,
+        metadata: {
           reservationId,
           actualClaudeCost: actualClaudeCost.toString(),
           actualCreditCost: actualCreditCost.toString(),
@@ -231,7 +232,7 @@ export class CreditGatewayService {
       amount,
       description,
       paymentReference,
-      metadata: {,
+      metadata: {
         paymentReference,
         addedAt: new Date().toISOString(),
         source: 'api_gateway',
@@ -244,7 +245,7 @@ export class CreditGatewayService {
    */
   async getTransactionHistory(
     userId: string,
-    options: {,
+    options: {
       limit?: number;
       offset?: number;
       type?: 'purchase' | 'usage' | 'refund' | 'adjustment' | 'admin_bypass';
@@ -255,7 +256,7 @@ export class CreditGatewayService {
   ): Promise<{
     transactions: CreditTransaction[];
     total: number;
-    summary: {,
+    summary: {
       totalSpent: Decimal;
       totalPurchased: Decimal;
       adminBypasses: number;
@@ -289,7 +290,7 @@ export class CreditGatewayService {
     return {
       transactions: result.transactions,
       total: result.total,
-      summary: {,
+      summary: {
         totalSpent,
         totalPurchased,
         adminBypasses,
@@ -354,6 +355,7 @@ export class CreditGatewayService {
       totalInputTokens,
       totalOutputTokens,
       totalThinkingTokens
+    );
 
     // Estimate duration
     const estimatedMinutes = Math.max(5, Math.floor(maxIterations * 0.5 + (complexity === 'very_high' ? 10 : 5)));
@@ -365,11 +367,11 @@ export class CreditGatewayService {
       estimatedClaudeCostUSD: claudeCost,
       estimatedDuration,
       complexity,
-      factors: {,
+      factors: {
         visionLength: request.vision.length,
         maxIterations,
         webSearchEnabled,
-        expectedTokens: {,
+        expectedTokens: {
           input: totalInputTokens,
           output: totalOutputTokens,
           thinking: totalThinkingTokens,
@@ -442,6 +444,7 @@ export class CreditGatewayService {
       const result = await this.db.query(
         'SELECT is_admin, admin_privileges FROM users WHERE id = $1',
         [userId]
+      );
 
       const user = result[0];
       return {
@@ -461,7 +464,7 @@ export class CreditGatewayService {
   private async reserveCredits(
     userId: string,
     amount: Decimal,
-    details: {,
+    details: {
       description: string;
       claudeCost: Decimal;
       sessionId?: string;
@@ -475,7 +478,9 @@ export class CreditGatewayService {
     
     // Store reservation in database (TODO: create reservations table)
     // SECURITY: Don't log sensitive user information
-    if (process.env.DEBUG) {}
+    if (process.env.DEBUG) {
+      console.log('Credit reservation created:', reservationId);
+    }
     
     return reservationId;
   }
@@ -513,6 +518,7 @@ export class CreditGatewayService {
         `,
         [userId, today, tomorrow],
         context
+      );
 
       return new Decimal(result[0]?.daily_spent || 0);
     } catch (error) {
@@ -536,7 +542,7 @@ export class CreditGatewayService {
       claudeCostUSD: claudeCost,
       sessionId,
       description: `[ADMIN BYPASS] ${description}`,
-      metadata: {,
+      metadata: {
         admin_bypass: true,
         actual_cost: claudeCost.toString(),
         would_have_charged: claudeCost.mul(this.MARKUP_MULTIPLIER).toString(),
@@ -561,19 +567,19 @@ export class CreditGatewayService {
     timeRange: 'day' | 'week' | 'month' = 'day',
     context?: UserContext
   ): Promise<{
-    revenue: {,
+    revenue: {
       totalRevenue: Decimal;
       totalClaudeCosts: Decimal;
       markupRevenue: Decimal;
       adminBypasses: Decimal;
     };
-    usage: {,
+    usage: {
       totalTransactions: number;
       activeUsers: number;
       avgTransactionSize: Decimal;
       adminTransactions: number;
     };
-    system: {,
+    system: {
       markupMultiplier: number;
       noPackages: boolean;
       creditSystemStatus: 'operational' | 'degraded' | 'offline';
@@ -591,19 +597,19 @@ export class CreditGatewayService {
       
       // Transform to expected structure
       return {
-        revenue: {,
+        revenue: {
           totalRevenue: basicAnalytics.totalRevenue || new Decimal(0),
           totalClaudeCosts: basicAnalytics.totalClaudeCosts || new Decimal(0),
           markupRevenue: (basicAnalytics.totalRevenue || new Decimal(0)).sub(basicAnalytics.totalClaudeCosts || new Decimal(0)),
           adminBypasses: basicAnalytics.totalAdminBypass || new Decimal(0),
         },
-        usage: {,
+        usage: {
           totalTransactions: basicAnalytics.transactionCount || 0,
           activeUsers: basicAnalytics.topUsers ? basicAnalytics.topUsers.length : 0,
           avgTransactionSize: basicAnalytics.avgMarkup || new Decimal(0),
-          adminTransactions: 0 // TODO: calculate admin transactions,
+          adminTransactions: 0, // TODO: calculate admin transactions
         },
-        system: {,
+        system: {
           markupMultiplier: this.MARKUP_MULTIPLIER,
           noPackages: true,
           creditSystemStatus: 'operational',
@@ -613,19 +619,19 @@ export class CreditGatewayService {
       // SECURITY: Don't log detailed error information
       // Return default structure if there's an error
       return {
-        revenue: {,
+        revenue: {
           totalRevenue: new Decimal(0),
           totalClaudeCosts: new Decimal(0),
           markupRevenue: new Decimal(0),
           adminBypasses: new Decimal(0),
         },
-        usage: {,
+        usage: {
           totalTransactions: 0,
           activeUsers: 0,
           avgTransactionSize: new Decimal(0),
           adminTransactions: 0,
         },
-        system: {,
+        system: {
           markupMultiplier: this.MARKUP_MULTIPLIER,
           noPackages: true,
           creditSystemStatus: 'operational',

@@ -115,13 +115,13 @@ export class WebSocketManager {
         event_type: 'connection_established',
         timestamp: new Date().toISOString(),
         session_id: 'system',
-        data: {,
+        data: {
           connection_id: connectionId,
           user_id: mockUser.id,
           admin_access: mockUser.isAdmin,
           session_filters: sessionFilters,
           privileges: mockUser.adminPrivileges,
-          features: {,
+          features: {
             real_time_streaming: true,
             admin_monitoring: mockUser.isAdmin,
             session_filtering: true,
@@ -134,7 +134,7 @@ export class WebSocketManager {
       await this.auditLogger.logAdminAction({
         adminUserId: mockUser.id,
         action: 'websocket_connect',
-        details: {,
+        details: {
           connection_id: connectionId,
           is_admin: mockUser.isAdmin,
           session_filters: sessionFilters,
@@ -148,7 +148,7 @@ export class WebSocketManager {
       await this.auditLogger.logSecurityEvent({
         type: 'invalid_token',
         ip: this.getClientIP(req),
-        details: {,
+        details: {
           reason: 'websocket_auth_failed',
           error: error instanceof Error ? error.message : String(error),
         }
@@ -219,7 +219,7 @@ export class WebSocketManager {
               event_type: 'error',
               timestamp: new Date().toISOString(),
               session_id: 'system',
-              data: {,
+              data: {
                 error: 'INSUFFICIENT_PRIVILEGES',
                 message: 'Admin privileges required',
               }
@@ -235,7 +235,7 @@ export class WebSocketManager {
         event_type: 'error',
         timestamp: new Date().toISOString(),
         session_id: 'system',
-        data: {,
+        data: {
           error: 'INVALID_MESSAGE_FORMAT',
           message: 'Invalid JSON message',
         }
@@ -261,7 +261,7 @@ export class WebSocketManager {
       event_type: 'subscription_confirmed',
       timestamp: new Date().toISOString(),
       session_id: sessionId,
-      data: {,
+      data: {
         session_id: sessionId,
         subscribed: true,
         admin_access: connection.isAdmin,
@@ -289,7 +289,7 @@ export class WebSocketManager {
       event_type: 'subscription_cancelled',
       timestamp: new Date().toISOString(),
       session_id: sessionId,
-      data: {,
+      data: {
         session_id: sessionId,
         subscribed: false,
       }
@@ -309,7 +309,7 @@ export class WebSocketManager {
           event_type: 'admin_response',
           timestamp: new Date().toISOString(),
           session_id: 'system',
-          data: {,
+          data: {
             command: 'get_active_sessions',
             active_sessions: activeSessions,
             total_connections: this.connections.size,
@@ -324,7 +324,7 @@ export class WebSocketManager {
             event_type: 'admin_broadcast',
             timestamp: new Date().toISOString(),
             session_id: message.target_session,
-            data: {,
+            data: {
               message: message.broadcast_message,
               from_admin: connection.userId,
             }
@@ -337,7 +337,7 @@ export class WebSocketManager {
     await this.auditLogger.logAdminAction({
       adminUserId: connection.userId,
       action: 'websocket_admin_command',
-      details: {,
+      details: {
         connection_id: connectionId,
         command: message.command,
         timestamp: new Date().toISOString(),
@@ -378,7 +378,7 @@ export class WebSocketManager {
     await this.auditLogger.logAdminAction({
       adminUserId: connection.userId,
       action: 'websocket_disconnect',
-      details: {,
+      details: {
         connection_id: connectionId,
         code,
         reason,

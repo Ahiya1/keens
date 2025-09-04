@@ -115,7 +115,7 @@ export interface AddMessageRequest {
 }
 
 export interface AddThinkingBlockRequest {
-  thinkingType:,
+  thinkingType:
     | "analysis"
     | "planning"
     | "decision"
@@ -156,7 +156,7 @@ export class SessionDAO {
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, 'EXPLORE', $9, $9, $9, 0, 0, 0.0,
         0, 1000000, '{}', '{}', '{}', 'running', true, '{}', $10, '[]', '{}', 0.0
-
+      )
       RETURNING *
       `,
       [
@@ -172,6 +172,7 @@ export class SessionDAO {
         request.agentOptions || {},
       ],
       context
+    );
 
     return this.transformSession(session);
   }
@@ -323,7 +324,7 @@ export class SessionDAO {
    */
   async updateSessionCosts(
     sessionId: string,
-    costData: {,
+    costData: {
       totalCost: number;
       totalApiCost: number;
       tokensUsed: number;
@@ -353,7 +354,7 @@ export class SessionDAO {
         sessionId,
       ],
       context
-
+    );
   }
 
   /**
@@ -367,6 +368,7 @@ export class SessionDAO {
       "SELECT * FROM agent_sessions WHERE id = $1",
       [sessionId],
       context
+    );
 
     return sessions.length > 0 ? this.transformSession(sessions[0]) : null;
   }
@@ -382,6 +384,7 @@ export class SessionDAO {
       "SELECT * FROM agent_sessions WHERE session_id = $1",
       [sessionId],
       context
+    );
 
     return sessions.length > 0 ? this.transformSession(sessions[0]) : null;
   }
@@ -391,7 +394,7 @@ export class SessionDAO {
    */
   async getUserSessions(
     userId: string,
-    options: {,
+    options: {
       limit?: number;
       offset?: number;
       status?: "running" | "completed" | "failed" | "cancelled";
@@ -423,6 +426,7 @@ export class SessionDAO {
       `SELECT COUNT(*) as count FROM agent_sessions ${whereClause}`,
       params,
       context
+    );
 
     const total = parseInt(countResult[0]?.count?.toString() || "0", 10);
 
@@ -436,6 +440,7 @@ export class SessionDAO {
       `,
       [...params, limit, offset],
       context
+    );
 
     return {
       sessions: sessions.map(this.transformSession),
@@ -461,7 +466,7 @@ export class SessionDAO {
         api_call_cost
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
-
+      )
       RETURNING *
       `,
       [
@@ -479,6 +484,7 @@ export class SessionDAO {
         request.apiCallCost || 0,
       ],
       context
+    );
 
     return this.transformMessage(message);
   }
@@ -488,7 +494,7 @@ export class SessionDAO {
    */
   async getSessionMessages(
     sessionId: string,
-    options: {,
+    options: {
       limit?: number;
       offset?: number;
       messageType?: "user" | "assistant" | "system" | "thinking";
@@ -515,6 +521,7 @@ export class SessionDAO {
       `,
       [...params, limit, offset],
       context
+    );
 
     return messages.map(this.transformMessage);
   }
@@ -536,7 +543,7 @@ export class SessionDAO {
         confidence_level, phase, iteration, associated_cost
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9
-
+      )
       `,
       [
         thinkingId,
@@ -550,7 +557,7 @@ export class SessionDAO {
         request.associatedCost || 0,
       ],
       context
-
+    );
   }
 
   /**
@@ -564,12 +571,12 @@ export class SessionDAO {
     totalApiCalls: number;
     totalTokens: number;
     costByPhase: Record<string, number>;
-    costOverTime: Array<{,
+    costOverTime: Array<{
       timestamp: Date;
       cost: number;
       cumulativeCost: number;
     }>;
-    expensiveOperations: Array<{,
+    expensiveOperations: Array<{
       operation: string;
       cost: number;
       timestamp: Date;
@@ -587,10 +594,12 @@ export class SessionDAO {
     const totalCost = apiCalls.reduce(
       (sum, call) => sum + (call.totalCost || 0),
       0
+    );
 
     const totalTokens = apiCalls.reduce(
       (sum, call) => sum + (call.totalTokens || 0),
       0
+    );
 
     // Cost by phase
     const costByPhase: Record<string, number> = {};
@@ -635,7 +644,7 @@ export class SessionDAO {
    */
   async getUserCostSummary(
     userId: string,
-    options: {,
+    options: {
       startDate?: Date;
       endDate?: Date;
     } = {},
@@ -646,7 +655,7 @@ export class SessionDAO {
     totalTokens: number;
     averageCostPerSession: number;
     costTrend: Array<{ date: Date; cost: number; sessions: number }>;
-    topExpensiveSessions: Array<{,
+    topExpensiveSessions: Array<{
       sessionId: string;
       vision: string;
       cost: number;
@@ -671,11 +680,13 @@ export class SessionDAO {
       `SELECT * FROM agent_sessions ${whereClause} ORDER BY start_time DESC`,
       params,
       context
+    );
 
     const totalCost = sessions.reduce((sum, s) => sum + (s.total_cost || 0), 0);
     const totalTokens = sessions.reduce(
       (sum, s) => sum + (s.tokens_used || 0),
       0
+    );
 
     const averageCostPerSession =
       sessions.length > 0 ? totalCost / sessions.length : 0;
@@ -686,7 +697,7 @@ export class SessionDAO {
       .slice(0, 10)
       .map((s) => ({
         sessionId: s.session_id,
-        vision:,
+        vision:
           s.vision.substring(0, 100) + (s.vision.length > 100 ? "..." : ""),
         cost: s.total_cost || 0,
         startTime: s.start_time,
@@ -730,45 +741,45 @@ export class SessionDAO {
   private transformSession(session: any): AgentSession {
     return {
       ...session,
-      files_modified: Array.isArray(session.files_modified),
+      files_modified: Array.isArray(session.files_modified)
         ? session.files_modified
         : typeof session.files_modified === "string"
           ? JSON.parse(session.files_modified)
           : [],
-      files_created: Array.isArray(session.files_created),
+      files_created: Array.isArray(session.files_created)
         ? session.files_created
         : typeof session.files_created === "string"
           ? JSON.parse(session.files_created)
           : [],
-      files_deleted: Array.isArray(session.files_deleted),
+      files_deleted: Array.isArray(session.files_deleted)
         ? session.files_deleted
         : typeof session.files_deleted === "string"
           ? JSON.parse(session.files_deleted)
           : [],
-      websocket_connections: Array.isArray(session.websocket_connections),
+      websocket_connections: Array.isArray(session.websocket_connections)
         ? session.websocket_connections
         : typeof session.websocket_connections === "string"
           ? JSON.parse(session.websocket_connections)
           : [],
-      agent_options:,
+      agent_options:
         typeof session.agent_options === "object"
           ? session.agent_options
           : typeof session.agent_options === "string"
             ? JSON.parse(session.agent_options)
             : {},
-      completion_report:,
+      completion_report:
         typeof session.completion_report === "object"
           ? session.completion_report
           : typeof session.completion_report === "string"
             ? JSON.parse(session.completion_report)
             : null,
       // NEW: Transform cost tracking fields
-      api_calls_data: Array.isArray(session.api_calls_data),
+      api_calls_data: Array.isArray(session.api_calls_data)
         ? session.api_calls_data
         : typeof session.api_calls_data === "string"
           ? JSON.parse(session.api_calls_data)
           : [],
-      cost_breakdown:,
+      cost_breakdown:
         typeof session.cost_breakdown === "object"
           ? session.cost_breakdown
           : typeof session.cost_breakdown === "string"
@@ -784,12 +795,12 @@ export class SessionDAO {
   private transformMessage(message: any): SessionMessage {
     return {
       ...message,
-      tool_calls: Array.isArray(message.tool_calls),
+      tool_calls: Array.isArray(message.tool_calls)
         ? message.tool_calls
         : typeof message.tool_calls === "string"
           ? JSON.parse(message.tool_calls)
           : [],
-      tool_results: Array.isArray(message.tool_results),
+      tool_results: Array.isArray(message.tool_results)
         ? message.tool_results
         : typeof message.tool_results === "string"
           ? JSON.parse(message.tool_results)

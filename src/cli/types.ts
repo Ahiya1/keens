@@ -51,7 +51,7 @@ export interface EnhancedExecutionData {
   averageIterationTime: number;
   finalPhase: AgentPhase;
   costBreakdown?: any;
-  logsSummary: {,
+  logsSummary: {
     totalLogs: number;
     toolExecutions: number;
     phaseTransitions: number;

@@ -3,6 +3,7 @@
  * Enhanced with user context support for database operations and recursive agent spawning
  * UPDATED: Added Phase 3.3 recursive spawning tools and AgentTreeManager integration
  * UPDATED: Removed WebSearchTool - web search is now handled by Anthropic API directly
+ * UPDATED: Added DeleteFilesTool for file cleanup operations
  * SECURITY: Fixed sensitive data exposure in logs and improved conditional logging
  */
 
@@ -12,6 +13,7 @@ import { AgentTreeManager } from '../AgentTreeManager.js';
 import { GetProjectTreeTool } from './GetProjectTreeTool.js';
 import { ReadFilesTool } from './ReadFilesTool.js';
 import { WriteFilesTool } from './WriteFilesTool.js';
+import { DeleteFilesTool } from './DeleteFilesTool.js'; // NEW: File deletion tool
 import { RunCommandTool } from './RunCommandTool.js';
 // REMOVED: import { WebSearchTool } from './WebSearchTool.js'; - Web search now handled by Anthropic API
 import { GitTool } from './GitTool.js';
@@ -46,6 +48,7 @@ export class ToolManager {
    * Initialize all available tools with user context and Phase 3.3 support
    * UPDATED: Added Phase 3.3 recursive spawning tools
    * UPDATED: Web search is no longer a local tool - it's handled by Anthropic API directly
+   * UPDATED: Added DeleteFilesTool for file cleanup operations
    * SECURITY: Improved conditional logging
    */
   private initializeTools(): void {
@@ -53,6 +56,7 @@ export class ToolManager {
     this.tools.set('get_project_tree', new GetProjectTreeTool());
     this.tools.set('read_files', new ReadFilesTool());
     this.tools.set('write_files', new WriteFilesTool());
+    this.tools.set('delete_files', new DeleteFilesTool()); // NEW: File deletion tool
     this.tools.set('run_command', new RunCommandTool());
     
     // Web & Information Tools
@@ -135,6 +139,7 @@ export class ToolManager {
    * Get tool descriptions for system prompt
    * UPDATED: Includes note about web search being available through Anthropic API
    * UPDATED: Includes Phase 3.3 recursive spawning capabilities
+   * UPDATED: Includes delete_files tool for cleanup operations
    */
   getToolDescriptions(): { name: string; description: string }[] {
     const descriptions: { name: string; description: string }[] = [];
@@ -205,9 +210,9 @@ export class ToolManager {
       // 🎯 Enhanced execution context with user authentication and Phase 3.3 support
       const enhancedContext = {
         ...context,
-        toolManagerOptions: {,
+        toolManagerOptions: {
           ...this.options,
-          agentTreeManager: this.agentTreeManager // Ensure tree manager is available,
+          agentTreeManager: this.agentTreeManager // Ensure tree manager is available
         },
         userContext: this.userContext, // Pass user context to tools
       };
@@ -455,5 +460,23 @@ export class ToolManager {
       hasTreeManager: !!this.agentTreeManager,
       canSpawn: !!this.agentTreeManager,
     };
+  }
+  
+  /**
+   * 🗑️ NEW: Check if file operations are available
+   */
+  hasFileOperations(): boolean {
+    return this.hasTool('read_files') && 
+           this.hasTool('write_files') && 
+           this.hasTool('delete_files');
+  }
+  
+  /**
+   * 🗑️ NEW: Get file operation tools
+   */
+  getFileOperationTools(): string[] {
+    return this.getAvailableTools().filter(tool => 
+      ['read_files', 'write_files', 'delete_files', 'get_project_tree'].includes(tool)
+    );
   }
 }

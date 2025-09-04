@@ -22,7 +22,7 @@ export class AuditLogger {
         timestamp: new Date(),
         ip_address: request.ip,
         user_agent: request.userAgent,
-        event_data: {,
+        event_data: {
           method: request.method,
           path: request.path,
           is_admin: request.isAdmin,
@@ -45,13 +45,13 @@ export class AuditLogger {
         event_type: "api_response",
         request_id: response.requestId,
         timestamp: new Date(),
-        event_data: {,
+        event_data: {
           status_code: response.statusCode,
           duration_ms: response.duration,
           response_size_bytes: response.responseSize,
           is_error: response.statusCode >= 400,
         },
-        risk_level:,
+        risk_level:
           response.statusCode >= 500
             ? "high"
             : response.statusCode >= 400
@@ -79,7 +79,7 @@ export class AuditLogger {
         timestamp: new Date(),
         ip_address: clientInfo.ip,
         user_agent: clientInfo.userAgent,
-        event_data: {,
+        event_data: {
           action: "login_success",
           is_admin: authDetails.isAdmin,
           admin_privileges: authDetails.adminPrivileges,
@@ -107,7 +107,7 @@ export class AuditLogger {
         timestamp: new Date(),
         ip_address: clientInfo.ip,
         user_agent: clientInfo.userAgent,
-        event_data: {,
+        event_data: {
           action: "login_failed",
           email,
           reason,
@@ -141,7 +141,7 @@ export class AuditLogger {
         agent_session_id: executionInfo.sessionId,
         request_id: executionInfo.requestId,
         timestamp: new Date(),
-        event_data: {,
+        event_data: {
           action: "agent_execution_start",
           vision_preview: executionInfo.vision,
           estimated_cost: executionInfo.estimatedCost,
@@ -171,7 +171,7 @@ export class AuditLogger {
         event_type: "admin_action",
         user_id: action.adminUserId,
         timestamp: action.timestamp || new Date(),
-        event_data: {,
+        event_data: {
           admin_action: action.action,
           target_user_id: action.targetUserId,
           details: action.details,
@@ -203,7 +203,7 @@ export class AuditLogger {
         agent_session_id: errorInfo.sessionId,
         request_id: errorInfo.requestId,
         timestamp: new Date(),
-        event_data: {,
+        event_data: {
           error_message: errorInfo.error,
           duration_ms: errorInfo.duration,
           is_admin_request: errorInfo.isAdmin,
@@ -236,7 +236,7 @@ export class AuditLogger {
         user_id: event.userId,
         timestamp: new Date(),
         ip_address: event.ip,
-        event_data: {,
+        event_data: {
           security_event_type: event.type,
           details: event.details,
           automatic_response: this.getAutomaticResponse(event.type),
@@ -255,7 +255,7 @@ export class AuditLogger {
    */
   async getAuditLogs(
     adminUserId: string,
-    filters: {,
+    filters: {
       startDate?: Date;
       endDate?: Date;
       eventType?: string;
@@ -272,6 +272,7 @@ export class AuditLogger {
     const adminUser = await this.db.query(
       "SELECT is_admin, admin_privileges FROM users WHERE id = $1",
       [adminUserId]
+    );
 
     if (!adminUser[0]?.is_admin) {
       throw new Error("Admin privileges required to access audit logs");
@@ -311,6 +312,7 @@ export class AuditLogger {
     const countResult = await this.db.query(
       `SELECT COUNT(*) as total FROM audit_logs WHERE ${conditions.join(" AND ")}`,
       params
+    );
 
     // Get logs
     const limit = filters.limit || 100;
@@ -325,6 +327,7 @@ export class AuditLogger {
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
       `,
       params
+    );
 
     return {
       logs,
@@ -361,7 +364,7 @@ export class AuditLogger {
           entry.risk_level,
           entry.is_admin_action,
         ]
-
+      );
     } catch (error: any) {
       // In test environment, gracefully handle missing audit_logs table
       if (process.env.NODE_ENV === "test" && error.code === "42P01") {
@@ -427,7 +430,7 @@ export class AuditLogger {
       reason === "invalid_credentials" ||
       clientInfo.ip === "127.0.0.1" ||
       !clientInfo.ip
-
+    );
   }
 
   private requiresAdminReview(action: string): boolean {
@@ -444,7 +447,7 @@ export class AuditLogger {
       error.includes("security") ||
       error.includes("authentication") ||
       error.includes("privilege")
-
+    );
   }
 
   private requiresManualReview(type: string): boolean {

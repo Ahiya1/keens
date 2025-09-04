@@ -15,17 +15,17 @@ export class ReadFilesTool {
     return {
       type: 'object',
       properties: {
-        paths: {,
+        paths: {
           type: 'array',
           items: { type: 'string' },
           description: 'Array of file paths to read',
         },
-        encoding: {,
+        encoding: {
           type: 'string',
           description: 'File encoding (default: utf-8)',
           enum: ['utf-8', 'ascii', 'base64', 'binary']
         },
-        maxSize: {,
+        maxSize: {
           type: 'number',
           description: 'Maximum file size in bytes (default: 1MB)',
         }

@@ -19,20 +19,20 @@ export class ReportCompleteTool {
     return {
       type: 'object',
       properties: {
-        summary: {,
+        summary: {
           type: 'string',
           description: 'A clear summary of what was accomplished',
         },
-        success: {,
+        success: {
           type: 'boolean',
           description: 'Whether the task was completed successfully',
         },
-        filesCreated: {,
+        filesCreated: {
           type: 'array',
           items: { type: 'string' },
           description: 'List of files that were created during the task',
         },
-        filesModified: {,
+        filesModified: {
           type: 'array',
           items: { type: 'string' },
           description: 'List of files that were modified during the task',

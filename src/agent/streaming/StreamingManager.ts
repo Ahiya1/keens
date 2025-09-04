@@ -68,7 +68,7 @@ export interface StreamingOptions {
 }
 
 export interface StreamingProgress {
-  phase:,
+  phase:
     | "starting"
     | "streaming"
     | "thinking"
@@ -552,7 +552,7 @@ export class StreamingManager extends EventEmitter {
   // COMPLETE FINAL FIX: Process Anthropic stream and build proper content blocks with signatures
   static async processAnthropicStream(
     stream: AsyncIterable<any>,
-    streamingManager: StreamingManager,
+    streamingManager: StreamingManager
   ): Promise<any> {
     streamingManager.startStreaming();
 

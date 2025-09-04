@@ -104,7 +104,7 @@ COMPILATION REQUIREMENTS:
 
 CRITICAL TOOL FORMAT REQUIREMENTS:
 
-write_files: MUST use this exact format:,
+write_files: MUST use this exact format:
 {
   "files": [
     {
@@ -236,49 +236,49 @@ Begin autonomous execution now. Start by using tools to explore and understand t
    */
   private initializeSpecializationTemplates(): void {
     const specializations: Record<AgentSpecialization, string> = {
-      frontend: `FRONTEND SPECIALIZATION GUIDANCE:,
+      frontend: `FRONTEND SPECIALIZATION GUIDANCE:
 - Focus on UI components, styling, accessibility, and user experience
 - Use React, Vue, CSS, TypeScript, and modern frontend tools
 - Ensure responsive design and cross-browser compatibility
 - Validate HTML/CSS and test UI interactions
 - Check that frontend code compiles and bundles correctly`,
 
-      backend: `BACKEND SPECIALIZATION GUIDANCE:,
+      backend: `BACKEND SPECIALIZATION GUIDANCE:
 - Focus on server-side logic, APIs, authentication, and data processing
 - Use Node.js, Express, database integration, and security patterns
 - Implement proper error handling and input validation
 - Ensure API endpoints work correctly and handle edge cases
 - Verify that backend code compiles and runs without errors`,
 
-      database: `DATABASE SPECIALIZATION GUIDANCE:,
+      database: `DATABASE SPECIALIZATION GUIDANCE:
 - Focus on schema design, queries, optimization, and data integrity
 - Use PostgreSQL, database migrations, and query optimization
 - Design normalized schemas with proper relationships
 - Test all queries and migrations before completion
 - Verify database schema compiles and migrations run successfully`,
 
-      testing: `TESTING SPECIALIZATION GUIDANCE:,
+      testing: `TESTING SPECIALIZATION GUIDANCE:
 - Focus on test design, automation, quality assurance, and coverage
 - Use Jest, Cypress, unit testing, and integration testing frameworks
 - Write comprehensive test suites with good coverage
 - Ensure all tests pass before reporting completion
 - Verify test files compile and execute correctly`,
 
-      security: `SECURITY SPECIALIZATION GUIDANCE:,
+      security: `SECURITY SPECIALIZATION GUIDANCE:
 - Focus on authentication, authorization, data protection, and security audits
 - Implement secure coding practices and vulnerability remediation
 - Use security scanning tools and follow best practices
 - Test security implementations thoroughly
 - Ensure security code compiles and doesn't introduce vulnerabilities`,
 
-      devops: `DEVOPS SPECIALIZATION GUIDANCE:,
+      devops: `DEVOPS SPECIALIZATION GUIDANCE:
 - Focus on deployment, CI/CD, scaling, infrastructure, and monitoring
 - Use Docker, CI/CD pipelines, monitoring tools, and infrastructure as code
 - Automate deployment and scaling processes
 - Test all infrastructure and deployment scripts
 - Verify deployment configurations compile and execute correctly`,
 
-      general: `GENERAL AGENT GUIDANCE:,
+      general: `GENERAL AGENT GUIDANCE:
 - Handle full-stack development, general tasks, and coordination
 - Use all available tools and maintain broad perspective
 - Coordinate between different aspects of the project

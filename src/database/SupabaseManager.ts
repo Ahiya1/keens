@@ -237,7 +237,7 @@ export class SupabaseManager {
 
     const subscription = {
       channel,
-      unsubscribe: () => {,
+      unsubscribe: () => {
         channel.unsubscribe();
         this.realtimeSubscriptions.delete(subscriptionId);
       },

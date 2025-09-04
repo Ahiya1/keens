@@ -19,12 +19,12 @@ export class ReportPhaseTool {
     return {
       type: 'object',
       properties: {
-        phase: {,
+        phase: {
           type: 'string',
           enum: ['EXPLORE', 'PLAN', 'FOUND', 'SUMMON', 'COMPLETE'],
           description: 'Current phase of agent execution',
         },
-        summary: {,
+        summary: {
           type: 'string',
           description: 'Summary of what was accomplished in this phase',
         }

@@ -99,7 +99,7 @@ export interface QualityCriteria {
   description?: string;
   weight: number;
   threshold?: number;
-  validator: (context: ValidationContext) => Promise<{,
+  validator: (context: ValidationContext) => Promise<{
     score: number;
     issues?: ValidationIssue[];
     suggestions?: string[];

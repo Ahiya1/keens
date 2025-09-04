@@ -17,7 +17,7 @@ import { UserContext } from "../../database/DatabaseManager.js";
 import { LoginCredentials, ClientInfo } from "../../api/types.js";
 
 export interface CLIAuthState {
-  user: {,
+  user: {
     id: string;
     email: string;
     username: string;
@@ -26,7 +26,7 @@ export interface CLIAuthState {
     isAdmin: boolean;
     adminPrivileges?: any;
   };
-  tokens: {,
+  tokens: {
     accessToken: string;
     refreshToken: string;
     expiresAt: number;
@@ -64,7 +64,7 @@ export class CLIAuthManager {
       this.db,
       this.userDAO,
       auditLogger
-
+    );
   }
 
   /**
@@ -137,7 +137,7 @@ export class CLIAuthManager {
       
       // Create CLI auth state with proper null checking and fallbacks
       this.currentAuth = {
-        user: {,
+        user: {
           id: authResult.user.id,
           email: authResult.user.email || '',
           username: authResult.user.username || '',
@@ -146,7 +146,7 @@ export class CLIAuthManager {
           isAdmin: authResult.user.is_admin || false,
           adminPrivileges: authResult.user.admin_privileges || undefined,
         },
-        tokens: {,
+        tokens: {
           accessToken: authResult.tokens.access_token,
           refreshToken: authResult.tokens.refresh_token,
           expiresAt: Date.now() + (authResult.tokens.expires_in * 1000),
@@ -279,7 +279,7 @@ export class CLIAuthManager {
     if (!userContext) {
       throw new Error(
         'Authentication required. Please run "keen login" to authenticate.'
-
+      );
     }
     
     this.updateActivity();
@@ -320,6 +320,7 @@ export class CLIAuthManager {
     try {
       const refreshed = await this.authService.refreshAccessToken(
         this.currentAuth.tokens.refreshToken
+      );
 
       // Update tokens
       this.currentAuth.tokens.accessToken = refreshed.access_token;
@@ -353,7 +354,9 @@ export class CLIAuthManager {
     try {
       await this.ensureAuthDirectory();
       
-      if (process.env.DEBUG) {}
+      if (process.env.DEBUG) {
+        console.log('Loading auth state from file');
+      }
       
       const data = await fs.readFile(this.authFile, 'utf-8');
       const parsed = JSON.parse(data);
@@ -362,13 +365,19 @@ export class CLIAuthManager {
       if (parsed.user?.id && parsed.tokens?.accessToken && parsed.tokens?.refreshToken) {
         this.currentAuth = parsed;
         
-        if (process.env.DEBUG) {}
+        if (process.env.DEBUG) {
+          console.log('Auth state loaded successfully');
+        }
       } else {
-        if (process.env.DEBUG) {}
+        if (process.env.DEBUG) {
+          console.warn('Invalid auth state file, clearing');
+        }
       }
     } catch (error: any) {
       // File doesn't exist or is invalid - that's fine for first time
-      if (process.env.DEBUG) {}
+      if (process.env.DEBUG) {
+        console.log('No existing auth state found');
+      }
       this.currentAuth = null;
     }
   }
@@ -381,12 +390,15 @@ export class CLIAuthManager {
     try {
       await this.ensureAuthDirectory();
       
-      if (process.env.DEBUG) {}
+      if (process.env.DEBUG) {
+        console.log('Saving auth state to file');
+      }
       
       await fs.writeFile(
         this.authFile, 
         JSON.stringify(this.currentAuth, null, 2),
         { mode: 0o600 } // Read/write for owner only
+      );
 
       // Verify file was written
       const exists = await fs.access(this.authFile).then(() => true).catch(() => false);

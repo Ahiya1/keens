@@ -162,18 +162,18 @@ export class keen {
    * Get system status for monitoring
    */
   async getSystemStatus(): Promise<{
-    database: {,
+    database: {
       connected: boolean;
       activeConnections: number;
     };
-    anthropic: {,
+    anthropic: {
       configured: boolean;
       model: string;
       extendedContext: boolean;
       thinking: boolean;
       betaHeaders: string[];
     };
-    platform: {,
+    platform: {
       version: string;
       ready: boolean;
     };
@@ -183,18 +183,18 @@ export class keen {
     const validation = this.anthropicConfigManager.validateKeenRequirements();
     
     return {
-      database: {,
+      database: {
         connected: dbStats.totalConnections > 0,
         activeConnections: dbStats.activeConnections,
       },
-      anthropic: {,
+      anthropic: {
         configured: this.anthropicConfigManager.isProductionReady(),
         model: anthropicConfig.model,
         extendedContext: anthropicConfig.enableExtendedContext,
         thinking: anthropicConfig.enableInterleaved,
         betaHeaders: validation.betaHeaders,
       },
-      platform: {,
+      platform: {
         version: '1.0.0',
         ready: validation.valid && dbStats.totalConnections > 0,
       }

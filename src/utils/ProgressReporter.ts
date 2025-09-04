@@ -99,7 +99,7 @@ export class ProgressReporter {
       message: `Progress: ${progress}% (${this.state.currentIteration}/${this.state.totalIterations}) - ${elapsed}s elapsed${estimated ? `, ~${Math.round(estimated / 1000)}s remaining` : ""}`,
       category: "agent",
       progress,
-      data: {,
+      data: {
         phase: this.state.phase,
         currentActivity: this.state.currentActivity,
         tokensUsed: this.state.tokensUsed,
@@ -213,7 +213,7 @@ export class ProgressReporter {
     inputTokens: number,
     outputTokens: number,
     thinkingTokens: number,
-    duration: number,
+    duration: number
   ): void {
     const totalTokens = inputTokens + outputTokens + thinkingTokens;
     this.state.tokensUsed += totalTokens;
@@ -231,9 +231,9 @@ export class ProgressReporter {
     this.emitUpdate({
       message: `Claude API call: ${totalTokens} tokens in ${duration}ms`,
       category: "api",
-      data: {,
+      data: {
         model,
-        tokens: {,
+        tokens: {
           input: inputTokens,
           output: outputTokens,
           thinking: thinkingTokens,
@@ -374,7 +374,7 @@ export class ProgressReporter {
       totalTokens: this.state.tokensUsed,
       toolsExecuted: this.state.toolsExecuted.length,
       errorsEncountered: this.state.errorsEncountered,
-      averageIterationTime:,
+      averageIterationTime:
         this.state.currentIteration > 0
           ? Math.round(this.state.elapsedTime / this.state.currentIteration)
           : 0,

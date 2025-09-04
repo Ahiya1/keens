@@ -149,7 +149,7 @@ export class ConverseCommand {
                     (response.thinking.length > 500 ? "..." : "")
                   ));
                 }
-                console.log(chalk.white("Claude: " + response.message));
+                console.log(chalk.white("Claude: " + response.response));
               }
             } catch (error: any) {
               console.log(chalk.red("❌ Conversation error: " + error.message));

@@ -43,11 +43,12 @@ export class KeenCLI {
       .option(
         "--directory <dir>",
         "Working directory (default: current directory)"
-
+      )
       .option(
         "--log-level <level>",
         "Set logging level: trace, debug, info, warn, error",
         "info"
+      );
 
     // Register authentication commands (no auth required)
     new LoginCommand(this.program);
@@ -66,7 +67,8 @@ export class KeenCLI {
     // Handle unknown commands with auth-aware help
     this.program.on("command:*", async () => {
       console.error(
-
+        chalk.red("❌ Unknown command. Use 'keen --help' for available commands.")
+      );
       await this.showContextualHelp();
       process.exit(1);
     });
@@ -78,11 +80,13 @@ export class KeenCLI {
       process.exit(1);
     });
 
-    process.on('SIGINT', async () => {await this.cleanup();
+    process.on('SIGINT', async () => {
+      await this.cleanup();
       process.exit(0);
     });
 
-    process.on('SIGTERM', async () => {await this.cleanup();
+    process.on('SIGTERM', async () => {
+      await this.cleanup();
       process.exit(0);
     });
   }
@@ -102,7 +106,9 @@ export class KeenCLI {
       console.error(chalk.red('❌ Failed to initialize authentication system:'));
       console.error(chalk.gray(error.message));
       
-      if (error.message.includes('database') || error.message.includes('connection')) {}
+      if (error.message.includes('database') || error.message.includes('connection')) {
+        console.error(chalk.yellow('💡 Try: keen login --setup'));
+      }
       
       throw error;
     }
@@ -116,11 +122,35 @@ export class KeenCLI {
       await this.initialize();
       
       const isAuthenticated = cliAuth.isAuthenticated();
-      const currentUser = cliAuth.getCurrentUser();// Always available commandsif (isAuthenticated && currentUser) {'
-        );// 🌟 Show evolve command for authenticated usersif (currentUser.isAdmin) {}
-      } else {}
+      const currentUser = cliAuth.getCurrentUser();
+
+      // Always available commands
+      console.log(chalk.blue('Available commands:'));
+      console.log('  keen login   - Authenticate with keen platform');
+      console.log('  keen status  - Check authentication status');
+      console.log('  keen version - Show version information');
+      
+      if (isAuthenticated && currentUser) {
+        console.log('\n' + chalk.green('Authenticated commands:'));
+        console.log('  keen breathe - Execute autonomous development tasks');
+        console.log('  keen converse - Start an interactive conversation');
+        console.log('  keen manifest - Generate project manifest');
+        
+        // 🌟 Show evolve command for authenticated users
+        console.log('  keen evolve  - Evolve your project with AI guidance');
+        
+        if (currentUser.isAdmin) {
+          console.log('\n' + chalk.magenta('Admin commands available'));
+        }
+      } else {
+        console.log('\n' + chalk.yellow('📝 Use "keen login" to access full functionality'));
+      }
     } catch (error) {
-      // Show basic help if auth system fails}
+      // Show basic help if auth system fails
+      console.log(chalk.blue('Basic commands:'));
+      console.log('  keen login   - Authenticate with keen platform');
+      console.log('  keen version - Show version information');
+    }
   }
 
   async run(args: string[]): Promise<void> {
@@ -140,7 +170,9 @@ export class KeenCLI {
     } catch (error: any) {
       console.error(chalk.red('❌ CLI Error:'), error.message);
       
-      if (error.message.includes('Authentication required')) {}
+      if (error.message.includes('Authentication required')) {
+        console.error(chalk.yellow('📝 Use "keen login" to authenticate first'));
+      }
       
       if (process.env.DEBUG) {
         console.error(error.stack);
@@ -154,7 +186,9 @@ export class KeenCLI {
   /**
    * Show welcome message with auth status
    */
-  private async showWelcomeMessage(): Promise<void> {););
+  private async showWelcomeMessage(): Promise<void> {
+    console.log(chalk.cyan('🚀 Welcome to keen - Autonomous Development Platform'));
+    console.log(chalk.gray('Version 3.2.0\n'));
 
     try {
       await this.initialize();
@@ -162,8 +196,31 @@ export class KeenCLI {
       const isAuthenticated = cliAuth.isAuthenticated();
       const currentUser = cliAuth.getCurrentUser();
       
-      if (isAuthenticated && currentUser) {if (currentUser.isAdmin) {}// 🌟 Show evolve option for authenticated users} else {}
-    } catch (error) {}}
+      if (isAuthenticated && currentUser) {
+        console.log(chalk.green(`✅ Authenticated as: ${currentUser.email}`));
+        
+        if (currentUser.isAdmin) {
+          console.log(chalk.magenta('👑 Admin privileges enabled'));
+        }
+        
+        console.log('\n' + chalk.blue('Quick start:'));
+        console.log('  keen breathe "Improve my React app performance"');
+        
+        // 🌟 Show evolve option for authenticated users
+        console.log('  keen evolve  "Add authentication to my app"');
+      } else {
+        console.log(chalk.yellow('⚠️  Not authenticated'));
+        console.log('\n' + chalk.blue('Get started:'));
+        console.log('  keen login   - Sign in to your account');
+        console.log('  keen --help  - Show all available commands');
+      }
+    } catch (error) {
+      console.log(chalk.yellow('⚠️  Authentication system unavailable'));
+      console.log('\n' + chalk.blue('Basic usage:'));
+      console.log('  keen login   - Authenticate with keen platform');
+      console.log('  keen --help  - Show available commands');
+    }
+  }
 
   /**
    * Cleanup resources

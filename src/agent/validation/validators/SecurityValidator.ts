@@ -68,7 +68,7 @@ export class SecurityValidator {
     } catch (error: any) {
       const scanDuration = Date.now() - startTime;
       return {
-        vulnerabilities: [{,
+        vulnerabilities: [{
           type: 'security_scan_error',
           severity: 'medium',
           description: `Security scan failed: ${error.message}`,

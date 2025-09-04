@@ -26,12 +26,12 @@ export function errorHandler(
   // Don't log headers in production for security
   const logError = {
     requestId,
-    error: {,
+    error: {
       name: error.name,
       message: error.message,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     },
-    request: {,
+    request: {
       method: req.method,
       path: req.path,
       user: (req as any).user?.id || 'anonymous',
@@ -45,7 +45,7 @@ export function errorHandler(
   if (error instanceof AuthenticationError) {
     res.status(401).json({
       success: false,
-      error: {,
+      error: {
         type: 'AUTHENTICATION_ERROR',
         code: 'INVALID_CREDENTIALS',
         message: error.message,
@@ -59,7 +59,7 @@ export function errorHandler(
   if (error instanceof MFARequiredError) {
     res.status(401).json({
       success: false,
-      error: {,
+      error: {
         type: 'MFA_REQUIRED',
         code: 'TWO_FACTOR_REQUIRED',
         message: error.message,
@@ -73,7 +73,7 @@ export function errorHandler(
   if (error instanceof ValidationError) {
     res.status(400).json({
       success: false,
-      error: {,
+      error: {
         type: 'VALIDATION_ERROR',
         code: 'INVALID_REQUEST',
         message: error.message,
@@ -88,11 +88,11 @@ export function errorHandler(
   if (error instanceof RateLimitError) {
     res.status(429).json({
       success: false,
-      error: {,
+      error: {
         type: 'RATE_LIMIT_ERROR',
         code: 'TOO_MANY_REQUESTS',
         message: error.message,
-        details: {,
+        details: {
           limit: error.rateLimitInfo.limit,
           remaining: error.rateLimitInfo.remaining,
           reset_time: error.rateLimitInfo.resetTime,
@@ -107,11 +107,11 @@ export function errorHandler(
   if (error instanceof ConcurrencyError) {
     res.status(409).json({
       success: false,
-      error: {,
+      error: {
         type: 'CONCURRENCY_ERROR',
         code: 'TOO_MANY_CONCURRENT_SESSIONS',
         message: error.message,
-        details: {,
+        details: {
           current: error.concurrencyInfo.current,
           limit: error.concurrencyInfo.limit,
         },
@@ -126,17 +126,17 @@ export function errorHandler(
   if (error.name === 'InsufficientCreditsError') {
     res.status(402).json({
       success: false,
-      error: {,
+      error: {
         type: 'INSUFFICIENT_CREDITS',
         code: 'PAYMENT_REQUIRED',
         message: 'Insufficient credits for this operation',
-        details: {,
+        details: {
           required: error.required,
           available: error.available,
           shortfall: error.shortfall,
           claude_cost: error.claudeCost,
           markup_multiplier: error.markupMultiplier,
-          credit_info: {,
+          credit_info: {
             pricing: '5x markup over Claude API costs',
             no_packages: true,
             purchase_url: 'https://app.keen.dev/credits/purchase',
@@ -153,7 +153,7 @@ export function errorHandler(
   if (error.code === 'ECONNREFUSED' || error.code === '3D000') {
     res.status(503).json({
       success: false,
-      error: {,
+      error: {
         type: 'SERVICE_UNAVAILABLE',
         code: 'DATABASE_CONNECTION_ERROR',
         message: 'Database service temporarily unavailable',
@@ -168,7 +168,7 @@ export function errorHandler(
   if (error.name === 'JsonWebTokenError') {
     res.status(401).json({
       success: false,
-      error: {,
+      error: {
         type: 'AUTHENTICATION_ERROR',
         code: 'INVALID_TOKEN',
         message: 'Authentication token is invalid',
@@ -182,11 +182,11 @@ export function errorHandler(
   if (error.name === 'TokenExpiredError') {
     res.status(401).json({
       success: false,
-      error: {,
+      error: {
         type: 'AUTHENTICATION_ERROR',
         code: 'TOKEN_EXPIRED',
         message: 'Authentication token has expired',
-        details: {,
+        details: {
           expired_at: error.expiredAt,
         },
         help_url: 'https://docs.keen.dev/auth/refresh',
@@ -200,7 +200,7 @@ export function errorHandler(
   if (error.name === 'AnthropicError' || error.message?.includes('anthropic')) {
     res.status(503).json({
       success: false,
-      error: {,
+      error: {
         type: 'EXTERNAL_SERVICE_ERROR',
         code: 'ANTHROPIC_API_ERROR',
         message: 'AI service temporarily unavailable',
@@ -217,7 +217,7 @@ export function errorHandler(
   
   res.status(statusCode).json({
     success: false,
-    error: {,
+    error: {
       type: 'INTERNAL_SERVER_ERROR',
       code: 'SYSTEM_ERROR',
       message: isDevelopment ? error.message : 'An unexpected error occurred',
@@ -236,11 +236,11 @@ export function notFoundHandler(req: Request, res: Response): void {
   
   res.status(404).json({
     success: false,
-    error: {,
+    error: {
       type: 'NOT_FOUND',
       code: 'ENDPOINT_NOT_FOUND',
       message: `Endpoint ${req.method} ${req.path} not found`,
-      available_endpoints: {,
+      available_endpoints: {
         api_info: 'GET /api',
         health: 'GET /health',
         authentication: 'POST /api/v1/auth/login',

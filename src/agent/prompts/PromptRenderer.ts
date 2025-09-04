@@ -17,7 +17,7 @@ export class PromptRenderer {
    */
   renderSystemPrompt(
     components: SystemPromptComponents,
-    context: PromptContext,
+    context: PromptContext
   ): string {
     const renderedComponents: SystemPromptComponents = {};
 
@@ -38,7 +38,7 @@ export class PromptRenderer {
    */
   renderConversationPrompt(
     components: SystemPromptComponents,
-    context: PromptContext,
+    context: PromptContext
   ): string {
     const renderedComponents: SystemPromptComponents = {};
 
@@ -57,7 +57,7 @@ export class PromptRenderer {
    */
   renderChildAgentPrompt(
     components: SystemPromptComponents,
-    context: PromptContext,
+    context: PromptContext
   ): string {
     const renderedComponents: SystemPromptComponents = {};
 
@@ -76,7 +76,7 @@ export class PromptRenderer {
    */
   renderErrorRecoveryPrompt(
     components: SystemPromptComponents,
-    context: PromptContext & {,
+    context: PromptContext & {
       errors: string[];
       previousAttempt?: string;
     }
@@ -297,7 +297,7 @@ export class PromptRenderer {
       lineCount: lines.length,
       wordCount: words.length,
       sectionCount: sections.length,
-      estimatedTokens: Math.ceil(prompt.length / 4) // Rough token estimate,
+      estimatedTokens: Math.ceil(prompt.length / 4) // Rough token estimate
     };
   }
 }

@@ -45,18 +45,18 @@ export const rateLimitMiddleware = rateLimit({
   
   keyGenerator: generateRateLimitKey,
   
-  skip: (req: Request) => {,
+  skip: (req: Request) => {
     // Skip rate limiting for admin users
     return shouldBypassRateLimit(req);
   },
   
-  message: {,
+  message: {
     success: false,
-    error: {,
+    error: {
       type: 'RATE_LIMIT_ERROR',
       code: 'TOO_MANY_REQUESTS',
       message: 'Too many requests from this user/IP',
-      details: {,
+      details: {
         limit: 1000,
         window_ms: 3600000,
         user_tier: 'individual',
@@ -96,13 +96,13 @@ export const agentExecutionRateLimit = rateLimit({
   
   skip: shouldBypassRateLimit,
   
-  message: {,
+  message: {
     success: false,
-    error: {,
+    error: {
       type: 'RATE_LIMIT_ERROR',
       code: 'AGENT_EXECUTION_LIMIT_EXCEEDED',
       message: 'Too many agent executions in the current time window',
-      details: {,
+      details: {
         limit: 10,
         window_ms: 3600000,
         endpoint: 'agent_execution',
@@ -121,7 +121,7 @@ export const authRateLimitMiddleware = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // Max 20 auth attempts per 15 minutes
   
-  keyGenerator: (req: Request) => {,
+  keyGenerator: (req: Request) => {
     // Use IP for auth endpoints since user might not be authenticated yet
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
                (req.headers['x-real-ip'] as string) ||
@@ -131,13 +131,13 @@ export const authRateLimitMiddleware = rateLimit({
     return `auth:${ip}`;
   },
   
-  message: {,
+  message: {
     success: false,
-    error: {,
+    error: {
       type: 'RATE_LIMIT_ERROR',
       code: 'AUTH_RATE_LIMIT_EXCEEDED',
       message: 'Too many authentication attempts',
-      details: {,
+      details: {
         limit: 20,
         window_ms: 900000,
         endpoint: 'authentication',
@@ -159,13 +159,13 @@ export const apiKeyRateLimitMiddleware = rateLimit({
   
   skip: shouldBypassRateLimit,
   
-  message: {,
+  message: {
     success: false,
-    error: {,
+    error: {
       type: 'RATE_LIMIT_ERROR',
       code: 'API_KEY_RATE_LIMIT_EXCEEDED',
       message: 'Too many API key operations',
-      details: {,
+      details: {
         limit: 10,
         window_ms: 3600000,
         endpoint: 'api_keys',
@@ -192,7 +192,7 @@ export function checkConcurrentSessions(maxSessions: number = 3) {
     if (!user) {
       res.status(401).json({
         success: false,
-        error: {,
+        error: {
           type: 'AUTHENTICATION_ERROR',
           code: 'AUTHENTICATION_REQUIRED',
           message: 'Authentication required',
@@ -206,11 +206,11 @@ export function checkConcurrentSessions(maxSessions: number = 3) {
     if (currentSessions >= maxSessions) {
       res.status(409).json({
         success: false,
-        error: {,
+        error: {
           type: 'CONCURRENCY_ERROR',
           code: 'TOO_MANY_CONCURRENT_SESSIONS',
           message: 'Maximum concurrent sessions exceeded',
-          details: {,
+          details: {
             current: currentSessions,
             limit: maxSessions,
             admin_bypass_available: false,

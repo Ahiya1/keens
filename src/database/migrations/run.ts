@@ -122,5 +122,3 @@ if (isMainModule) {
       runner.close();
     });
 }
-
-export { MigrationRunner };

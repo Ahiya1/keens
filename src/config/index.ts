@@ -67,6 +67,7 @@ export interface KeenSAConfig {
 export async function getKeenSAConfig(): Promise<KeenSAConfig> {
   const { AnthropicConfigManager, KEEN_DEFAULT_CONFIG } = await import(
     "./AnthropicConfig.js"
+  );
 
   const anthropicManager = new AnthropicConfigManager(KEEN_DEFAULT_CONFIG);
 

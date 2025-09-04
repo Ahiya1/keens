@@ -19,15 +19,15 @@ export class GetProjectTreeTool {
     return {
       type: 'object',
       properties: {
-        path: {,
+        path: {
           type: 'string',
           description: 'Project path to analyze (default: working directory)',
         },
-        maxDepth: {,
+        maxDepth: {
           type: 'number',
           description: 'Maximum depth to traverse (default: 3)',
         },
-        includeHidden: {,
+        includeHidden: {
           type: 'boolean',
           description: 'Include hidden files and directories (default: false)',
         }
@@ -119,7 +119,7 @@ export class GetProjectTreeTool {
 
     const { stdout, stderr } = await execAsync(command, {
       timeout: 10000, // 10 second timeout
-      maxBuffer: 1024 * 1024 // 1MB buffer,
+      maxBuffer: 1024 * 1024 // 1MB buffer
     });
 
     if (stderr && !stderr.includes('tree:')) {

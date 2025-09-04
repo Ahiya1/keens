@@ -83,7 +83,7 @@ export class UserDAO {
         email: request.email,
         password: request.password,
         email_confirm: true,
-        user_metadata: {,
+        user_metadata: {
           username: request.username,
           display_name: request.display_name || request.username,
         },
@@ -609,7 +609,7 @@ export class UserDAO {
         event: '*',
         filter: `id=eq.${userId}`,
       }
-
+    );
   }
 
   /**
