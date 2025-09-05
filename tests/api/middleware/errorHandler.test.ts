@@ -17,11 +17,14 @@ import {
   ValidationError,
   RateLimitError,
   ConcurrencyError,
-  MFARequiredError
+  MFARequiredError,
+  AuthenticatedRequest,
+  RateLimitInfo,
+  ConcurrencyCheckResult
 } from '../../../src/api/types.js';
 
 describe('Error Handler Middleware', () => {
-  let req: Partial<Request>;
+  let req: Partial<AuthenticatedRequest>;
   let res: Partial<Response>;
   let next: NextFunction;
   let consoleErrorSpy: jest.SpyInstance;
@@ -30,9 +33,16 @@ describe('Error Handler Middleware', () => {
     req = {
       id: 'req-test-123',
       method: 'POST',
-      path: '/api/v1/test',
-      user: { id: 'user-456', isAdmin: false }
+      url: '/api/v1/test', // Use url instead of path for mocking
+      user: { id: 'user-456', is_admin: false } // Use is_admin instead of isAdmin
     } as any;
+
+    // Mock path property since it's read-only
+    Object.defineProperty(req, 'path', {
+      value: '/api/v1/test',
+      writable: false,
+      configurable: true
+    });
 
     res = {
       status: jest.fn().mockReturnThis(),
@@ -43,7 +53,7 @@ describe('Error Handler Middleware', () => {
 
     // Spy on console.error to verify error logging
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-    
+
     // Set development environment for some tests
     process.env.NODE_ENV = 'development';
   });
@@ -56,8 +66,8 @@ describe('Error Handler Middleware', () => {
   describe('errorHandler', () => {
     test('should handle AuthenticationError correctly', () => {
       const error = new AuthenticationError('Invalid credentials provided');
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -75,8 +85,8 @@ describe('Error Handler Middleware', () => {
 
     test('should handle MFARequiredError correctly', () => {
       const error = new MFARequiredError('Two-factor authentication required');
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -99,8 +109,8 @@ describe('Error Handler Middleware', () => {
         },
         invalid_fields: 2
       });
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -123,14 +133,15 @@ describe('Error Handler Middleware', () => {
     });
 
     test('should handle RateLimitError with limit info', () => {
-      const rateLimitInfo = {
-        limit: 1000,
+      const rateLimitInfo: RateLimitInfo = {
+        allowed: false,
         remaining: 0,
-        resetTime: new Date(Date.now() + 3600000)
+        resetTime: new Date(Date.now() + 3600000).getTime(),
+        limit: 1000
       };
       const error = new RateLimitError('Rate limit exceeded', rateLimitInfo);
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(429);
       expect(res.json).toHaveBeenCalledWith({
@@ -140,8 +151,8 @@ describe('Error Handler Middleware', () => {
           code: 'TOO_MANY_REQUESTS',
           message: 'Rate limit exceeded',
           details: {
-            limit: 1000,
-            remaining: 0,
+            limit: rateLimitInfo.limit,
+            remaining: rateLimitInfo.remaining,
             reset_time: rateLimitInfo.resetTime
           },
           help_url: 'https://docs.keen.dev/api/rate-limits'
@@ -151,13 +162,14 @@ describe('Error Handler Middleware', () => {
     });
 
     test('should handle ConcurrencyError with session info', () => {
-      const concurrencyInfo = {
+      const concurrencyInfo: ConcurrencyCheckResult = {
+        allowed: false,
         current: 5,
         limit: 3
       };
       const error = new ConcurrencyError('Too many concurrent sessions', concurrencyInfo);
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(409);
       expect(res.json).toHaveBeenCalledWith({
@@ -186,8 +198,8 @@ describe('Error Handler Middleware', () => {
         claudeCost: 5.0,
         markupMultiplier: 5.0
       };
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(402);
       expect(res.json).toHaveBeenCalledWith({
@@ -219,8 +231,8 @@ describe('Error Handler Middleware', () => {
         code: 'ECONNREFUSED',
         message: 'Connection refused to database'
       };
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(503);
       expect(res.json).toHaveBeenCalledWith({
@@ -240,8 +252,8 @@ describe('Error Handler Middleware', () => {
         name: 'JsonWebTokenError',
         message: 'invalid signature'
       };
-      
-      errorHandler(jwtError, req as Request, res as Response, next);
+
+      errorHandler(jwtError, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -263,8 +275,8 @@ describe('Error Handler Middleware', () => {
         message: 'jwt expired',
         expiredAt
       };
-      
-      errorHandler(expiredError, req as Request, res as Response, next);
+
+      errorHandler(expiredError, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -287,8 +299,8 @@ describe('Error Handler Middleware', () => {
         name: 'AnthropicError',
         message: 'API rate limit exceeded'
       };
-      
-      errorHandler(anthropicError, req as Request, res as Response, next);
+
+      errorHandler(anthropicError, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(503);
       expect(res.json).toHaveBeenCalledWith({
@@ -309,8 +321,8 @@ describe('Error Handler Middleware', () => {
         message: 'Something went wrong',
         stack: 'Error: Something went wrong\n    at test.js:1:1'
       };
-      
-      errorHandler(genericError, req as Request, res as Response, next);
+
+      errorHandler(genericError, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -332,8 +344,8 @@ describe('Error Handler Middleware', () => {
         message: 'Internal database error with sensitive info',
         stack: 'Error: Database password exposed\n    at secret.js:1:1'
       };
-      
-      errorHandler(genericError, req as Request, res as Response, next);
+
+      errorHandler(genericError, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
@@ -354,8 +366,8 @@ describe('Error Handler Middleware', () => {
         statusCode: 418,
         message: "I'm a teapot"
       };
-      
-      errorHandler(customError, req as Request, res as Response, next);
+
+      errorHandler(customError, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(418);
     });
@@ -363,8 +375,8 @@ describe('Error Handler Middleware', () => {
     test('should handle missing request ID gracefully', () => {
       delete req.id;
       const error = new AuthenticationError('Test error');
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -379,8 +391,8 @@ describe('Error Handler Middleware', () => {
         message: 'Test error message',
         stack: 'Error stack trace'
       };
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         '🚨 API Error:',
@@ -389,14 +401,14 @@ describe('Error Handler Middleware', () => {
     });
 
     test('should handle admin user context in error logging', () => {
-      req.user = { id: 'admin-123', isAdmin: true };
+      req.user = { id: 'admin-123', is_admin: true }; // Use is_admin instead of isAdmin
       const error = new Error('Admin operation failed');
-      
-      errorHandler(error, req as Request, res as Response, next);
+
+      errorHandler(error, req as AuthenticatedRequest, res as Response, next);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         '🚨 API Error:',
-        expect.stringContaining('"isAdmin":true')
+        expect.stringContaining('"isAdmin": true')
       );
     });
   });
@@ -404,9 +416,13 @@ describe('Error Handler Middleware', () => {
   describe('notFoundHandler', () => {
     test('should return 404 with helpful endpoint information', () => {
       req.method = 'GET';
-      req.path = '/api/v1/nonexistent';
-      
-      notFoundHandler(req as Request, res as Response);
+      Object.defineProperty(req, 'path', {
+        value: '/api/v1/nonexistent',
+        writable: false,
+        configurable: true
+      });
+
+      notFoundHandler(req as AuthenticatedRequest, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
@@ -433,9 +449,13 @@ describe('Error Handler Middleware', () => {
     test('should handle missing request ID in 404 handler', () => {
       delete req.id;
       req.method = 'POST';
-      req.path = '/api/v1/unknown';
-      
-      notFoundHandler(req as Request, res as Response);
+      Object.defineProperty(req, 'path', {
+        value: '/api/v1/unknown',
+        writable: false,
+        configurable: true
+      });
+
+      notFoundHandler(req as AuthenticatedRequest, res as Response);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -449,9 +469,9 @@ describe('Error Handler Middleware', () => {
     test('should wrap async function and handle successful execution', async () => {
       const asyncFunction = jest.fn().mockResolvedValue('success');
       const wrappedHandler = asyncHandler(asyncFunction);
-      
-      await wrappedHandler(req as Request, res as Response, next);
-      
+
+      await wrappedHandler(req as AuthenticatedRequest, res as Response, next);
+
       expect(asyncFunction).toHaveBeenCalledWith(req, res, next);
       expect(next).not.toHaveBeenCalled(); // No error, so next not called
     });
@@ -460,9 +480,9 @@ describe('Error Handler Middleware', () => {
       const error = new Error('Async operation failed');
       const asyncFunction = jest.fn().mockRejectedValue(error);
       const wrappedHandler = asyncHandler(asyncFunction);
-      
-      await wrappedHandler(req as Request, res as Response, next);
-      
+
+      await wrappedHandler(req as AuthenticatedRequest, res as Response, next);
+
       expect(asyncFunction).toHaveBeenCalledWith(req, res, next);
       expect(next).toHaveBeenCalledWith(error);
     });
@@ -470,9 +490,9 @@ describe('Error Handler Middleware', () => {
     test('should handle non-promise returning functions', async () => {
       const syncFunction = jest.fn().mockReturnValue('immediate result');
       const wrappedHandler = asyncHandler(syncFunction);
-      
-      await wrappedHandler(req as Request, res as Response, next);
-      
+
+      await wrappedHandler(req as AuthenticatedRequest, res as Response, next);
+
       expect(syncFunction).toHaveBeenCalledWith(req, res, next);
       expect(next).not.toHaveBeenCalled();
     });
@@ -483,9 +503,9 @@ describe('Error Handler Middleware', () => {
         throw error;
       });
       const wrappedHandler = asyncHandler(throwingFunction);
-      
-      await wrappedHandler(req as Request, res as Response, next);
-      
+
+      await wrappedHandler(req as AuthenticatedRequest, res as Response, next);
+
       expect(next).toHaveBeenCalledWith(error);
     });
   });
@@ -494,7 +514,7 @@ describe('Error Handler Middleware', () => {
     test('createValidationError should create ValidationError with details', () => {
       const details = { field: 'email', issue: 'invalid format' };
       const error = createValidationError('Validation failed', details);
-      
+
       expect(error).toBeInstanceOf(ValidationError);
       expect(error.message).toBe('Validation failed');
       expect(error.details).toEqual(details);
@@ -502,19 +522,20 @@ describe('Error Handler Middleware', () => {
 
     test('createAuthError should create AuthenticationError', () => {
       const error = createAuthError('Authentication failed');
-      
+
       expect(error).toBeInstanceOf(AuthenticationError);
       expect(error.message).toBe('Authentication failed');
     });
 
     test('createRateLimitError should create RateLimitError with rate limit info', () => {
-      const rateLimitInfo = {
-        limit: 100,
+      const rateLimitInfo: RateLimitInfo = {
+        allowed: false,
         remaining: 0,
-        resetTime: new Date()
+        resetTime: new Date().getTime(),
+        limit: 100
       };
       const error = createRateLimitError('Rate limit exceeded', rateLimitInfo);
-      
+
       expect(error).toBeInstanceOf(RateLimitError);
       expect(error.message).toBe('Rate limit exceeded');
       expect(error.rateLimitInfo).toEqual(rateLimitInfo);
@@ -524,8 +545,8 @@ describe('Error Handler Middleware', () => {
   describe('Edge Cases', () => {
     test('should handle null error object', () => {
       const nullError = null;
-      
-      errorHandler(nullError as any, req as Request, res as Response, next);
+
+      errorHandler(nullError as any, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(
@@ -544,8 +565,8 @@ describe('Error Handler Middleware', () => {
         name: 'WeirdError'
         // no message property
       };
-      
-      errorHandler(errorWithoutMessage, req as Request, res as Response, next);
+
+      errorHandler(errorWithoutMessage, req as AuthenticatedRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -556,10 +577,10 @@ describe('Error Handler Middleware', () => {
         message: 'Circular reference'
       };
       circularError.self = circularError;
-      
+
       // Should not throw when logging
       expect(() => {
-        errorHandler(circularError, req as Request, res as Response, next);
+        errorHandler(circularError, req as AuthenticatedRequest, res as Response, next);
       }).not.toThrow();
 
       expect(res.status).toHaveBeenCalledWith(500);

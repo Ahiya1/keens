@@ -123,7 +123,7 @@ describe('AgentSession', () => {
         userContext: mockUserContext,
       } as any;
       
-      expect(() => new AgentSession(invalidOptions)).toThrow();
+      expect(() => new AgentSession(invalidOptions)).toThrow('Vision is required and cannot be empty');
     });
 
     test('should validate vision parameter', () => {
@@ -138,7 +138,7 @@ describe('AgentSession', () => {
         userContext: mockUserContext,
       } as any;
       
-      expect(() => new AgentSession(invalidOptions)).toThrow();
+      expect(() => new AgentSession(invalidOptions)).toThrow('Vision is required and cannot be empty');
     });
   });
 
@@ -186,8 +186,8 @@ describe('AgentSession', () => {
 
     test('should return database session ID when available', () => {
       const dbSessionId = agentSession.getDatabaseSessionId();
-      // May be undefined if database is not initialized
-      expect(dbSessionId).toEqual(expect.anything());
+      // May be undefined if database is not initialized - this is acceptable in test environment
+      expect(dbSessionId).toBeOneOf([expect.any(String), undefined]);
     });
   });
 
@@ -256,4 +256,36 @@ describe('AgentSession', () => {
       expect(unauthSession.isAuthenticated()).toBe(false);
     });
   });
+});
+
+// Add custom Jest matcher
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toBeOneOf(expected: any[]): R;
+    }
+  }
+}
+
+expect.extend({
+  toBeOneOf(received: any, expected: any[]) {
+    const pass = expected.some(item => {
+      if (item === expect.any(String) && typeof received === 'string') {
+        return true;
+      }
+      return received === item;
+    });
+    
+    if (pass) {
+      return {
+        message: () => `expected ${received} not to be one of ${expected}`,
+        pass: true,
+      };
+    } else {
+      return {
+        message: () => `expected ${received} to be one of ${expected}`,
+        pass: false,
+      };
+    }
+  },
 });

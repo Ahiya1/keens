@@ -30,6 +30,11 @@ export default {
     "<rootDir>/jest.env.setup.js"
   ],
   
+  // Use TypeScript setup files instead of compiled JavaScript
+  setupFilesAfterEnv: [
+    "<rootDir>/tests/setup.ts"
+  ],
+  
   // Collect coverage from SOURCE files
   collectCoverageFrom: [
     "src/**/*.ts",
@@ -61,18 +66,30 @@ export default {
         useESM: true,
       },
     ],
+    // Also transform .js files in tests directory to handle setup files
+    "^.+\.js$": [
+      "ts-jest",
+      {
+        useESM: true,
+      },
+    ],
   },
 
-  // Module mapping for ESM
+  // Module mapping for ESM - Fix TypeScript imports
   moduleNameMapper: {
     "^(\.{1,2}/.*)\.js$": "$1",
     // Map chalk to our mock
-    "^chalk$": "<rootDir>/tests/__mocks__/chalk.js"
+    "^chalk$": "<rootDir>/tests/__mocks__/chalk.js",
+    // Fix setup file imports to use TypeScript versions
+    "^\.\./(setup)(\.js)?$": "<rootDir>/tests/$1.ts",
+    "^\.\./(setup-database)(\.js)?$": "<rootDir>/tests/$1.ts",
+    "^\.\.\.\/setup(\.js)?$": "<rootDir>/tests/setup.ts",
+    "^\.\.\.\/setup-database(\.js)?$": "<rootDir>/tests/setup-database.ts"
   },
 
-  // Allow transformation of ES modules in node_modules  
+  // Allow transformation of ES modules in node_modules and test files  
   transformIgnorePatterns: [
-    "node_modules/(?!(chalk|ansi-styles|supports-color|has-flag|strip-ansi|ansi-regex)/)"
+    "node_modules/(?!(chalk|ansi-styles|supports-color|has-flag|strip-ansi|ansi-regex)/)",
   ],
 
   // Coverage reporting

@@ -15,6 +15,7 @@ import {
 import { AuthenticationService } from '../../../src/api/services/AuthenticationService.js';
 import { AuditLogger } from '../../../src/api/services/AuditLogger.js';
 import { AuthenticatedRequest, AuthenticationError } from '../../../src/api/types.js';
+import { Socket } from 'net';
 
 // Mock dependencies
 jest.mock('../../../src/api/services/AuthenticationService.js');
@@ -34,17 +35,21 @@ describe('Authentication Middleware', () => {
     } as any;
 
     mockAuditLogger = {
-      logSecurityEvent: jest.fn(),
-      logError: jest.fn(),
+      logSecurityEvent: jest.fn().mockResolvedValue(undefined),
+      logError: jest.fn().mockResolvedValue(undefined),
     } as any;
+
+    // Create proper mock Socket objects
+    const mockSocket = { remoteAddress: '192.168.1.1' } as Partial<Socket> as Socket;
+    const mockConnection = { remoteAddress: '192.168.1.1' } as Partial<Socket> as Socket;
 
     req = {
       headers: {},
       id: 'req-123',
       path: '/api/v1/test',
       method: 'GET',
-      connection: { remoteAddress: '192.168.1.1' },
-      socket: { remoteAddress: '192.168.1.1' }
+      connection: mockConnection,
+      socket: mockSocket
     };
 
     res = {
@@ -77,7 +82,9 @@ describe('Authentication Middleware', () => {
           role: 'user',
           isAdmin: false,
           adminPrivileges: {},
-          scopes: ['profile:read', 'credits:read']
+          scopes: ['profile:read', 'credits:read'],
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 3600
         };
 
         mockAuthService.verifyAccessToken.mockResolvedValue(mockPayload);
@@ -113,15 +120,18 @@ describe('Authentication Middleware', () => {
             unlimited_credits: true,
             view_all_analytics: true
           },
-          scopes: ['admin:analytics', 'credits:unlimited']
+          scopes: ['admin:analytics', 'credits:unlimited'],
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 3600
         };
 
         mockAuthService.verifyAccessToken.mockResolvedValue(mockAdminPayload);
 
         await authMiddleware(req as Request, res as Response, next);
 
-        expect((req as AuthenticatedRequest).user.is_admin).toBe(true);
-        expect((req as AuthenticatedRequest).user.admin_privileges).toEqual({
+        const authenticatedReq = req as AuthenticatedRequest;
+        expect(authenticatedReq.user?.is_admin).toBe(true);
+        expect(authenticatedReq.user?.admin_privileges).toEqual({
           unlimited_credits: true,
           view_all_analytics: true
         });
@@ -196,7 +206,7 @@ describe('Authentication Middleware', () => {
         const mockAdminValidation = {
           userId: 'admin-789',
           scopes: ['admin:analytics', 'credits:unlimited'],
-          rateLimitRemaining: 'unlimited',
+          rateLimitRemaining: 'unlimited' as const,
           isAdmin: true,
           adminPrivileges: {
             unlimited_credits: true,
@@ -208,8 +218,9 @@ describe('Authentication Middleware', () => {
 
         await authMiddleware(req as Request, res as Response, next);
 
-        expect((req as AuthenticatedRequest).user.is_admin).toBe(true);
-        expect((req as AuthenticatedRequest).user.admin_privileges).toEqual({
+        const authenticatedReq = req as AuthenticatedRequest;
+        expect(authenticatedReq.user?.is_admin).toBe(true);
+        expect(authenticatedReq.user?.admin_privileges).toEqual({
           unlimited_credits: true,
           bypass_rate_limits: true
         });
@@ -578,7 +589,9 @@ describe('Authentication Middleware', () => {
         sub: 'user-123',
         email: 'test@example.com',
         isAdmin: false,
-        scopes: ['profile:read']
+        scopes: ['profile:read'],
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 3600
       };
 
       mockAuthService.verifyAccessToken.mockResolvedValue(mockPayload as any);
@@ -675,7 +688,8 @@ describe('Authentication Middleware', () => {
 
     test('should fallback to connection remote address', async () => {
       const authMiddleware = createAuthMiddleware(mockAuthService, mockAuditLogger);
-      req.connection = { remoteAddress: '172.16.0.1' };
+      const mockConnection = { remoteAddress: '172.16.0.1' } as Partial<Socket> as Socket;
+      req.connection = mockConnection;
       delete req.headers!.authorization;
 
       await authMiddleware(req as Request, res as Response, next);
@@ -689,11 +703,16 @@ describe('Authentication Middleware', () => {
 
     test('should use "unknown" when no IP is available', async () => {
       const authMiddleware = createAuthMiddleware(mockAuthService, mockAuditLogger);
-      delete req.connection;
-      delete req.socket;
-      delete req.headers!.authorization;
+      // Create a fresh request with no IP sources
+      const noIpReq = {
+        headers: {}, // No authorization header to trigger the missing auth error
+        id: 'req-no-ip',
+        path: '/api/v1/test',
+        method: 'GET'
+        // No connection, socket, or IP headers
+      };
 
-      await authMiddleware(req as Request, res as Response, next);
+      await authMiddleware(noIpReq as Request, res as Response, next);
 
       expect(mockAuditLogger.logSecurityEvent).toHaveBeenCalledWith(
         expect.objectContaining({

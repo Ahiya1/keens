@@ -84,6 +84,9 @@ export class AgentSession {
   };
 
   constructor(options: AgentSessionOptions) {
+    // Validate required parameters
+    this.validateOptions(options);
+    
     this.options = options;
     this.userContext = options.userContext;
     this.startTime = new Date();
@@ -91,6 +94,53 @@ export class AgentSession {
     // Initialize database integration if user context is available
     if (this.userContext) {
       this.initializeDatabaseIntegration();
+    }
+  }
+
+  /**
+   * Validate AgentSession options - throws errors for missing required parameters
+   */
+  private validateOptions(options: AgentSessionOptions): void {
+    if (!options) {
+      throw new Error("AgentSession options are required");
+    }
+
+    if (!options.sessionId) {
+      throw new Error("Session ID is required");
+    }
+
+    if (!options.vision || options.vision.trim() === "") {
+      throw new Error("Vision is required and cannot be empty");
+    }
+
+    if (!options.workingDirectory) {
+      throw new Error("Working directory is required");
+    }
+
+    if (!options.anthropicConfig) {
+      throw new Error("Anthropic configuration is required");
+    }
+
+    // Validate anthropic config fields
+    if (!options.anthropicConfig.apiKey) {
+      throw new Error("Anthropic API key is required");
+    }
+
+    if (!options.anthropicConfig.model) {
+      throw new Error("Anthropic model is required");
+    }
+
+    // Validate boolean flags
+    if (typeof options.dryRun !== "boolean") {
+      throw new Error("dryRun must be a boolean");
+    }
+
+    if (typeof options.verbose !== "boolean") {
+      throw new Error("verbose must be a boolean");
+    }
+
+    if (typeof options.debug !== "boolean") {
+      throw new Error("debug must be a boolean");
     }
   }
 

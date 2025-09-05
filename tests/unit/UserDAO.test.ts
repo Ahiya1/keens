@@ -1,7 +1,7 @@
 /**
  * UserDAO Unit Tests
  * Tests user management with admin privilege handling
- * FIXED: Resolve variable hoisting and TypeScript issues, password constraints, and Supabase mocking
+ * FIXED: Complete Supabase mock overhaul using module-level mocking
  */
 
 import { DatabaseManager, UserContext } from '../../src/database/DatabaseManager.js';
@@ -24,61 +24,46 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => '12345678-1234-4567-8901-123456789012')
 }));
 
-// Mock Supabase configuration - FIXED: Complete chainable mock system
+// FIXED: Complete overhaul - mock at higher level to avoid chaining issues
 jest.mock('../../src/config/database.js', () => {
-  // Create a proper chainable mock that supports all Supabase operations
-  const createSupabaseMock = () => {
-    const mock: any = {
+  // Mock responses  
+  const mockSupabaseResponse = { data: null, error: null };
+  
+  // Create mock functions that can be controlled from tests
+  const supabaseMockOperations = {
+    // Database operation mocks
+    insertUser: jest.fn().mockResolvedValue(mockSupabaseResponse),
+    selectUser: jest.fn().mockResolvedValue(mockSupabaseResponse),
+    updateUser: jest.fn().mockResolvedValue(mockSupabaseResponse),
+    
+    // Auth operation mocks
+    createAuthUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    signInUser: jest.fn().mockResolvedValue({ data: { user: null, session: null }, error: null }),
+  };
+  
+  // FIXED: Define chainable mock builder inside the mock
+  const createChainableMock = (finalResult: any) => {
+    const chain = {
       from: jest.fn(),
       select: jest.fn(),
       insert: jest.fn(),
       update: jest.fn(),
-      delete: jest.fn(),
       eq: jest.fn(),
-      single: jest.fn(),
-      range: jest.fn(),
-      order: jest.fn(),
-      // Add promise-like behavior
-      then: jest.fn(),
-      catch: jest.fn()
+      single: jest.fn().mockResolvedValue(finalResult),
     };
-
-    // Make all methods chainable - each returns the mock itself
-    Object.keys(mock).forEach(key => {
-      if (key !== 'single' && key !== 'then' && key !== 'catch') {
-        mock[key].mockReturnValue(mock);
-      }
-    });
-
-    // single() should return a promise with data/error structure
-    mock.single.mockResolvedValue({ data: null, error: null });
     
-    return mock;
+    // Make all methods except single() return the chain itself
+    chain.from.mockReturnValue(chain);
+    chain.select.mockReturnValue(chain);
+    chain.insert.mockReturnValue(chain);
+    chain.update.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    
+    return chain;
   };
   
-  const supabaseChainMock = createSupabaseMock();
-  const supabaseAdminChainMock = createSupabaseMock();
-  
-  const mockSupabase = {
-    from: jest.fn().mockReturnValue(supabaseChainMock),
-    auth: {
-      signInWithPassword: jest.fn(),
-      getUser: jest.fn()
-    }
-  };
-
-  const mockSupabaseAdmin = {
-    from: jest.fn().mockReturnValue(supabaseAdminChainMock),
-    auth: {
-      admin: {
-        createUser: jest.fn(),
-        updateUserById: jest.fn(),
-        deleteUser: jest.fn()
-      },
-      signInWithPassword: jest.fn(),
-      getUser: jest.fn()
-    }
-  };
+  const supabaseChain = createChainableMock(mockSupabaseResponse);
+  const supabaseAdminChain = createChainableMock(mockSupabaseResponse);
   
   return {
     adminConfig: {
@@ -91,10 +76,35 @@ jest.mock('../../src/config/database.js', () => {
       jwtExpiresIn: '24h',
       bcryptRounds: 12
     },
-    supabase: mockSupabase,
-    supabaseAdmin: mockSupabaseAdmin,
-    // Export mocks for test access
-    _testMocks: { supabaseChainMock, supabaseAdminChainMock }
+    supabase: {
+      from: jest.fn().mockReturnValue(supabaseChain),
+      auth: {
+        signInWithPassword: supabaseMockOperations.signInUser,
+        getUser: jest.fn()
+      }
+    },
+    supabaseAdmin: {
+      from: jest.fn().mockReturnValue(supabaseAdminChain),
+      auth: {
+        admin: {
+          createUser: supabaseMockOperations.createAuthUser,
+          updateUserById: jest.fn(),
+          deleteUser: jest.fn()
+        },
+        signInWithPassword: jest.fn(),
+        getUser: jest.fn()
+      }
+    },
+    // Export test utilities
+    _mockUtils: {
+      supabaseChain,
+      supabaseAdminChain,
+      mockOperations: supabaseMockOperations,
+      setMockResponse: (response: any) => {
+        supabaseChain.single.mockResolvedValue(response);
+        supabaseAdminChain.single.mockResolvedValue(response);
+      }
+    }
   };
 });
 
@@ -103,13 +113,13 @@ import { adminConfig, securityConfig, supabase, supabaseAdmin } from '../../src/
 import bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 
+// Get mock utilities
+const { _mockUtils } = require('../../src/config/database.js');
+const { mockOperations } = _mockUtils;
+
 // FIXED: Proper typing for mocked bcrypt
 const mockBcrypt = jest.mocked(bcrypt);
 const mockJwt = jest.mocked(jwt);
-
-// Access test mocks
-const { _testMocks } = require('../../src/config/database.js');
-const { supabaseChainMock, supabaseAdminChainMock } = _testMocks;
 
 // Mock DatabaseManager
 class MockDatabaseManager {
@@ -129,18 +139,17 @@ describe('UserDAO', () => {
     mockDb = new MockDatabaseManager();
     userDAO = new UserDAO(mockDb as any);
     
-    // Reset mocks to default successful responses
-    supabaseChainMock.single.mockResolvedValue({ data: null, error: null });
-    supabaseAdminChainMock.single.mockResolvedValue({ data: null, error: null });
+    // Reset all mock responses to defaults
+    _mockUtils.setMockResponse({ data: null, error: null });
   });
 
   describe('createUser', () => {
     it('should create a new user successfully with Supabase Auth', async () => {
-      // FIXED: Mock password hashing with proper typing
+      // Mock password hashing
       mockBcrypt.hash.mockResolvedValue('hashed-password-123' as never);
       
-      // FIXED: Mock Supabase Auth user creation
-      (supabaseAdmin.auth.admin.createUser as jest.Mock).mockResolvedValue({
+      // Mock Supabase Auth user creation
+      mockOperations.createAuthUser.mockResolvedValue({
         data: {
           user: {
             id: '12345678-1234-4567-8901-123456789012',
@@ -151,8 +160,8 @@ describe('UserDAO', () => {
         error: null
       });
       
-      // FIXED: Mock user record creation with password_hash
-      supabaseAdminChainMock.single.mockResolvedValue({
+      // Mock database insert response
+      _mockUtils.setMockResponse({
         data: {
           id: '12345678-1234-4567-8901-123456789012',
           email: 'newuser@example.com',
@@ -161,7 +170,7 @@ describe('UserDAO', () => {
           timezone: 'America/New_York',
           role: 'user',
           is_admin: false,
-          password_hash: null, // Supabase Auth users don't need password_hash
+          password_hash: null,
           email_verified: true,
           account_status: 'active',
           mfa_enabled: false,
@@ -184,11 +193,11 @@ describe('UserDAO', () => {
 
       expect(user.email).toBe(request.email);
       expect(user.username).toBe(request.username);
-      expect(user.password_hash).toBeUndefined(); // Should be removed from response
+      expect(user.password_hash).toBeUndefined();
     });
 
     it('should handle Supabase Auth creation failure', async () => {
-      (supabaseAdmin.auth.admin.createUser as jest.Mock).mockResolvedValue({
+      mockOperations.createAuthUser.mockResolvedValue({
         data: null,
         error: { message: 'Email already exists' }
       });
@@ -205,8 +214,8 @@ describe('UserDAO', () => {
 
   describe('login', () => {
     it('should authenticate user successfully with Supabase Auth', async () => {
-      // FIXED: Mock successful Supabase Auth login
-      (supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+      // Mock successful Supabase Auth login
+      mockOperations.signInUser.mockResolvedValue({
         data: {
           user: { id: '12345678-1234-4567-8901-123456789012' },
           session: {
@@ -218,8 +227,8 @@ describe('UserDAO', () => {
         error: null
       });
       
-      // FIXED: Mock user data retrieval
-      supabaseAdminChainMock.single.mockResolvedValueOnce({
+      // Mock user data retrieval
+      _mockUtils.setMockResponse({
         data: {
           id: '12345678-1234-4567-8901-123456789012',
           email: 'test@example.com',
@@ -235,9 +244,6 @@ describe('UserDAO', () => {
         },
         error: null
       });
-      
-      // FIXED: Mock last login update
-      supabaseAdminChainMock.eq.mockResolvedValue({ data: {}, error: null });
       
       const request: LoginRequest = {
         email: 'test@example.com',
@@ -255,8 +261,8 @@ describe('UserDAO', () => {
 
   describe('isAdminUser', () => {
     it('should return admin status and privileges', async () => {
-      // FIXED: Mock admin user data retrieval
-      supabaseAdminChainMock.single.mockResolvedValue({
+      // Mock admin user data
+      _mockUtils.setMockResponse({
         data: {
           is_admin: true,
           admin_privileges: { 
@@ -290,7 +296,8 @@ describe('UserDAO', () => {
         updated_at: new Date().toISOString()
       };
 
-      supabaseAdminChainMock.single.mockResolvedValue({
+      // Mock user data response
+      _mockUtils.setMockResponse({
         data: mockUser,
         error: null
       });

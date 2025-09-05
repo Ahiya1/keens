@@ -54,6 +54,38 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_event_timestamp ON audit_logs(event_ty
 -- GIN index for searching within event_data JSON
 CREATE INDEX IF NOT EXISTS idx_audit_logs_event_data_gin ON audit_logs USING GIN(event_data);
 
+-- Enable Row Level Security for audit logs
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policy: Only admin users can access audit logs
+CREATE POLICY audit_logs_admin_policy ON audit_logs
+    FOR ALL TO application_user
+    USING (COALESCE(current_setting('app.is_admin_user', true)::BOOLEAN, false) = true);
+
+-- Create function to set user context for RLS
+CREATE OR REPLACE FUNCTION set_user_context(p_user_id UUID, p_is_admin BOOLEAN DEFAULT FALSE)
+RETURNS VOID AS $$
+BEGIN
+    -- Set user context for Row Level Security
+    PERFORM set_config('app.current_user_id', p_user_id::TEXT, true);
+    PERFORM set_config('app.is_admin_user', p_is_admin::TEXT, true);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create function to clear user context
+CREATE OR REPLACE FUNCTION clear_user_context()
+RETURNS VOID AS $$
+BEGIN
+    -- Clear user context
+    PERFORM set_config('app.current_user_id', '', true);
+    PERFORM set_config('app.is_admin_user', 'false', true);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permissions on context functions
+GRANT EXECUTE ON FUNCTION set_user_context(UUID, BOOLEAN) TO application_user;
+GRANT EXECUTE ON FUNCTION clear_user_context() TO application_user;
+
 -- Comments for documentation
 COMMENT ON TABLE audit_logs IS 'Comprehensive audit logging for API Gateway security and compliance';
 COMMENT ON COLUMN audit_logs.event_type IS 'Type of event: api_request, authentication, admin_action, security_event, etc.';

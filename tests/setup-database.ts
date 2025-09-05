@@ -1,5 +1,5 @@
 /**
- * Database Test Setup - Fixed Version
+ * Database Test Setup - TypeScript Version
  * Conditional database setup that won't hang and has proper resource cleanup
  */
 
@@ -127,7 +127,6 @@ export async function setupTestDatabase(): Promise<DatabaseManager> {
 
   // Start new setup
   setupPromise = doSetupDatabase();
-  
   try {
     testDbManager = await setupPromise;
     isSetupComplete = true;
@@ -146,7 +145,6 @@ async function doSetupDatabase(): Promise<DatabaseManager> {
     const timeout = setTimeout(() => {
       reject(new Error("Database setup timed out after 15 seconds"));
     }, 15000); // 15 second timeout
-    
     activeTimeouts.add(timeout);
   });
 
@@ -156,7 +154,6 @@ async function doSetupDatabase(): Promise<DatabaseManager> {
       createDatabaseManager(),
       timeoutPromise
     ]);
-
     console.log("✅ Test database setup complete (with timeout protection)");
     return dbManager;
   } catch (error) {
@@ -170,7 +167,7 @@ async function createDatabaseManager(): Promise<DatabaseManager> {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
     database: process.env.DB_NAME || "keen_test",
-    user: process.env.DB_USER || "keen_test_user", 
+    user: process.env.DB_USER || "keen_test_user",
     password: process.env.DB_PASSWORD || "test_password",
     maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || "3"),
   });
@@ -210,11 +207,10 @@ export async function cleanupTestDatabase(): Promise<void> {
   if (!testDbManager) return;
 
   console.log("🧹 Fast database cleanup...");
-
   try {
     // Set a timeout for cleanup
     const cleanupPromise = doCleanup();
-    const timeoutPromise = new Promise<void>((_, reject) => {
+    const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error("Cleanup timed out")), 5000);
     });
 

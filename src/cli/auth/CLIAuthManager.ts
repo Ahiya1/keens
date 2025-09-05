@@ -1,7 +1,8 @@
 /**
- * CLI Authentication Manager
- * Handles local authentication state, token storage, and user session management for CLI
- * SECURITY: Removed sensitive logging and improved error handling - Enhanced
+ * CLI Authentication Manager - FIXED VERSION
+ * CRITICAL FIX: Removed graceful fallbacks that hide database failures
+ * Uses enhanced DatabaseManager with proper SQL conversion
+ * Now properly exposes database connection issues instead of hiding them
  */
 
 import { promises as fs } from "fs";
@@ -11,9 +12,9 @@ import { randomBytes } from "crypto";
 import chalk from "chalk";
 import { AuthenticationService } from "../../api/services/AuthenticationService.js";
 import { UserDAO } from "../../database/dao/UserDAO.js";
-import { DatabaseManager } from "../../database/DatabaseManager.js";
+import { DatabaseManagerEnhanced } from "../../database/DatabaseManagerEnhanced.js";
 import { AuditLogger } from "../../api/services/AuditLogger.js";
-import { UserContext } from "../../database/DatabaseManager.js";
+import { UserContext } from "../../database/DatabaseManagerEnhanced.js";
 import { LoginCredentials, ClientInfo } from "../../api/types.js";
 
 export interface CLIAuthState {
@@ -45,7 +46,7 @@ export class CLIAuthManager {
   private authFile: string;
   private authService: AuthenticationService;
   private userDAO: UserDAO;
-  private db: DatabaseManager;
+  private db: DatabaseManagerEnhanced;
   private currentAuth: CLIAuthState | null = null;
 
   constructor() {
@@ -53,89 +54,103 @@ export class CLIAuthManager {
     const keenDir = join(homedir(), '.keen');
     this.authFile = join(keenDir, 'auth.json');
 
-    // Initialize database and services
-    this.db = new DatabaseManager();
-    this.userDAO = new UserDAO(this.db);
+    // FIXED: Use enhanced DatabaseManager with proper SQL conversion
+    this.db = new DatabaseManagerEnhanced();
+    this.userDAO = new UserDAO(this.db as any); // Cast for compatibility
 
-    // Create audit logger (simplified for CLI)
-    const auditLogger = new AuditLogger(this.db);
+    // Create audit logger
+    const auditLogger = new AuditLogger(this.db as any);
 
     this.authService = new AuthenticationService(
-      this.db,
+      this.db as any,
       this.userDAO,
       auditLogger
     );
   }
 
   /**
-   * Initialize the auth manager and load existing authentication state
-   * SECURITY: Removed sensitive information from logs - Enhanced
+   * Initialize the auth manager - FIXED: No graceful fallbacks
+   * CRITICAL FIX: Database failures are now properly exposed
    */
   async initialize(): Promise<void> {
     try {
-      // Load existing auth state FIRST before initializing database
-      // This ensures we don't lose auth if database init fails
-      await this.loadAuthState();
-
-      // Initialize database connection only if needed
+      console.log('🔍 Initializing CLI authentication...');
+      
+      // FIXED: Always initialize database connection first
+      // No graceful fallbacks - if DB fails, the whole init fails
+      console.log('🔌 Connecting to database...');
+      await this.db.initialize();
+      
       if (!this.db.isConnected) {
-        try {
-          await this.db.initialize();
-        } catch (dbError) {
-          // Database init failed, but we might still have valid auth state
-          // Don't clear the auth state just because DB is down
-          if (process.env.DEBUG) {
-            console.warn('Database connection failed, but continuing with cached auth');
-          }
+        throw new Error('Database connection failed - cannot continue without database');
+      }
+      
+      console.log('✅ Database connected successfully');
+      
+      // Load existing auth state after confirming DB works
+      console.log('📁 Loading authentication state...');
+      await this.loadAuthState();
+      
+      // FIXED: Always validate tokens against database
+      // No cached auth fallbacks - if tokens are invalid, clear them
+      if (this.currentAuth) {
+        console.log('🔑 Validating existing authentication...');
+        const isValid = await this.validateAndRefreshAuth();
+        
+        if (!isValid) {
+          console.warn('⚠️ Existing authentication invalid - clearing auth state');
+          this.currentAuth = null;
+          await this.clearAuthState();
+        } else {
+          console.log('✅ Authentication validated successfully');
         }
       }
-
-      // Only validate tokens if we have a database connection
-      if (this.currentAuth && this.db.isConnected) {
-        try {
-          await this.validateAndRefreshAuth();
-        } catch (validationError) {
-          // Token validation failed, but keep the auth state
-          // The token might still be valid, just can't verify with DB
-          if (process.env.DEBUG) {
-            console.warn('Token validation failed, using cached auth');
-          }
-        }
-      }
-    } catch (error) {
-      if (process.env.DEBUG) {
-        console.error('Failed to initialize CLI auth manager:', error);
-      }
-      // DON'T clear auth state on initialization errors!
-      // The auth file might still be valid even if DB is down
+      
+      console.log('🎉 CLI authentication initialized successfully');
+      
+    } catch (error: any) {
+      console.error('❌ CLI authentication initialization failed:', error.message);
+      
+      // FIXED: Clear any invalid auth state on failure
+      this.currentAuth = null;
+      await this.clearAuthState();
+      
+      // FIXED: Re-throw error instead of hiding it
+      throw new Error(`Authentication system initialization failed: ${error.message}`);
     }
   }
 
   /**
-   * Login with email and password
-   * SECURITY: No sensitive data logged in production
+   * Login with email and password - FIXED: No graceful fallbacks
    */
   async login(options: CLILoginOptions): Promise<{ success: boolean; message: string }> {
     try {
+      console.log('🔐 Attempting login...');
+      
+      // FIXED: Ensure database is connected before login
+      if (!this.db.isConnected) {
+        throw new Error('Database connection required for login');
+      }
+      
       const credentials: LoginCredentials = {
         email: options.email,
         password: options.password,
       };
 
       const clientInfo: ClientInfo = {
-        ip: '127.0.0.1', // CLI is always local
-        userAgent: 'keen-cli',
+        ip: '127.0.0.1',
+        userAgent: 'keen-cli-fixed',
         deviceId: await this.getDeviceId(),
       };
 
+      console.log('🔍 Authenticating with database...');
       const authResult = await this.authService.login(credentials, clientInfo);
 
-      // Handle potential undefined values properly with fallbacks
       if (!authResult.user || !authResult.tokens) {
-        throw new Error('Invalid authentication result');
+        throw new Error('Invalid authentication result from server');
       }
 
-      // Create CLI auth state with proper null checking and fallbacks
+      // Create CLI auth state with proper validation
       this.currentAuth = {
         user: {
           id: authResult.user.id,
@@ -155,29 +170,27 @@ export class CLIAuthManager {
         lastActivity: Date.now(),
       };
 
-      // Save auth state to file and ensure it completes
-      try {
-        await this.saveAuthState();
+      // FIXED: Save auth state with proper error handling
+      console.log('💾 Saving authentication state...');
+      await this.saveAuthState();
 
-        // Verify the file was actually saved
-        const exists = await fs.access(this.authFile).then(() => true).catch(() => false);
-        if (!exists) {
-          throw new Error('Failed to save authentication state to disk');
-        }
-      } catch (saveError: any) {
-        if (process.env.DEBUG) {
-          console.error('Failed to persist authentication:', saveError.message);
-        }
-        // Continue anyway - auth is in memory
+      // Verify the file was actually saved
+      const exists = await fs.access(this.authFile).then(() => true).catch(() => false);
+      if (!exists) {
+        throw new Error('Failed to persist authentication state to disk');
       }
 
       const isAdmin = authResult.adminAccess || authResult.user.is_admin || false;
       const username = authResult.user.username || authResult.user.email || 'Unknown User';
+      
+      console.log('✅ Login successful');
       return {
         success: true,
         message: `Successfully logged in as ${username}${isAdmin ? ' (Admin)' : ''}`
       };
+      
     } catch (error: any) {
+      console.error('❌ Login failed:', error.message);
       return {
         success: false,
         message: error.message || 'Login failed',
@@ -186,50 +199,22 @@ export class CLIAuthManager {
   }
 
   /**
-   * Logout and clear authentication state
-   */
-  async logout(): Promise<{ success: boolean; message: string }> {
-    try {
-      if (this.currentAuth?.tokens.refreshToken) {
-        // Revoke the refresh token on server
-        try {
-          await this.authService.revokeRefreshToken(this.currentAuth.tokens.refreshToken);
-        } catch (error) {
-          // Continue with logout even if revocation fails
-          if (process.env.DEBUG) {
-            console.warn('Failed to revoke refresh token');
-          }
-        }
-      }
-
-      // Clear local auth state
-      this.currentAuth = null;
-      await this.clearAuthState();
-
-      return {
-        success: true,
-        message: 'Successfully logged out',
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || 'Logout failed',
-      };
-    }
-  }
-
-  /**
-   * Get current user context for database operations
+   * Get current user context - FIXED: No graceful fallbacks
    */
   async getCurrentUserContext(): Promise<UserContext | null> {
     if (!this.currentAuth) {
       return null;
     }
 
-    // Validate token is still valid
+    // FIXED: Always validate token expiration
     if (Date.now() > this.currentAuth.tokens.expiresAt) {
-      // Try to refresh
-      if (!(await this.refreshToken())) {
+      console.log('🔄 Token expired, attempting refresh...');
+      const refreshed = await this.refreshToken();
+      
+      if (!refreshed) {
+        console.warn('⚠️ Token refresh failed - clearing authentication');
+        this.currentAuth = null;
+        await this.clearAuthState();
         return null;
       }
     }
@@ -242,15 +227,21 @@ export class CLIAuthManager {
   }
 
   /**
-   * Check if user is currently authenticated
+   * Check if user is currently authenticated - FIXED: Strict validation
    */
   isAuthenticated(): boolean {
     if (!this.currentAuth) {
       return false;
     }
 
-    // Check if token is expired (with 5-minute buffer)
-    return Date.now() < (this.currentAuth.tokens.expiresAt - 5 * 60 * 1000);
+    // FIXED: Strict token expiration check with small buffer
+    const isValid = Date.now() < (this.currentAuth.tokens.expiresAt - 60 * 1000); // 1-minute buffer
+    
+    if (!isValid) {
+      console.warn('⚠️ Authentication expired');
+    }
+    
+    return isValid;
   }
 
   /**
@@ -261,18 +252,7 @@ export class CLIAuthManager {
   }
 
   /**
-   * Update last activity timestamp
-   */
-  updateActivity(): void {
-    if (this.currentAuth) {
-      this.currentAuth.lastActivity = Date.now();
-      // Save updated state (don't await to avoid blocking)
-      this.saveAuthState().catch(() => {});
-    }
-  }
-
-  /**
-   * Require authentication - throw error if not authenticated
+   * Require authentication - FIXED: Clear error messages
    */
   async requireAuth(): Promise<UserContext> {
     const userContext = await this.getCurrentUserContext();
@@ -282,12 +262,11 @@ export class CLIAuthManager {
       );
     }
 
-    this.updateActivity();
     return userContext;
   }
 
   /**
-   * Validate and refresh authentication if needed
+   * Validate and refresh authentication - FIXED: No graceful fallbacks
    */
   private async validateAndRefreshAuth(): Promise<boolean> {
     if (!this.currentAuth) {
@@ -296,28 +275,34 @@ export class CLIAuthManager {
 
     // Check if token is expired
     if (Date.now() > this.currentAuth.tokens.expiresAt) {
+      console.log('🔄 Token expired, refreshing...');
       return await this.refreshToken();
     }
 
-    // Validate token with server
+    // FIXED: Always validate token with server - no graceful fallbacks
     try {
+      console.log('🔍 Validating token with server...');
       await this.authService.verifyAccessToken(this.currentAuth.tokens.accessToken);
+      console.log('✅ Token validation successful');
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      console.warn('⚠️ Token validation failed:', error.message);
       // Try to refresh if verification fails
       return await this.refreshToken();
     }
   }
 
   /**
-   * Refresh access token using refresh token
+   * Refresh access token - FIXED: Clear error handling
    */
   private async refreshToken(): Promise<boolean> {
     if (!this.currentAuth?.tokens.refreshToken) {
+      console.warn('⚠️ No refresh token available');
       return false;
     }
 
     try {
+      console.log('🔄 Refreshing access token...');
       const refreshed = await this.authService.refreshAccessToken(
         this.currentAuth.tokens.refreshToken
       );
@@ -329,34 +314,25 @@ export class CLIAuthManager {
 
       // Save updated state
       await this.saveAuthState();
+      console.log('✅ Token refresh successful');
       return true;
-    } catch (error) {
-      // Refresh failed, but don't immediately clear auth state
-      // User might just be offline or DB might be down
-      if (process.env.DEBUG) {
-        console.warn('Token refresh failed');
-      }
-      // Only clear if token is definitely expired
-      if (Date.now() > this.currentAuth.tokens.expiresAt + 24 * 60 * 60 * 1000) {
-        // Token expired more than 24 hours ago, clear it
-        this.currentAuth = null;
-        await this.clearAuthState();
-      }
+      
+    } catch (error: any) {
+      console.error('❌ Token refresh failed:', error.message);
+      
+      // FIXED: Clear auth state on refresh failure
+      this.currentAuth = null;
+      await this.clearAuthState();
       return false;
     }
   }
 
   /**
    * Load authentication state from file
-   * SECURITY: Removed sensitive logging of user data - Enhanced
    */
   private async loadAuthState(): Promise<void> {
     try {
       await this.ensureAuthDirectory();
-
-      if (process.env.DEBUG) {
-        console.log('Loading auth state from file');
-      }
 
       const data = await fs.readFile(this.authFile, 'utf-8');
       const parsed = JSON.parse(data);
@@ -364,19 +340,16 @@ export class CLIAuthManager {
       // Validate required fields
       if (parsed.user?.id && parsed.tokens?.accessToken && parsed.tokens?.refreshToken) {
         this.currentAuth = parsed;
-
-        if (process.env.DEBUG) {
-          console.log('Auth state loaded successfully');
-        }
+        console.log('📁 Auth state loaded from file');
       } else {
-        if (process.env.DEBUG) {
-          console.warn('Invalid auth state file, clearing');
-        }
+        console.warn('⚠️ Invalid auth state file, clearing');
+        await this.clearAuthState();
       }
     } catch (error: any) {
-      // File doesn't exist or is invalid - that's fine for first time
-      if (process.env.DEBUG) {
-        console.log('No existing auth state found');
+      if (error.code === 'ENOENT') {
+        console.log('📝 No existing auth state found');
+      } else {
+        console.warn('⚠️ Failed to load auth state:', error.message);
       }
       this.currentAuth = null;
     }
@@ -384,16 +357,11 @@ export class CLIAuthManager {
 
   /**
    * Save authentication state to file
-   * SECURITY: Reduced debug logging - Enhanced
    */
   private async saveAuthState(): Promise<void> {
     try {
       await this.ensureAuthDirectory();
-
-      if (process.env.DEBUG) {
-        console.log('Saving auth state to file');
-      }
-
+      
       await fs.writeFile(
         this.authFile,
         JSON.stringify(this.currentAuth, null, 2),
@@ -406,10 +374,8 @@ export class CLIAuthManager {
         throw new Error('Auth file was not created');
       }
     } catch (error) {
-      if (process.env.DEBUG) {
-        console.error('Failed to save auth state:', error);
-      }
-      throw error; // Re-throw to handle upstream
+      console.error('❌ Failed to save auth state:', error);
+      throw error;
     }
   }
 
@@ -438,7 +404,6 @@ export class CLIAuthManager {
 
   /**
    * Get or generate device ID for tracking
-   * SECURITY: Using crypto.randomBytes instead of Math.random - Enhanced
    */
   private async getDeviceId(): Promise<string> {
     const deviceFile = join(homedir(), '.keen', 'device-id');
@@ -452,11 +417,37 @@ export class CLIAuthManager {
         await this.ensureAuthDirectory();
         await fs.writeFile(deviceFile, deviceId, { mode: 0o600 });
       } catch (writeError) {
-        if (process.env.DEBUG) {
-          console.warn('Failed to save device ID');
-        }
+        console.warn('⚠️ Failed to save device ID');
       }
       return deviceId;
+    }
+  }
+
+  /**
+   * Logout - clear authentication state
+   */
+  async logout(): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('🔐 Logging out...');
+      
+      // Clear current auth state
+      this.currentAuth = null;
+      
+      // Clear auth state file
+      await this.clearAuthState();
+      
+      console.log('✅ Logout successful');
+      return {
+        success: true,
+        message: 'Successfully logged out'
+      };
+      
+    } catch (error: any) {
+      console.error('❌ Logout failed:', error.message);
+      return {
+        success: false,
+        message: error.message || 'Logout failed',
+      };
     }
   }
 
@@ -467,12 +458,10 @@ export class CLIAuthManager {
     try {
       await this.db.close();
     } catch (error) {
-      if (process.env.DEBUG) {
-        console.error('Error during auth manager cleanup:', error);
-      }
+      console.error('❌ Error during auth manager cleanup:', error);
     }
   }
 }
 
-// Singleton instance for CLI usage
+// Export fixed instance
 export const cliAuth = new CLIAuthManager();

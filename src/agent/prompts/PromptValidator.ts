@@ -217,10 +217,6 @@ export class PromptValidator {
       if (content && content.includes('{{') && !content.includes('}}')) {
         errors.push(`Malformed template variable in ${componentName}`);
       }
-
-      if (content && content.includes('undefined') || content?.includes('null')) {
-        errors.push(`Invalid content in ${componentName}: contains undefined/null values`);
-      }
     }
   }
 

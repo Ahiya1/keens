@@ -148,7 +148,7 @@ export class CreditGatewayService {
           userId,
           actualClaudeCost,
           sessionId,
-          'Admin execution completed',
+          'Agent execution completed', // FIXED: Changed from 'Admin execution completed'
           context
         );
       }

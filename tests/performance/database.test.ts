@@ -109,16 +109,12 @@ describe('Database Performance Tests', () => {
       const testEmail = generateTestEmail('perf-user');
       
       try {
-        const user = await dbService.users.createUser(
-          {
-            email: testEmail,
-            username: `perfuser_${Date.now()}`,
-            password_hash: '$2b$10$test.hash.for.testing.only',
-            is_admin: false,
-            admin_privileges: {},
-          },
-          adminContext
-        );
+        const user = await dbService.users.createUser({
+          email: testEmail,
+          username: `perfuser_${Date.now()}`,
+          password: 'test-password-123',
+          useSupabaseAuth: false
+        });
 
         const endTime = performance.now();
         const duration = endTime - startTime;
@@ -151,23 +147,32 @@ describe('Database Performance Tests', () => {
       };
 
       try {
-        // Create session
-        await dbService.sessions.createSession(
+        // Create session with correct method signature
+        const sessionResult = await dbService.sessions.createSession(
+          userId,
           {
             sessionId: testSessionId,
-            userId,
-            userContext,
-            metadata: { performance: 'test' },
+            gitBranch: 'main',
+            vision: 'Performance test session',
+            workingDirectory: '/tmp/perf-test',
+            agentOptions: { performance: true }
           },
           userContext
         );
 
-        // Get session
-        const session = await dbService.sessions.getSession(testSessionId, userContext);
+        // Get session using the database session ID
+        const session = await dbService.sessions.getSession(sessionResult.id, userContext);
         expect(session).toBeDefined();
 
-        // End session
-        await dbService.sessions.endSession(testSessionId, userContext);
+        // End session by updating status to completed
+        await dbService.sessions.updateSession(
+          sessionResult.id, 
+          { 
+            executionStatus: 'completed',
+            success: true
+          },
+          userContext
+        );
 
         const endTime = performance.now();
         const duration = endTime - startTime;

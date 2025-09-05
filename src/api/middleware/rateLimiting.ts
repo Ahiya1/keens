@@ -29,8 +29,8 @@ function generateRateLimitKey(req: Request): string {
   // Fall back to IP-based limiting for unauthenticated requests
   const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
              (req.headers['x-real-ip'] as string) ||
-             req.connection.remoteAddress ||
-             req.socket.remoteAddress ||
+             req.connection?.remoteAddress ||
+             req.socket?.remoteAddress ||
              'unknown';
 
   return `ip:${ip}`;
@@ -125,8 +125,8 @@ export const authRateLimitMiddleware = rateLimit({
     // Use IP for auth endpoints since user might not be authenticated yet
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
                (req.headers['x-real-ip'] as string) ||
-               req.connection.remoteAddress ||
-               req.socket.remoteAddress ||
+               req.connection?.remoteAddress ||
+               req.socket?.remoteAddress ||
                'unknown';
     return `auth:${ip}`;
   },

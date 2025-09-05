@@ -106,17 +106,14 @@ describe('Database Integration Tests', () => {
         const testUsername = `user_${Date.now()}`;
         const testSessionId = generateTestSessionId();
 
-        // Create user
-        const newUser = await dbService.users.createUser(
-          {
-            email: testEmail,
-            username: testUsername,
-            password_hash: '$2b$10$test.hash.for.testing.only',
-            is_admin: false,
-            admin_privileges: {},
-          },
-          adminContext
-        );
+        // Create user - use correct method signature with single request object
+        const newUser = await dbService.users.createUser({
+          email: testEmail,
+          username: testUsername,
+          password: 'test-password-123',
+          display_name: `Test User ${testUsername}`,
+          useSupabaseAuth: false // Use custom auth for testing
+        });
 
         expect(newUser).toBeDefined();
         expect(newUser.email).toBe(testEmail);
@@ -130,48 +127,55 @@ describe('Database Integration Tests', () => {
           adminPrivileges: undefined,
         };
 
-        // Create credit account
+        // Create credit account - use correct method signature with userId as string
         const creditAccount = await dbService.credits.createCreditAccount(
-          {
-            user_id: newUser.id,
-            current_balance: new Decimal(100),
-            lifetime_purchased: new Decimal(100),
-            lifetime_spent: new Decimal(0),
-            unlimited_credits: false,
-          },
+          newUser.id,
           adminContext
         );
 
         expect(creditAccount).toBeDefined();
-        expect(creditAccount.current_balance.toNumber()).toBe(100);
+        expect(creditAccount.user_id).toBe(newUser.id);
 
-        // Create session
+        // Create session - use the correct createSession method signature
         const sessionResult = await dbService.sessions.createSession(
+          newUser.id,
           {
             sessionId: testSessionId,
-            userId: newUser.id,
-            userContext: regularUserContext,
-            metadata: { test: true },
+            gitBranch: 'main',
+            vision: 'Test integration session',
+            workingDirectory: '/tmp/test',
+            agentOptions: { test: true }
           },
           regularUserContext
         );
 
-        expect(sessionResult.success).toBe(true);
+        expect(sessionResult).toBeDefined();
+        expect(sessionResult.user_id).toBe(newUser.id);
 
-        // Verify session exists
-        const session = await dbService.sessions.getSession(testSessionId, regularUserContext);
+        // Verify session exists - use the session id instead of session_id
+        const session = await dbService.sessions.getSession(sessionResult.id, regularUserContext);
         expect(session).toBeDefined();
         expect(session?.user_id).toBe(newUser.id);
 
         // Update session
         await dbService.sessions.updateSession(
-          testSessionId,
-          { metadata: { test: true, updated: true } },
+          sessionResult.id,
+          { 
+            executionStatus: 'running',
+            iterationCount: 1
+          },
           regularUserContext
         );
 
-        // End session
-        await dbService.sessions.endSession(testSessionId, regularUserContext);
+        // End session by updating status to completed
+        await dbService.sessions.updateSession(
+          sessionResult.id, 
+          { 
+            executionStatus: 'completed',
+            success: true
+          },
+          regularUserContext
+        );
 
         console.log('✅ Integration test completed successfully');
       } catch (error) {
@@ -192,29 +196,21 @@ describe('Database Integration Tests', () => {
       
       try {
         // Create first user
-        await dbService.users.createUser(
-          {
-            email: testEmail,
-            username: `user1_${Date.now()}`,
-            password_hash: '$2b$10$test.hash.for.testing.only',
-            is_admin: false,
-            admin_privileges: {},
-          },
-          adminContext
-        );
+        await dbService.users.createUser({
+          email: testEmail,
+          username: `user1_${Date.now()}`,
+          password: 'test-password-123',
+          useSupabaseAuth: false
+        });
 
         // Try to create duplicate user
         await expect(
-          dbService.users.createUser(
-            {
-              email: testEmail, // Same email
-              username: `user2_${Date.now()}`,
-              password_hash: '$2b$10$test.hash.for.testing.only',
-              is_admin: false,
-              admin_privileges: {},
-            },
-            adminContext
-          )
+          dbService.users.createUser({
+            email: testEmail, // Same email
+            username: `user2_${Date.now()}`,
+            password: 'test-password-123',
+            useSupabaseAuth: false
+          })
         ).rejects.toThrow();
       } catch (error) {
         console.warn('Duplicate user test warning:', error);

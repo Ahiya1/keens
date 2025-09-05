@@ -47,6 +47,19 @@ export class ValidationDAO {
     sessionId: string,
     validationResult: ValidationResult,
   ): Promise<string> {
+    // FIXED: Add input validation
+    if (!sessionId || !validationResult) {
+      throw new Error('SessionId and validationResult are required');
+    }
+
+    if (typeof validationResult.score !== 'number' || validationResult.score < 0 || validationResult.score > 100) {
+      throw new Error('Validation result score must be a number between 0 and 100');
+    }
+
+    if (!validationResult.overall || !['pass', 'fail', 'warning'].includes(validationResult.overall)) {
+      throw new Error('Validation result overall status must be pass, fail, or warning');
+    }
+
     const query = `
       INSERT INTO validation_results (
         session_id, validation_type, overall_status, score,
@@ -200,15 +213,19 @@ export class ValidationDAO {
     const passedValidations = validationResults.filter(r => r.overall_status === 'pass').length;
     const latestScore = validationResults.length > 0 ? validationResults[0].score : 0;
 
-    // Count issues
+    // Count issues - FIXED: Proper array handling for JSON-stored data
     let totalIssues = 0;
     let criticalIssues = 0;
     let autoFixesApplied = 0;
 
     for (const result of validationResults) {
-      totalIssues += result.issues?.length || 0;
-      criticalIssues += result.issues?.filter((i: any) => i.severity === 'critical')?.length || 0;
-      autoFixesApplied += result.auto_fixes_applied?.length || 0;
+      // FIXED: Parse JSON if needed and ensure it's an array
+      const issues = Array.isArray(result.issues) ? result.issues : [];
+      const fixes = Array.isArray(result.auto_fixes_applied) ? result.auto_fixes_applied : [];
+      
+      totalIssues += issues.length;
+      criticalIssues += issues.filter((i: any) => i.severity === 'critical').length;
+      autoFixesApplied += fixes.length;
     }
 
     return {
@@ -314,18 +331,30 @@ export class ValidationDAO {
 
   /**
    * Map database row to ValidationResultRecord
+   * FIXED: Proper JSON parsing with fallback
    */
   private mapValidationResultRecord(row: any): ValidationResultRecord {
+    const parseJsonField = (field: any) => {
+      if (Array.isArray(field) || (field && typeof field === 'object')) {
+        return field; // Already parsed
+      }
+      try {
+        return JSON.parse(field || '[]');
+      } catch {
+        return [];
+      }
+    };
+
     return {
       id: row.id,
       session_id: row.session_id,
       validation_type: row.validation_type,
       overall_status: row.overall_status,
       score: parseFloat(row.score) || 0,
-      categories: row.categories || {},
-      issues: row.issues || [],
-      auto_fixes_applied: row.auto_fixes_applied || [],
-      suggestions: row.suggestions || [],
+      categories: parseJsonField(row.categories),
+      issues: parseJsonField(row.issues),
+      auto_fixes_applied: parseJsonField(row.auto_fixes_applied),
+      suggestions: parseJsonField(row.suggestions),
       execution_time_ms: parseInt(row.execution_time_ms) || 0,
       created_at: new Date(row.created_at),
     };
@@ -333,8 +362,20 @@ export class ValidationDAO {
 
   /**
    * Map database row to QualityGateRecord
+   * FIXED: Proper JSON parsing with fallback
    */
   private mapQualityGateRecord(row: any): QualityGateRecord {
+    const parseJsonField = (field: any) => {
+      if (Array.isArray(field) || (field && typeof field === 'object')) {
+        return field; // Already parsed
+      }
+      try {
+        return JSON.parse(field || '[]');
+      } catch {
+        return [];
+      }
+    };
+
     return {
       id: row.id,
       session_id: row.session_id,
@@ -343,8 +384,8 @@ export class ValidationDAO {
       passed: row.passed,
       overall_score: parseFloat(row.overall_score) || 0,
       threshold: parseFloat(row.threshold) || 0,
-      criteria_evaluations: row.criteria_evaluations || [],
-      recommendations: row.recommendations || [],
+      criteria_evaluations: parseJsonField(row.criteria_evaluations),
+      recommendations: parseJsonField(row.recommendations),
       created_at: new Date(row.created_at),
     };
   }

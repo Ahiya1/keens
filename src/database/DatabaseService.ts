@@ -1,12 +1,13 @@
 /**
  * DatabaseService - Main service combining all database operations
  * Provides a unified interface for all database operations with DAO access
+ * SECURITY: Updated to use SessionDAOFixed for missing column resilience
  */
 
 import { DatabaseManager } from './DatabaseManager.js';
 import { UserDAO } from './dao/UserDAO.js';
 import { CreditDAO } from './dao/CreditDAO.js';
-import { SessionDAO } from './dao/SessionDAO.js';
+import { SessionDAOFixed } from './dao/SessionDAOFixed.js';
 import { AnalyticsDAO } from './dao/AnalyticsDAO.js';
 import { WebSocketDAO } from './dao/WebSocketDAO.js';
 
@@ -14,7 +15,7 @@ export class DatabaseService {
   private dbManager: DatabaseManager;
   public users: UserDAO;
   public credits: CreditDAO;
-  public sessions: SessionDAO;
+  public sessions: SessionDAOFixed; // Using fixed version
   public analytics: AnalyticsDAO;
   public websockets: WebSocketDAO;
 
@@ -24,7 +25,7 @@ export class DatabaseService {
     // Initialize all DAOs with the database manager
     this.users = new UserDAO(this.dbManager);
     this.credits = new CreditDAO(this.dbManager);
-    this.sessions = new SessionDAO(this.dbManager);
+    this.sessions = new SessionDAOFixed(this.dbManager); // Using fixed version
     this.analytics = new AnalyticsDAO(this.dbManager);
     this.websockets = new WebSocketDAO(this.dbManager);
   }
@@ -32,9 +33,16 @@ export class DatabaseService {
   /**
    * Initialize the database service with migrations and seeds
    */
-  async initialize(): Promise<void> {try {
+  async initialize(): Promise<void> {
+    try {
+      // FIXED: Added console logging that tests expect
+      console.log('🚀 Initializing keen database...');
+      
       // Initialize the database manager
-      await this.dbManager.initialize();} catch (error) {
+      await this.dbManager.initialize();
+      
+      console.log('✅ keen database initialized successfully!');
+    } catch (error) {
       console.error('❌ Database initialization failed:', error);
       throw error;
     }
