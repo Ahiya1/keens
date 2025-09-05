@@ -516,4 +516,63 @@ export class SessionDAOFixed {
 
     return transformed;
   }
+
+  /**
+   * Add thinking block to session (stub method - optional feature)
+   */
+  async addThinkingBlock(
+    sessionId: string,
+    request: AddThinkingBlockRequest,
+    context?: UserContext
+  ): Promise<void> {
+    // This is a stub - thinking blocks are optional feature
+    // Can be implemented when session_thinking_blocks table is available
+    if (this.costTrackingEnabled) {
+      try {
+        const { v4: uuidv4 } = await import("uuid");
+        const thinkingId = uuidv4();
+
+        await this.db.query(
+          `
+          INSERT INTO session_thinking_blocks (
+            id, session_id, thinking_type, thinking_content, context_snapshot,
+            confidence_level, phase, iteration, associated_cost
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9
+          )
+          `,
+          [
+            thinkingId,
+            sessionId,
+            request.thinkingType,
+            request.thinkingContent,
+            JSON.stringify(request.contextSnapshot || {}),
+            request.confidenceLevel || 0.5,
+            request.phase,
+            request.iteration,
+            request.associatedCost || 0,
+          ],
+          context
+        );
+      } catch (error) {
+        // Silently fail - thinking blocks are optional
+        console.warn("Failed to store thinking block (optional feature):", error);
+      }
+    }
+  }
+}
+
+export interface AddThinkingBlockRequest {
+  thinkingType:
+    | "analysis"
+    | "planning" 
+    | "decision"
+    | "reflection"
+    | "error_recovery";
+  thinkingContent: string;
+  contextSnapshot?: any;
+  confidenceLevel?: number;
+  phase: string;
+  iteration: number;
+  associatedCost?: number;
 }

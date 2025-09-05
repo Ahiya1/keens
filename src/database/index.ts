@@ -46,6 +46,7 @@ export {
 export { UserDAO } from './dao/UserDAO.js';
 export { CreditDAO } from './dao/CreditDAO.js';
 export { SessionDAO } from './dao/SessionDAO.js';
+export { SessionDAOFixed } from './dao/SessionDAOFixed.js';
 export { AnalyticsDAO } from './dao/AnalyticsDAO.js';
 export { WebSocketDAO } from './dao/WebSocketDAO.js';
 export { ValidationDAO } from './dao/ValidationDAO.js';

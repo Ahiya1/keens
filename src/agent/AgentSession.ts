@@ -9,11 +9,11 @@ import path from "path";
 import { AgentSessionOptions, ThinkingBlock, AgentPhase } from "./types.js";
 import { UserContext, DatabaseManager } from "../database/DatabaseManager.js";
 import {
-  SessionDAO,
+  SessionDAOFixed as SessionDAO,
   CreateSessionRequest,
   UpdateSessionRequest,
   AddThinkingBlockRequest,
-} from "../database/dao/SessionDAO.js";
+} from "../database/dao/SessionDAOFixed.js";
 import { getLogger } from "../utils/Logger.js";
 import chalk from "chalk";
 
