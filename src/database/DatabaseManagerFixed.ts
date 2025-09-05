@@ -1,40 +1,40 @@
 /**
- * Enhanced DatabaseManager with comprehensive SQL-to-Supabase conversion
+ * Fixed DatabaseManager - Handles RLS context without requiring custom functions
  * CRITICAL FIXES: 
- * 1. Proper array literal handling for PostgreSQL arrays
- * 2. Fixed WHERE clause parameter processing
- * 3. Improved parameter validation and error handling
- * 4. Fixed RLS context setting for Supabase - graceful handling when functions don't exist
+ * 1. Bypass RLS context function requirement
+ * 2. Use direct session management for user context
+ * 3. Improved error handling for missing schema elements
+ * 4. Admin bypass for RLS policies
+ * 5. Full compatibility with original DatabaseManager interface
  */
 
 import { SupabaseManager, UserContext, DatabaseTransaction } from './SupabaseManager.js';
 import { supabaseAdmin, supabase } from '../config/database.js';
-import { randomUUID } from 'crypto';
 
 // Re-export types for compatibility
 export { UserContext, DatabaseTransaction } from './SupabaseManager.js';
 
 /**
- * Enhanced SQL Query Parser and Converter - FIXED with graceful RLS handling
+ * Fixed SQL Query Parser and Converter - Works without custom RLS functions
  */
-class SqlToSupabaseConverter {
+class SqlToSupabaseConverterFixed {
   /**
-   * Parse and convert SQL queries to Supabase operations with graceful RLS handling
+   * Parse and convert SQL queries to Supabase operations with simplified RLS handling
    */
   async convertQuery<T>(
     sql: string, 
     params: any[] = [], 
     context?: UserContext
   ): Promise<T[]> {
-    // Use admin client for all operations to bypass RLS issues in development/test
+    // Always use admin client for database operations to bypass RLS issues
     const client = supabaseAdmin;
     const cleanSql = sql.trim().replace(/\s+/g, ' ');
     const sqlUpper = cleanSql.toUpperCase();
     
     try {
-      // CRITICAL FIX: Don't fail if RLS context functions don't exist
-      if (context && context.userId) {
-        await this.setRLSContextSafe(client, context);
+      // Log context for debugging
+      if (context) {
+        console.log(`Database operation with context: userId=${context.userId}, isAdmin=${context.isAdmin}`);
       }
       
       // INSERT queries
@@ -67,81 +67,14 @@ class SqlToSupabaseConverter {
       return [] as T[];
       
     } catch (error: any) {
-      // CRITICAL FIX: Don't fail tests due to missing RLS functions
-      if (error.message && error.message.includes('row-level security policy')) {
-        console.warn('RLS policy blocked operation, attempting with admin context...');
-        // Try again with admin context to see if it's an RLS issue
-        try {
-          return await this.convertQuery<T>(sql, params, { userId: context?.userId || 'system', isAdmin: true });
-        } catch (adminError: any) {
-          console.warn('Admin context also failed:', adminError.message);
-          
-          // For INSERT operations on agent_sessions, create a minimal record to satisfy tests
-          if (sql.includes('INSERT INTO agent_sessions') && context) {
-            return this.createMockSessionRecord<T>(params, context);
-          }
-          
-          throw adminError;
-        }
-      }
-      
       console.error('SQL conversion error:', error.message);
       console.error('Query:', cleanSql.substring(0, 200) + '...');
-      
-      // For test environment, be more tolerant of failures
-      if (process.env.NODE_ENV === 'test') {
-        console.warn('Test environment - returning empty result for failed query');
-        return [] as T[];
-      }
-      
       throw new Error(`SQL conversion failed: ${error.message}`);
     }
   }
 
   /**
-   * Set RLS context safely (won't fail if functions don't exist)
-   */
-  private async setRLSContextSafe(client: any, context: UserContext): Promise<void> {
-    try {
-      // Try to set user context using RPC function
-      await client.rpc('set_user_context', {
-        p_user_id: context.userId,
-        p_is_admin: context.isAdmin || false
-      });
-      
-      console.log(`RLS context set for user ${context.userId}, admin: ${context.isAdmin}`);
-    } catch (error: any) {
-      // CRITICAL FIX: Don't fail - just log warning and continue
-      console.warn('RLS context setting failed (continuing without RLS):', error.message);
-      
-      // In development/test environments, this is expected
-      if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-        console.log('Using admin context bypass for test/development environment');
-      }
-    }
-  }
-
-  /**
-   * Create mock session record for tests when RLS fails
-   */
-  private createMockSessionRecord<T>(params: any[], context: UserContext): T[] {
-    // Create a basic session record structure that satisfies test expectations
-    const mockRecord = {
-      id: randomUUID(),
-      user_id: context.userId,
-      session_id: params[1] || randomUUID(), // Usually the second param is session_id
-      status: 'initialized',
-      git_branch: params[2] || 'main',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    console.log('Created mock session record for test:', mockRecord.id);
-    return [mockRecord] as T[];
-  }
-
-  /**
-   * Handle INSERT queries with RETURNING support and graceful RLS handling
+   * Handle INSERT queries with manual RLS filtering
    */
   private async handleInsertQuery<T>(
     sql: string, 
@@ -183,15 +116,17 @@ class SqlToSupabaseConverter {
       }
     });
     
-    // CRITICAL FIX: Remove cost tracking columns if they don't exist
-    if (tableName === 'agent_sessions') {
-      const optionalColumns = ['api_calls_data', 'cost_breakdown', 'total_api_cost'];
-      optionalColumns.forEach(col => {
-        if (insertData[col] !== undefined) {
-          console.log(`Removing ${col} as it may not exist in current schema`);
-          delete insertData[col];
-        }
-      });
+    // Manual RLS check for non-admin users
+    if (context && !context.isAdmin) {
+      if (tableName === 'agent_sessions' && insertData.user_id !== context.userId) {
+        throw new Error('Cannot create session for another user');
+      }
+      if (tableName === 'credit_accounts' && insertData.user_id !== context.userId) {
+        throw new Error('Cannot create credit account for another user');
+      }
+      if (tableName === 'credit_transactions' && insertData.user_id !== context.userId) {
+        throw new Error('Cannot create transaction for another user');
+      }
     }
     
     // Execute insert
@@ -212,7 +147,7 @@ class SqlToSupabaseConverter {
   }
 
   /**
-   * Handle UPDATE queries - FIXED parameter handling
+   * Handle UPDATE queries with manual RLS filtering
    */
   private async handleUpdateQuery<T>(sql: string, params: any[], client: any, context?: UserContext): Promise<T[]> {
     const updateMatch = sql.match(/UPDATE\s+(\w+)\s+SET\s+(.*?)(?:\s+WHERE\s+(.*))?$/i);
@@ -250,10 +185,8 @@ class SqlToSupabaseConverter {
     
     let query = client.from(tableName).update(updateData);
     
-    // Apply WHERE clause - FIXED to handle undefined whereClause
-    if (whereClause && whereClause.trim()) {
-      query = this.applyWhereClause(query, whereClause, params);
-    }
+    // Apply WHERE clause and manual RLS filtering
+    query = this.applyWhereClauseWithRLS(query, whereClause, params, tableName, context);
     
     // Check if RETURNING is requested
     if (sql.toUpperCase().includes('RETURNING')) {
@@ -270,7 +203,7 @@ class SqlToSupabaseConverter {
   }
 
   /**
-   * Handle SELECT queries with WHERE clauses and graceful RLS handling
+   * Handle SELECT queries with manual RLS filtering
    */
   private async handleSelectQuery<T>(sql: string, params: any[], client: any, context?: UserContext): Promise<T[]> {
     // Parse SELECT query components
@@ -292,15 +225,8 @@ class SqlToSupabaseConverter {
       query = query.select(selectClause.replace(/\s/g, ''));
     }
     
-    // Handle WHERE clause
-    if (whereClause && whereClause.trim()) {
-      query = this.applyWhereClause(query, whereClause, params);
-    }
-    
-    // CRITICAL FIX: Add manual RLS filtering for credit_accounts to prevent undefined results
-    if (tableName === 'credit_accounts' && context && !context.isAdmin) {
-      query = query.eq('user_id', context.userId);
-    }
+    // Handle WHERE clause with manual RLS filtering
+    query = this.applyWhereClauseWithRLS(query, whereClause, params, tableName, context);
     
     // Handle LIMIT
     const limitMatch = sql.match(/LIMIT\s+(\d+)/i);
@@ -335,9 +261,8 @@ class SqlToSupabaseConverter {
     return (data || []) as T[];
   }
 
-
   /**
-   * Handle DELETE queries
+   * Handle DELETE queries with manual RLS filtering
    */
   private async handleDeleteQuery<T>(sql: string, params: any[], client: any, context?: UserContext): Promise<T[]> {
     const deleteMatch = sql.match(/DELETE\s+FROM\s+(\w+)(?:\s+WHERE\s+(.*))?/i);
@@ -349,10 +274,8 @@ class SqlToSupabaseConverter {
     
     let query = client.from(tableName).delete();
     
-    // Apply WHERE clause
-    if (whereClause && whereClause.trim()) {
-      query = this.applyWhereClause(query, whereClause, params);
-    }
+    // Apply WHERE clause with manual RLS filtering
+    query = this.applyWhereClauseWithRLS(query, whereClause, params, tableName, context);
     
     const { error } = await query;
     
@@ -361,6 +284,32 @@ class SqlToSupabaseConverter {
     }
     
     return [] as T[];
+  }
+
+  /**
+   * Apply WHERE clause conditions with manual RLS filtering
+   */
+  private applyWhereClauseWithRLS(query: any, whereClause: string | undefined, params: any[], tableName: string, context?: UserContext): any {
+    // Apply original WHERE clause first
+    if (whereClause && whereClause.trim()) {
+      query = this.applyWhereClause(query, whereClause, params);
+    }
+    
+    // Add manual RLS filtering for non-admin users
+    if (context && !context.isAdmin) {
+      const rlsTables = ['agent_sessions', 'credit_accounts', 'credit_transactions', 'auth_tokens', 'websocket_connections'];
+      
+      if (rlsTables.includes(tableName)) {
+        query = query.eq('user_id', context.userId);
+      }
+      
+      // Special case for users table
+      if (tableName === 'users') {
+        query = query.eq('id', context.userId);
+      }
+    }
+    
+    return query;
   }
 
   /**
@@ -478,16 +427,16 @@ class SqlToSupabaseConverter {
 }
 
 /**
- * Enhanced DatabaseManager with comprehensive SQL conversion and graceful RLS handling
+ * Fixed DatabaseManager with simplified RLS handling and full compatibility
  */
-export class DatabaseManager {
+export class DatabaseManagerFixed {
   private supabaseManager: SupabaseManager;
-  private sqlConverter: SqlToSupabaseConverter;
+  private sqlConverter: SqlToSupabaseConverterFixed;
   private _isConnected: boolean = false;
 
-  constructor(config?: any) {
+  constructor() {
     this.supabaseManager = new SupabaseManager(false);
-    this.sqlConverter = new SqlToSupabaseConverter();
+    this.sqlConverter = new SqlToSupabaseConverterFixed();
   }
 
   /**
@@ -504,7 +453,7 @@ export class DatabaseManager {
     try {
       await this.supabaseManager.initialize();
       this._isConnected = true;
-      console.log('🔧 DatabaseManager Enhanced initialized with graceful RLS handling');
+      console.log('🔧 Using fixed DatabaseManager with simplified RLS');
     } catch (error) {
       this._isConnected = false;
       throw error;
@@ -512,7 +461,7 @@ export class DatabaseManager {
   }
 
   /**
-   * Execute SQL query with enhanced conversion and graceful RLS handling
+   * Execute SQL query with simplified RLS handling
    */
   async query<T = any>(
     sql: string,
@@ -528,7 +477,7 @@ export class DatabaseManager {
       const validParams = Array.isArray(params) ? params : [];
       return await this.sqlConverter.convertQuery<T>(sql, validParams, context);
     } catch (error: any) {
-      console.error('Enhanced DatabaseManager query failed:', error.message);
+      console.error('Fixed DatabaseManager query failed:', error.message);
       console.error('SQL:', sql.substring(0, 150) + '...');
       console.error('Params:', params);
       throw error;
@@ -567,56 +516,53 @@ export class DatabaseManager {
   }
 
   /**
-   * Close connections
-   */
-  async close(): Promise<void> {
-    await this.supabaseManager.close();
-    this._isConnected = false;
-  }
-
-  /**
-   * Get underlying Supabase manager
+   * Get Supabase manager instance (compatibility method)
    */
   getSupabaseManager(): SupabaseManager {
     return this.supabaseManager;
   }
 
   /**
-   * Subscribe to real-time changes
+   * Subscribe to realtime changes (compatibility method)
    */
   subscribeToRealtime(
     table: string,
     callback: (payload: any) => void,
-    options?: {
-      event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
-      filter?: string;
-      userId?: string;
-    }
-  ) {
+    filter?: { column: string; value: any }
+  ): any {
+    // Convert filter format to match SupabaseManager expected format
+    const options = filter ? {
+      filter: `${filter.column}=eq.${filter.value}`
+    } : undefined;
     return this.supabaseManager.subscribeToRealtime(table, callback, options);
   }
 
   /**
-   * Get connection statistics
+   * Get connection statistics (compatibility method)
    */
   async getConnectionStats(): Promise<{
     totalConnections: number;
     activeConnections: number;
     idleConnections: number;
-    maxConnections: number;
     waitingConnections: number;
   }> {
-    // Return mock stats for development
+    const healthCheck = await this.healthCheck();
     return {
-      totalConnections: 1,
-      activeConnections: this._isConnected ? 1 : 0,
-      idleConnections: 0,
-      maxConnections: 10,
-      waitingConnections: 0
+      totalConnections: healthCheck.poolStats?.totalCount || 0,
+      activeConnections: healthCheck.poolStats?.totalCount - (healthCheck.poolStats?.idleCount || 0) || 0,
+      idleConnections: healthCheck.poolStats?.idleCount || 0,
+      waitingConnections: healthCheck.poolStats?.waitingCount || 0
     };
+  }
+
+  /**
+   * Close connections
+   */
+  async close(): Promise<void> {
+    await this.supabaseManager.close();
+    this._isConnected = false;
   }
 }
 
-// Create enhanced database instance
-export const dbEnhanced = new DatabaseManager();
-export { DatabaseManager as DatabaseManagerEnhanced };
+// Create fixed database instance
+export const dbFixed = new DatabaseManagerFixed();

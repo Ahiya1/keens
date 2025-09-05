@@ -5,9 +5,9 @@
 
 import { DatabaseService } from "../../src/database/index.js";
 
-// Mock all database dependencies
-jest.mock("../../src/database/DatabaseManager.js", () => ({
-  DatabaseManager: jest.fn(),
+// Mock all database dependencies - Fixed versions that are actually used
+jest.mock("../../src/database/DatabaseManagerFixed.js", () => ({
+  DatabaseManagerFixed: jest.fn(),
 }));
 jest.mock("../../src/database/dao/UserDAO.js", () => ({
   UserDAO: jest.fn(),
@@ -15,8 +15,8 @@ jest.mock("../../src/database/dao/UserDAO.js", () => ({
 jest.mock("../../src/database/dao/CreditDAO.js", () => ({
   CreditDAO: jest.fn(),
 }));
-jest.mock("../../src/database/dao/SessionDAO.js", () => ({
-  SessionDAO: jest.fn(),
+jest.mock("../../src/database/dao/SessionDAOFixed.js", () => ({
+  SessionDAOFixed: jest.fn(),
 }));
 jest.mock("../../src/database/dao/AnalyticsDAO.js", () => ({
   AnalyticsDAO: jest.fn(),
@@ -60,22 +60,22 @@ describe("DatabaseService", () => {
       transaction: jest.fn(),
     };
 
-    // Mock the DatabaseManager constructor
+    // Mock the DatabaseManagerFixed constructor (which is aliased as DatabaseManager)
     const {
-      DatabaseManager,
-    } = require("../../src/database/DatabaseManager.js");
-    DatabaseManager.mockImplementation(() => mockDbManager);
+      DatabaseManagerFixed,
+    } = require("../../src/database/DatabaseManagerFixed.js");
+    DatabaseManagerFixed.mockImplementation(() => mockDbManager);
 
     // Mock all DAO constructors
     const { UserDAO } = require("../../src/database/dao/UserDAO.js");
     const { CreditDAO } = require("../../src/database/dao/CreditDAO.js");
-    const { SessionDAO } = require("../../src/database/dao/SessionDAO.js");
+    const { SessionDAOFixed } = require("../../src/database/dao/SessionDAOFixed.js");
     const { AnalyticsDAO } = require("../../src/database/dao/AnalyticsDAO.js");
     const { WebSocketDAO } = require("../../src/database/dao/WebSocketDAO.js");
 
     UserDAO.mockImplementation(() => ({}));
     CreditDAO.mockImplementation(() => ({}));
-    SessionDAO.mockImplementation(() => ({}));
+    SessionDAOFixed.mockImplementation(() => ({}));
     AnalyticsDAO.mockImplementation(() => ({}));
     WebSocketDAO.mockImplementation(() => ({}));
 
@@ -93,9 +93,9 @@ describe("DatabaseService", () => {
 
     it("should create database manager instance", () => {
       const {
-        DatabaseManager,
-      } = require("../../src/database/DatabaseManager.js");
-      expect(DatabaseManager).toHaveBeenCalled();
+        DatabaseManagerFixed,
+      } = require("../../src/database/DatabaseManagerFixed.js");
+      expect(DatabaseManagerFixed).toHaveBeenCalled();
     });
   });
 
@@ -104,10 +104,10 @@ describe("DatabaseService", () => {
       await databaseService.initialize();
 
       expect(console.log).toHaveBeenCalledWith(
-        "🚀 Initializing keen database..."
+        "🚀 Initializing fixed keen database..."
       );
       expect(console.log).toHaveBeenCalledWith(
-        "✅ keen database initialized successfully!"
+        "✅ Fixed keen database initialized successfully!"
       );
       expect(mockDbManager.initialize).toHaveBeenCalled();
     });
@@ -118,7 +118,7 @@ describe("DatabaseService", () => {
 
       await expect(databaseService.initialize()).rejects.toThrow("Database initialization failed");
       expect(console.error).toHaveBeenCalledWith(
-        "❌ Database initialization failed:",
+        "❌ Fixed database initialization failed:",
         initError
       );
     });
@@ -256,9 +256,9 @@ describe("DatabaseService", () => {
   describe("error handling paths", () => {
     it("should handle database manager initialization failure", () => {
       const {
-        DatabaseManager,
-      } = require("../../src/database/DatabaseManager.js");
-      DatabaseManager.mockImplementation(() => {
+        DatabaseManagerFixed,
+      } = require("../../src/database/DatabaseManagerFixed.js");
+      DatabaseManagerFixed.mockImplementation(() => {
         throw new Error("DB Manager creation failed");
       });
 

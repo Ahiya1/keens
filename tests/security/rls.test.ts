@@ -68,6 +68,10 @@ describe('Row Level Security Tests', () => {
         }
       };
     }
+
+    // Create credit accounts for test users
+    await dbService.credits.createCreditAccount(user1Id, user1Context);
+    await dbService.credits.createCreditAccount(user2Id, user2Context);
   });
 
   afterAll(async () => {
@@ -75,6 +79,16 @@ describe('Row Level Security Tests', () => {
     for (const sessionId of testSessions) {
       try {
         await dbService.executeRawQuery('DELETE FROM agent_sessions WHERE id = $1', [sessionId]);
+      } catch (error) {
+        // Ignore errors during cleanup
+      }
+    }
+    
+    // Cleanup credit accounts
+    for (const userId of testUsers) {
+      try {
+        await dbService.executeRawQuery('DELETE FROM credit_transactions WHERE user_id = $1', [userId]);
+        await dbService.executeRawQuery('DELETE FROM credit_accounts WHERE user_id = $1', [userId]);
       } catch (error) {
         // Ignore errors during cleanup
       }
